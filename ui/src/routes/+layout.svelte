@@ -8,13 +8,13 @@
 
   import { afterNavigate, goto } from '$app/navigation'
   import { authenticated } from '$features/auth/store'
-  import { isSidebarExpanded, LoadingCluster, Navbar, Sidebar } from '$features/navigation'
+  import { LoadingCluster, Navbar, Sidebar } from '$features/navigation'
   import { ToastPanel } from '$features/toast'
   import { initFlowbite } from 'flowbite'
 
   import '../app.postcss'
 
-  import { ClassBanner } from '$components'
+  import { ClassBanner, Footer } from '$components'
   import { loadingCluster } from '$features/navigation/navbar/clustermenu/store'
   import { ClusterCheck } from '$lib/utils/cluster-check/cluster-check'
 
@@ -24,9 +24,9 @@
 
   let clusterCheck: ClusterCheck
 
-  // These initFlowbite calls help load the js necessary to target components which use flowbite js
-  // i.e. data-dropdown-toggle
   onMount(() => {
+    // initFlowbite loads the js necessary to target components which use flowbite js
+    // i.e. data-dropdown-toggle
     initFlowbite()
   })
 
@@ -43,7 +43,7 @@
   }
 </script>
 
-<div class="flex flex-col h-screen">
+<div class="flex h-screen flex-col">
   <ClassBanner enabled={$_bannerCfg.enabled} text={$_bannerCfg.text} element="header" />
   <div class="flex-grow overflow-auto">
     <Navbar userData={data.userData} />
@@ -52,20 +52,17 @@
       <Sidebar />
     {/if}
 
-    <main
-      class="flex h-full flex-col pt-16 transition-all duration-300 ease-in-out {$isSidebarExpanded
-        ? 'md:ml-64'
-        : 'md:ml-16'}"
-    >
+    <main class="flex h-[95%] pt-16 transition-all duration-300 ease-in-out">
       <ToastPanel />
       {#if $loadingCluster.loading}
         <LoadingCluster cluster={$loadingCluster.cluster} error={$loadingCluster.err} />
       {:else}
-        <div class="h-full flex flex-col p-4 pt-6">
+        <div class="mx-auto w-full max-w-3xl p-4 pt-16">
           <slot />
         </div>
       {/if}
     </main>
+    <Footer/>
   </div>
   <ClassBanner enabled={$_bannerCfg.footer} text={$_bannerCfg.text} element="footer" />
 </div>

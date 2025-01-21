@@ -15,7 +15,6 @@ const mockComponent = () => ({
 // Mock the entire component
 vi.mock('$components', () => {
   return {
-    DataTable: vi.fn().mockImplementation(mockComponent),
     Link: vi.fn().mockImplementation(mockComponent),
   }
 })

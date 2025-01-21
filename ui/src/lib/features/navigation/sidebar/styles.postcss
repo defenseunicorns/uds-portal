@@ -4,47 +4,20 @@
 */
 
 aside[data-testid='main-sidebar'] {
-  &.w-16:not(:hover) {
-    #sidebar-footer {
-      @apply flex-col;
-    }
 
-    .expanded-only {
-      @apply hidden;
-    }
-
-    #sidebar-filter {
-      @apply collapse;
-    }
-  }
-
-  .expanded-only {
-    @apply transition-all duration-300;
-  }
-
-  .group {
-    @apply focus:outline-none focus:ring-1 focus:ring-white;
+  a {
+    @apply hover:bg-gray-100 dark:hover:bg-gray-800;
   }
 
   svg.icon {
-    @apply h-6 w-6 flex-shrink-0 text-gray-500 transition duration-300 group-hover:text-gray-900 dark:text-gray-500 dark:group-hover:text-gray-100;
+    @apply h-6 w-6 flex-shrink-0 text-gray-500 transition duration-300 hover:text-gray-900 dark:text-gray-500 dark:hover:text-gray-100;
   }
 
   .active svg.icon {
-    @apply text-gray-900 dark:text-gray-100;
+    @apply text-blue-400 dark:text-blue-400 hover:text-blue-400 dark:hover:text-blue-400;
   }
 
   a.active {
-    @apply bg-gray-100 text-gray-900 dark:bg-gray-700 dark:text-gray-100;
-  }
-
-  li.top-border {
-    @apply border-t border-gray-200 mt-5 pt-5 dark:border-gray-700;
-  }
-
-  li.icon-rotate-90 {
-    svg:first-child {
-      @apply rotate-90;
-    }
+    @apply text-blue-400 dark:text-blue-400 hover:text-blue-300 dark:hover:text-blue-300;
   }
 }

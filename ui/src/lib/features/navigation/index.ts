@@ -6,5 +6,3 @@ export { default as LoadingCluster } from './navbar/clustermenu/loading.svelte'
 export { default as Navbar } from './navbar/component.svelte'
 export { default as UserMenu } from './navbar/usermenu/component.svelte'
 export { default as Sidebar } from './sidebar/component.svelte'
-
-export { isSidebarExpanded } from './store'

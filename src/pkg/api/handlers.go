@@ -22,6 +22,7 @@ import (
 	"k8s.io/client-go/dynamic"
 )
 
+// todo: helper fn, move to utils or something
 func checkCRDExists(client *dynamic.DynamicClient, gvr schema.GroupVersionResource) (bool, error) {
 	_, err := client.Resource(gvr).Namespace("").List(context.TODO(), metav1.ListOptions{})
 	if err != nil {
@@ -32,6 +33,10 @@ func checkCRDExists(client *dynamic.DynamicClient, gvr schema.GroupVersionResour
 	}
 
 	return true, nil // CRD exists
+}
+
+func checkClusterConnection(k8sSession *session.K8sSession) http.HandlerFunc {
+	return k8sSession.ServeConnStatus()
 }
 
 func getUDSPackages(k8sSession *session.K8sSession) http.HandlerFunc {

@@ -21,8 +21,6 @@ export class ClusterCheck {
         this.#handleDisconnectedEvt()
       } else if (msg.data === 'success' && this.#disconnected) {
         this.#handleReconnectionEvt()
-      } else if (msg.data === 'switched' && this.#disconnected) {
-        this.#handleSwitched()
       }
     }
   }
@@ -54,11 +52,6 @@ export class ClusterCheck {
       detail: { message: 'Cluster connection restored' },
     })
     window.dispatchEvent(event)
-  }
-
-  #handleSwitched() {
-    toast.update(() => [])
-    this.#disconnected = false
   }
 
   close() {

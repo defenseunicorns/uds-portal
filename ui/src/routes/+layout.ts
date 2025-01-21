@@ -4,8 +4,6 @@
 import { writable, type Writable } from 'svelte/store'
 
 import { authenticated } from '$features/auth/store'
-import { createStore } from '$features/k8s/namespaces/store'
-import { clusters } from '$features/navigation/navbar/clustermenu/store'
 import type { UserData } from '$features/navigation/types'
 import type { ClassBannerCfg } from '$lib/types'
 
@@ -60,8 +58,6 @@ async function auth(token: string): Promise<AuthResponse> {
 
 // load namespace and auth data before rendering the app
 export const load = async () => {
-  const namespaces = createStore()
-
   const url = new URL(window.location.href)
   const localAuthToken = url.searchParams.get('token') || ''
   let userData: UserData = {
@@ -75,14 +71,10 @@ export const load = async () => {
     const authResult = await auth(localAuthToken)
 
     if (authResult.authenticated) {
-      namespaces.start()
       authenticated.set(true)
       userData = authResult.userData
 
       try {
-        const res = await fetch('/api/v1/clusters')
-        clusters.set(await res.json())
-
         const classCfg = await fetch('/class-banners')
         _bannerCfg.set(await classCfg.json())
       } catch (e) {
@@ -97,7 +89,6 @@ export const load = async () => {
   }
 
   return {
-    namespaces,
     userData,
   }
 }

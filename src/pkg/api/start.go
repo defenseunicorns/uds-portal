@@ -41,6 +41,7 @@ func Setup(assets *embed.FS) (*chi.Mux, bool, error) {
 
 	// add routes
 	r.Get("/healthz", healthz)
+	r.Get("/cluster-check", checkClusterConnection(k8sSession))
 	r.Get("/class-banners", getClassBannerCfg())
 	r.Route("/api/v1", func(r chi.Router) {
 		r.Get("/auth", authHandler)
