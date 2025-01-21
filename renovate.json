@@ -1,23 +1,55 @@
 {
+  "enabled": true,
+  "forkProcessing": "enabled",
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "github>defenseunicorns/uds-common//config/renovate.json5",
     ":semanticCommits",
     ":semanticCommitTypeAll(chore)"
   ],
-  "ignorePresets": [":ignoreModulesAndTests"],
-  "branchConcurrentLimit": 0,
-  "prConcurrentLimit": 0,
-  "prHourlyLimit": 0,
+  "postUpdateOptions": ["gomodTidy"],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "fileMatch": ["setup\\.sh$"],
+      "matchStrings": ["UDS_CORE_VERSION=\"(?<currentValue>.*?)\""],
+      "datasourceTemplate": "github-tags",
+      "packageNameTemplate": "defenseunicorns/uds-core"
+    },
+    {
+      "customType": "regex",
+      "fileMatch": ["deploy-demo-env\\.yaml$", "deploy-nightly-env\\.yaml$"],
+      "matchStrings": [
+        "oci:\\/\\/ghcr\\.io\\/defenseunicorns\\/packages\\/private\\/uds\\/core:(?<currentValue>[a-zA-Z0-9._-]+)"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "ghcr.io/defenseunicorns/packages/private/uds/core",
+      "versioningTemplate": "semver"
+    }
+  ],
   "packageRules": [
     {
-      "matchFileNames": [
-        ".github/**",
-        "tasks.yaml",
-        "tasks/*.yaml"
+      "matchDepTypes": ["devDependencies"],
+      "groupName": "devDependencies"
+    },
+    {
+      "matchDatasources": ["github-tags"],
+      "groupName": "github actions"
+    },
+    {
+      "matchPackageNames": [
+        "stefanprodan/podinfo",
+        "github.com/stefanprodan/podinfo",
+        "podinfo"
       ],
-      "groupName": "support-deps",
-      "commitMessageTopic": "support dependencies"
+      "groupName": "podinfo"
+    },
+    {
+      "packagePatterns": [
+        "^uds-core$",
+        "^ghcr\\.io/defenseunicorns/packages/private/uds/core$"
+      ],
+      "groupName": "UDS Core Updates"
     }
   ]
 }

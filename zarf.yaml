@@ -1,0 +1,42 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: ZarfPackageConfig
+metadata:
+  name: uds-runtime
+  description: UDS Runtime is the frontend for all things UDS, providing views and insights into your UDS cluster.
+  # x-release-please-start-version
+  version: 0.14.0
+  # x-release-please-end
+
+variables:
+  - name: DOMAIN
+    default: "uds.dev"
+
+  - name: ADMIN_DOMAIN
+
+components:
+  - name: uds-runtime
+    required: true
+    only:
+      flavor: unicorn
+    import:
+      path: hack/flavors/common
+    # x-release-please-start-version
+    images:
+      - ghcr.io/defenseunicorns/uds-runtime:0.14.0
+    # x-release-please-end
+  - name: uds-runtime
+    required: true
+    only:
+      flavor: registry1
+      cluster:
+        architecture: amd64
+    import:
+      path: hack/flavors/common
+    images:
+      - registry1.dso.mil/ironbank/opensource/defenseunicorns/uds/runtime:v0.14.0
+    charts:
+      - name: uds-runtime
+        valuesFiles:
+          - hack/flavors/values/registry1-values.yaml

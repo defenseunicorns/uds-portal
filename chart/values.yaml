@@ -1,0 +1,44 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+replicaCount: 1
+image:
+  repository: ghcr.io/defenseunicorns/uds-runtime
+  # x-release-please-start-version
+  tag: 0.14.0
+  # x-release-please-end
+  pullPolicy: IfNotPresent
+sso:
+  enabled: true
+package:
+  gateway: admin
+  host: runtime
+  domain: "###ZARF_VAR_DOMAIN###"
+  adminDomain: "###ZARF_VAR_ADMIN_DOMAIN###"
+
+# Default requests and limits when running only uds-core (increase for production)
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "250m"
+  limits:
+    memory: "1Gi"
+    cpu: "750m"
+
+# add user and group for static chainguard image
+podSecurityContext:
+  runAsUser: 65532
+  runAsGroup: 65532
+containerSecurityContext:
+  runAsUser: 65532
+  runAsGroup: 65532
+
+security_hub_db:
+  # renovate: datasource=docker depName=ghcr.io/defenseunicorns/uds-security-hub versioning=loose
+  image: ghcr.io/defenseunicorns/uds-security-hub:v2.2.0-20250107.0413
+  pullPolicy: Always
+
+classificationBanner:
+  enabled: false
+  addFooter: false
+  text: ""

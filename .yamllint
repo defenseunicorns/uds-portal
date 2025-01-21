@@ -2,11 +2,16 @@ yaml-files:
   - '**/*.y*ml'
   - '.yamllint'
 
+# Ignore files from upstream
 ignore:
+  - 'k3d/local/manifests/metallb/metallb-native.yaml'
   - '**/.terraform/**'
   - '**/chart/templates**'
   - '**/node_modules/**'
   - 'dist/**'
+  - 'ui/node_modules/**'
+  - 'pkg/api/docs/*'
+  - '**/swagger.yaml'
 
 rules:
   anchors: enable

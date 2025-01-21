@@ -1,0 +1,47 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+apiVersion: uds.dev/v1alpha1
+kind: Package
+metadata:
+  name: uds-runtime
+  namespace: {{ .Release.Namespace }}
+spec:
+  network:
+    expose:
+      - service: uds-runtime
+        selector:
+          app: uds-runtime
+        host: {{ .Values.package.host }}
+        gateway: {{ .Values.package.gateway }}
+        port: 8080
+        targetPort: 8080
+    allow:
+      - direction: Egress
+        selector:
+          app: uds-runtime
+        remoteGenerated: KubeAPI
+  {{- if .Values.sso.enabled }}
+  sso:
+    - name: uds-runtime
+      clientId: runtime
+      attributes:
+        access.token.lifespan: "120"
+        client.session.idle.timeout: "3600"
+      redirectUris:
+        {{- if eq .Values.package.gateway "admin" }}
+          {{- if .Values.package.adminDomain }}
+        - "https://{{ .Values.package.host }}.{{ .Values.package.adminDomain }}/auth"
+          {{- else }}
+        - "https://{{ .Values.package.host }}.admin.{{ .Values.package.domain }}/auth"
+          {{- end }}
+        {{- else }}
+        - "https://{{ .Values.package.host }}.{{ .Values.package.domain }}/auth"
+        {{- end }}
+      enableAuthserviceSelector:
+        app: uds-runtime
+      groups:
+        anyOf:
+          - /UDS Core/Admin
+          - /UDS Core/Auditor
+  {{- end }}

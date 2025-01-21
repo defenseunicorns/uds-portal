@@ -1,0 +1,15 @@
+{
+  "name": "load-test",
+  "description": "Load tests for UDS Runtime",
+  "version": "1.0.0",
+  "license": "AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial",
+  "main": "load.js",
+  "type": "module",
+  "dependencies": {
+    "kubernetes-fluent-client": "^3.0.0"
+  },
+  "scripts": {
+    "load": "node load.js",
+    "load:api": "node load-api.js"
+  }
+}

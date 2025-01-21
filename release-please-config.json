@@ -2,16 +2,22 @@
   "packages": {
     ".": {
       "release-type": "simple",
+      "bump-minor-pre-major": true,
       "draft": false,
       "changelog-path": "CHANGELOG.md",
       "changelog-sections": [
         { "type": "feat", "section": "Features", "hidden": false },
         { "type": "fix", "section": "Bug Fixes", "hidden": false },
-        { "type": "chore", "section": "Miscellaneous", "hidden": false },
-        { "type": "docs", "section": "Documentation", "hidden": false }
+        { "type": "chore", "section": "Miscellaneous", "hidden": false }
       ],
-      "bump-minor-pre-major": true,
-      "extra-files": []
+      "extra-files": [
+        "zarf.yaml",
+        "tasks.yaml",
+        "tasks/build.yaml",
+        "tasks/test.yaml",
+        "chart/values.yaml",
+        ".github/test-infra/terraform/variables.tf"
+      ]
     }
   }
 }

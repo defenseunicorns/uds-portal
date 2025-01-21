@@ -1,6 +1,5 @@
-* @defenseunicorns/uds-foundation
+* @defenseunicorns/uds-runtime
 
 # Additional privileged files
-/CODEOWNERS @jeff-mccoy @daveworth
-# NOTE: No E to catch LICENSE and LICENSING
+/CODEOWNERS @jeff-mccoy @UncleGedd @daveworth
 /LICENS* @jeff-mccoy @austenbryan

@@ -1,0 +1,184 @@
+/*
+  Copyright 2024 Defense Unicorns
+  SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+*/
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* width */
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  /* Track */
+  ::-webkit-scrollbar-track {
+    background: rgb(55, 65, 81);
+  }
+
+  /* Handle */
+  ::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+  }
+
+  /* Handle on hover */
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.75);
+  }
+
+  .tooltip {
+    @apply absolute top-0 transform -translate-y-0 p-2 bg-gray-900 text-gray-100 text-xs rounded shadow-lg opacity-0 group-hover:opacity-90 transition-opacity duration-300 z-50 pointer-events-none whitespace-nowrap;
+  }
+
+  .tooltip::before {
+    content: '';
+    @apply absolute top-[16px] transform -translate-y-0 border-solid border-8;
+  }
+
+  .tooltip-left {
+    @apply right-full mr-2;
+  }
+
+  .tooltip-left::before {
+    @apply left-full border-y-transparent border-r-transparent border-l-gray-900;
+  }
+
+  .tooltip-right {
+    @apply left-full ml-2;
+  }
+
+  .tooltip-right::before {
+    @apply right-full border-y-transparent border-l-transparent border-r-gray-900;
+  }
+
+  select {
+    @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-400 dark:text-gray-100;
+  }
+
+  .table-section {
+    @apply flex flex-grow h-[65%] flex-shrink-0 flex-col bg-gray-50 dark:bg-gray-900 rounded-lg;
+
+    .table-container {
+      @apply flex h-full w-full flex-col;
+
+      .table-content {
+        @apply relative flex h-full w-full flex-col overflow-hidden sm:rounded-lg;
+
+        .table-header {
+          @apply flex items-center space-y-0 mx-4 py-3;
+        }
+
+        .table-filter-section {
+          @apply sticky top-0 z-20 flex flex-col space-y-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:space-x-4 lg:space-y-0;
+
+          button {
+            @apply flex flex-shrink-0 items-center justify-center border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:z-10 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-100 dark:focus:ring-gray-700;
+          }
+        }
+
+        .table-scroll-container {
+          @apply flex-grow overflow-auto;
+
+          /* This section is for the refactor from table to non table layout */
+          svg.sort {
+            @apply mb-1 ml-1 inline-block h-4 w-4 transform transition duration-300;
+
+            &.opacity-100 {
+              opacity: 1 !important;
+            }
+          }
+
+          .emphasize {
+            @apply text-gray-900 dark:text-gray-100;
+          }
+
+          .datatable {
+            @apply w-full text-left text-sm text-gray-500 dark:text-gray-100;
+
+            .thead {
+              @apply sticky top-0 z-10 bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-800 dark:text-gray-100;
+
+              .th {
+                @apply flex whitespace-nowrap px-4 py-3.5;
+
+                &:hover {
+                  svg.sort {
+                    @apply opacity-50;
+                  }
+                }
+              }
+            }
+
+            .tr {
+              @apply border-b hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800;
+
+              &.active {
+                @apply border-solid border-4 bg-gray-100 dark:bg-gray-800/50;
+              }
+
+              .td {
+                @apply flex px-4 py-2.5 text-left;
+              }
+            }
+          }
+          /* End of non table layout refactor */
+
+          table {
+            @apply w-full text-left text-sm text-gray-500 dark:text-gray-100;
+
+            thead {
+              @apply sticky top-0 z-10 bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-800 dark:text-gray-100;
+
+              th {
+                @apply whitespace-nowrap px-4 py-3;
+
+                button {
+                  @apply uppercase;
+                }
+
+                svg.sort {
+                  @apply mb-1 ml-1 inline-block h-4 w-4 transform transition duration-300;
+
+                  &.opacity-100 {
+                    opacity: 1 !important;
+                  }
+                }
+
+                &:hover {
+                  svg.sort {
+                    @apply opacity-50;
+                  }
+                }
+              }
+            }
+
+            tbody {
+              tr {
+                @apply border-b hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800;
+
+                &.active {
+                  @apply border-solid border-4 bg-gray-100 dark:bg-gray-700/50;
+                }
+
+                td {
+                  @apply px-4 py-2;
+                }
+                td.emphasize {
+                  @apply text-gray-900 dark:text-gray-100;
+                }
+
+                td.truncate {
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                  max-width: 0;
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

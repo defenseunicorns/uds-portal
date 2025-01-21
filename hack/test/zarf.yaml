@@ -1,0 +1,42 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: ZarfPackageConfig
+metadata:
+  name: uds-runtime
+  version: test
+
+variables:
+  - name: DOMAIN
+    default: "uds.dev"
+
+  - name: ADMIN_DOMAIN
+
+components:
+  - name: uds-runtime
+    required: true
+    description: smoke test of nightly release of uds-runtime
+    images:
+      - uds-runtime:test # local copy of uds-runtime
+      # renovate: datasource=docker depName=ghcr.io/defenseunicorns/uds-security-hub versioning=loose
+      - ghcr.io/defenseunicorns/uds-security-hub:v2.2.0-20250107.0413
+    charts:
+      - name: uds-runtime
+        localPath: ../../chart
+        namespace: uds-runtime
+        version: 0.1.0
+        valuesFiles:
+          # Default values are added here so that Zarf templates them before evaluating Helm conditionals
+          - ../../chart/values.yaml
+          - values.yaml
+    actions:
+      onDeploy:
+        after:
+          - description: Validate Runtime Package
+            maxTotalSeconds: 300
+            wait:
+              cluster:
+                kind: packages.uds.dev
+                name: uds-runtime
+                namespace: uds-runtime
+                condition: "'{.status.phase}'=Ready"

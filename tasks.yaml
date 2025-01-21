@@ -1,16 +1,38 @@
-# Copyright 2026 Defense Unicorns
+# Copyright 2024 Defense Unicorns
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - lint: ./tasks/lint.yaml
+  - test: tasks/test.yaml
+  - lint: tasks/lint.yaml
+  - setup: tasks/setup.yaml
+  - build: tasks/build.yaml
+  - swagger: tasks/swagger.yaml
+
+variables:
+  - name: REF
+    description: "reference for the runtime image and zarf package"
+    # x-release-please-start-version
+    default: 0.14.0
+    # x-release-please-end
+  - name: DIR
+    description: "directory of the zarf.yaml"
+    default: .
 
 tasks:
-  - name: lint-check
-    description: "Run linting checks"
+  - name: dev-server
+    description: "run the api server in dev mode (requires air https://github.com/air-verse/air?tab=readme-ov-file#installation)"
     actions:
-      - task: lint:check
+      - cmd: go install github.com/air-verse/air@latest
+      - cmd: air -c .air.toml
 
-  - name: lint-fix
-    description: "Fix linting issues"
+  - name: dev-ui
+    description: "run the ui in dev mode"
     actions:
-      - task: lint:fix
+      - cmd: npm ci && npm run dev
+        dir: ui
+
+  - name: compile
+    description: "compile the api server and ui outputting to build/"
+    actions:
+      - task: build:ui
+      - task: build:api

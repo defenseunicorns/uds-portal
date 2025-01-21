@@ -1,0 +1,40 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: ZarfPackageConfig
+metadata:
+  name: podinfo-test
+  description: |
+    used to load the cluster for e2e testing; using a local zarf.yaml for dev deploy
+  version: 0.0.1
+
+components:
+  - name: podinfo-configs
+    required: true
+    manifests:
+      - name: uds-crs
+        files:
+          - uds-package.yaml
+          - exemptions.yaml
+  - name: podinfo
+    required: true
+    charts:
+      - name: podinfo
+        version: 6.7.1
+        namespace: podinfo
+        url: https://github.com/stefanprodan/podinfo.git
+        gitPath: charts/podinfo
+        valuesFiles:
+          - values.yaml
+    images:
+      - ghcr.io/stefanprodan/podinfo:6.7.1
+
+    actions:
+      onDeploy:
+        after:
+          - wait:
+              cluster:
+                kind: deployment
+                name: podinfo
+                namespace: podinfo
+                condition: available
