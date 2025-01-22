@@ -1,9 +1,11 @@
-<!-- Copyright 2024 Defense Unicorns -->
+<!-- Copyright 2025 Defense Unicorns -->
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial -->
 
 <script lang="ts">
   import { routes } from '../routes'
+
   import './styles.postcss'
+
   import { _bannerCfg } from '../../../../routes/+layout'
 
   $: isActive = true
@@ -18,9 +20,7 @@
   class:with-header={$_bannerCfg.enabled && !$_bannerCfg.footer}
   class:with-banners={$_bannerCfg.enabled && $_bannerCfg.footer}
 >
-  <div
-    class="h-full overflow-y-auto  py-5 flex flex-col pr-3 pl-1 mt-20"
-  >
+  <div class="h-full overflow-y-auto py-5 flex flex-col pr-3 pl-1 mt-20">
     <ul class="space-y-2">
       {#each routes as route}
         <li class={route.class}>
@@ -31,7 +31,7 @@
           >
             <svelte:component this={route.icon} class="icon ml-4 {isActive && 'active'}" />
             <!-- Label with dynamic styling -->
-            <span class="ml-3 font-medium"> {route.name} </span>
+            <span class="ml-3 font-medium">{route.name}</span>
 
             <!-- Active indicator bar -->
             {#if isActive}

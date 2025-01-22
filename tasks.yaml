@@ -1,4 +1,4 @@
-# Copyright 2024 Defense Unicorns
+# Copyright 2025 Defense Unicorns
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
@@ -10,7 +10,7 @@ includes:
 
 variables:
   - name: REF
-    description: "reference for the runtime image and zarf package"
+    description: "reference for the app portal image and zarf package"
     # x-release-please-start-version
     default: 0.14.0
     # x-release-please-end

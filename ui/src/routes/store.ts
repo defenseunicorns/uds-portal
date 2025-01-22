@@ -1,7 +1,6 @@
-// Copyright 2024 Defense Unicorns
+// Copyright 2025 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
+import { writable } from 'svelte/store'
 
-import { writable, type Writable } from 'svelte/store'
-
-export const searchStore = writable('');
+export const searchStore = writable('')

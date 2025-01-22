@@ -1,4 +1,4 @@
-<!-- Copyright 2024 Defense Unicorns -->
+<!-- Copyright 2025 Defense Unicorns -->
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial -->
 
 <script lang="ts">
@@ -62,7 +62,7 @@
         </div>
       {/if}
     </main>
-    <Footer/>
+    <Footer />
   </div>
   <ClassBanner enabled={$_bannerCfg.footer} text={$_bannerCfg.text} element="footer" />
 </div>
