@@ -1,27 +1,40 @@
-# Copyright 2026 Defense Unicorns
+# Copyright 2024 Defense Unicorns
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
-# yaml-language-server: $schema=https://raw.githubusercontent.com/defenseunicorns/maru-runner/refs/heads/main/tasks.schema.json
 includes:
-  - common: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.4/tasks/lint.yaml
+  - common: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.1.0/tasks/lint.yaml
+  - setup: ./setup.yaml
 
 tasks:
-  - name: check
-    description: "Run all lint checks via hk against full tree"
+  - name: all
+    description: "Run all linters"
     actions:
-      - cmd: hk run check --all
+      - task: yaml
+      - task: golangci
+      - task: ui
 
-  - name: fix
-    description: "Apply lint fixes via hk against full tree"
+  - name: golangci
+    description: "Run golang linters"
     actions:
-      - cmd: hk run fix --all
+      - cmd: which golangci-lint || echo "install golangci-lint -- https://golangci-lint.run/welcome/install/#local-installation" exit 1
+      - cmd: golangci-lint run --timeout 5m0s
 
-  - name: license
-    description: "Lint SPDX license identifier in source files"
+  - name: yaml
+    description: "Run yaml linters"
     actions:
-      - task: common:license
+      - task: common:deps
+      - task: common:yaml
 
-  - name: fix-license
-    description: "Add SPDX license identifier to source files"
+  - name: ui
+    description: "Run ui lint and type check"
     actions:
-      - task: common:fix-license
+      - cmd: npm run lint
+        dir: ui
+      - cmd: npm run check
+        dir: ui
+
+  - name: format-ui
+    description: "Format ui code"
+    actions:
+      - cmd: npm ci && npm run format
+        dir: ui

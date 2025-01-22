@@ -1,0 +1,56 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+includes:
+  - common: https://raw.githubusercontent.com/defenseunicorns/uds-common/v0.13.1/tasks/setup.yaml
+
+tasks:
+  - name: full-core
+    description: "Create a k3d cluster and deploy full core dev"
+    actions:
+      - task: commmon:k3d-full-cluster
+
+  - name: slim-cluster
+    description: "Create a k3d cluster and deploy core slim dev with authsvc"
+    actions:
+      - task: common:k3d-test-cluster
+      - task: clone-core
+      - task: authsvc
+
+  - name: simple-cluster
+    description: "Create a uds-k3d cluster, no core"
+    actions:
+      - cmd: uds zarf package deploy oci://ghcr.io/defenseunicorns/packages/uds-k3d:0.7.0 --confirm
+
+  - name: k3d
+    description: "start a plain k3d cluster"
+    inputs:
+      CLUSTER_NAME:
+        description: "Name of the k3d cluster"
+        default: "app-portal"
+    actions:
+      - cmd: |
+          k3d cluster delete $INPUT_CLUSTER_NAME && k3d cluster create $INPUT_CLUSTER_NAME --k3s-arg "--disable=traefik@server:*" --k3s-arg "--disable=servicelb@server:*"
+
+  - name: golangci
+    description: "Install golangci-lint to GOPATH using install.sh"
+    actions:
+      - cmd: curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.59.1
+
+  - name: clone-core
+    description: "Clone uds-core into tmp dir for custom slim dev setup"
+    actions:
+      - cmd: rm -fr tmp && git clone --depth=1 https://github.com/defenseunicorns/uds-core.git tmp/uds-core
+        description: clone UDS Core
+
+  - name: metrics-server
+    description: "Create and deploy metrics server from cloned core"
+    actions:
+      - cmd: uds zarf package create tmp/uds-core/src/metrics-server --confirm --flavor upstream -o build/
+      - cmd: uds zarf package deploy build/zarf-package-uds-core-metrics-server*.tar.zst --components=metrics-server --confirm
+
+  - name: authsvc
+    description: "Create and deploy authsvc from cloned core"
+    actions:
+      - cmd: uds zarf package create tmp/uds-core/src/authservice --confirm --flavor upstream -o build/
+      - cmd: uds zarf package deploy build/zarf-package-uds-core-authservice*.tar.zst --confirm

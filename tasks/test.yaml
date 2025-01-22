@@ -1,0 +1,217 @@
+# Copyright 2024 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+includes:
+  - setup: ./setup.yaml
+  - build: ./build.yaml
+  - core-utils: https://raw.githubusercontent.com/defenseunicorns/uds-core/refs/tags/v0.29.1/tasks/utils.yaml
+  - common-setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/refs/tags/v0.13.1/tasks/setup.yaml
+
+variables:
+  - name: REF
+    description: "reference for the app portal image and zarf package"
+    # x-release-please-start-version
+    default: 0.9.1
+    # x-release-please-end
+  - name: FLAVOR
+    default: unicorn
+
+tasks:
+  - name: deploy-app-portal-cluster
+    description: deploy cluster specifically for testing UDS App Portal
+    actions:
+      - task: setup:k3d
+      - task: deploy-load
+
+  - name: local-auth
+    description: "run end-to-end tests (assumes api server is running on port 8080)"
+    actions:
+      - task: build:ui
+      - cmd: npm run test:install # install playwright
+        dir: ui
+      - task: build:api
+      - task: setup:k3d
+      - task: deploy-load
+      - cmd: npm run test:local-auth
+        dir: ui
+
+  - name: deploy-load
+    description: "deploy some Zarf packages to test against"
+    actions:
+      - task: deploy-min-core
+      - cmd: uds zarf dev deploy
+        dir: ui/tests/packages/podinfo
+
+  - name: deploy-min-core
+    description: install min resources for UDS Core
+    actions:
+      # todo: refactor this with UDS functional layers: https://github.com/defenseunicorns/uds-runtime/issues/172
+      - task: setup:clone-core
+      - cmd: npm ci && npx pepr deploy --confirm
+        description: deploy UDS Core's Pepr module
+        dir: tmp/uds-core
+      - cmd: |
+          helm repo add istio https://istio-release.storage.googleapis.com/charts
+          helm upgrade -i istio-base istio/base -n istio-system --set defaultRevision=default --create-namespace
+        description: install Istio CRDs
+      - cmd: |
+          helm repo add minio https://charts.min.io/
+          helm upgrade -i -n uds-dev-stack minio minio/minio --create-namespace --set replicas=1 --set mode=standalone --set persistence.size=1Gi \
+            --set resources.requests.memory=256Mi --set resources.requests.cpu=100m
+        description: deploy minio to test PVCs
+
+  - name: deploy-podinfo
+    description: "deploy podinfo to the cluster"
+    actions:
+      - cmd: uds zarf package create --confirm
+        dir: ui/tests/packages/podinfo
+      - cmd: uds zarf package deploy zarf-package-podinfo-test-$UDS_ARCH-0.0.1.tar.zst --confirm
+        dir: ui/tests/packages/podinfo
+      - description: Validate podinfo pod
+        wait:
+          cluster:
+            kind: Pod
+            name: app.kubernetes.io/name=podinfo
+            condition: Ready
+            namespace: podinfo
+        maxTotalSeconds: 240
+
+  - name: e2e
+    description: "run end-to-end tests (assumes api server is running on port 8080)"
+    actions:
+      - task: build:ui
+      - cmd: npm run test:install # install playwright
+        dir: ui
+      - task: build:api
+      - task: deploy-app-portal-cluster
+      - cmd: npm run test:e2e
+        dir: ui
+
+  - name: e2e-connections
+    description: "run end-to-end tests for cluster disconnect and reconnect"
+    actions:
+      - task: build:ui
+      - cmd: npm run test:install # install playwright
+        dir: ui
+      - task: build:api
+      - task: setup:k3d
+      - task: setup:k3d
+        with:
+          CLUSTER_NAME: app-portal-2
+      - cmd: npm run test:connections
+        dir: ui
+
+  - name: e2e-in-cluster
+    description: "run end-to-end tests against app portal in the cluster"
+    actions:
+      - task: setup:clone-core
+      - task: build:ui
+      - cmd: npm run test:install # install playwright
+        dir: ui
+      - cmd: uds deploy k3d-core-slim-dev:latest --confirm
+      - task: deploy-podinfo
+      - task: create-test-keycloak-user
+      - task: install-app-portal-in-cluster
+      - cmd: npm run test:e2e-in-cluster
+        dir: ui
+
+  - name: go-unit
+    description: "run api server unit tests"
+    actions:
+      - cmd: go test -failfast -v -timeout 30m ./src/pkg/...
+
+  - name: ui-unit
+    description: "run frontend unit tests"
+    actions:
+      - cmd: npm ci && npm run test:unit
+        dir: ui
+
+  - name: unit
+    description: "run all unit tests (backend and frontend)"
+    actions:
+      - task: build:ui
+        description: "build ui since embedded in main.go"
+      - task: go-unit
+      - task: ui-unit
+
+  - name: api
+    description: "run e2e api server tests"
+    actions:
+      - description: "build ui since embedded in main.go"
+        task: build:ui
+      - task: setup:k3d
+        with:
+          CLUSTER_NAME: app-portal-2
+        description: "create an additional test cluster so there are 2 in the kubeconfig"
+      - task: setup:k3d
+        description: "create app-portal cluster after app-portal-2 so it is default current context when test runs"
+      - task: deploy-load
+      - cmd: npm ci && npm run load:api
+        dir: hack/load-test
+      - cmd: uds zarf tools kubectl apply -f hack/load-test/rc.yaml
+        description: apply app portal class manually cause KFC is silly
+      - cmd: go test -failfast -v -timeout 30m ./src/test/e2e/...
+
+  - name: smoke
+    description: "app portal nightly smoke tests"
+    actions:
+      - task: build:smoke-img-pkg-amd
+      - task: setup:slim-cluster
+      - cmd: uds zarf package deploy build/smoke/zarf-package-uds-app-portal-amd64-test.tar.zst --confirm
+        dir: hack/test
+      - task: smoke-tests
+
+  - name: smoke-flavor
+    description: "run smoke tests against app portal flavors in the cluster (only runs with amd64 arch due to registry1 limitations)"
+    actions:
+      - task: setup:slim-cluster
+      - cmd: uds zarf package deploy oci://ghcr.io/defenseunicorns/packages/uds/uds-app-portal:${REF}-${FLAVOR} --confirm
+      - task: smoke-tests
+
+  - name: smoke-tests
+    description: "run smoke tests against nightly app portal"
+    actions:
+      - description: Validate App Portal Pod
+        wait:
+          cluster:
+            kind: Pod
+            name: app=uds-app-portal
+            condition: Ready
+            namespace: uds-app-portal
+        maxTotalSeconds: 30
+      - description: Validate App Portal Interface
+        wait:
+          network:
+            protocol: https
+            address: apps.uds.dev
+            code: 200
+        maxTotalSeconds: 20
+      - description: Verify App Portal is protected by checking redirect
+        maxRetries: 3
+        cmd: |
+          set -e
+          SSO_REDIRECT=$(uds zarf tools kubectl run curl-test --image=cgr.dev/chainguard/curl:latest -q --restart=Never --rm -i -- -Ls -o /dev/null -w %{url_effective} "https://apps.uds.dev")
+          case "${SSO_REDIRECT}" in
+          "https://sso.uds.dev"*)
+              echo "Protected by authservice"
+              ;;
+          *)
+              # Fallback option if the condition is false
+              echo "App Portal is not protected by authservice"
+              echo $SSO_REDIRECT
+              exit 1
+              ;;
+          esac
+
+  - name: install-app-portal-in-cluster
+    description: "Install uds-app-portal in the cluster"
+    actions:
+      - task: build:e2e-img-pkg
+      - cmd: uds zarf package deploy build/e2e/zarf-package-uds-app-portal-$UDS_ARCH-test.tar.zst --confirm
+        dir: hack/test
+
+  - name: create-test-keycloak-user
+    description: creates a doug user in keycloak
+    actions:
+      - task: core-utils:keycloak-admin-user
+      - cmd: uds run -f tasks/test.yaml common-setup:create-doug-user --set KEYCLOAK_GROUP="/UDS Core/Admin"

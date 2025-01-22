@@ -3,10 +3,10 @@
 
 kind: ZarfPackageConfig
 metadata:
-  name: uds-runtime
-  description: UDS Runtime is the frontend for all things UDS, providing views and insights into your UDS cluster.
+  name: uds-app-portal
+  description: UDS App Portal is the home page for UDS
   # x-release-please-start-version
-  version: 0.14.0
+  version: 0.1.0
   # x-release-please-end
 
 variables:
@@ -16,7 +16,7 @@ variables:
   - name: ADMIN_DOMAIN
 
 components:
-  - name: uds-runtime
+  - name: uds-app-portal
     required: true
     only:
       flavor: unicorn
@@ -24,9 +24,9 @@ components:
       path: hack/flavors/common
     # x-release-please-start-version
     images:
-      - ghcr.io/defenseunicorns/uds-runtime:0.14.0
+      - ghcr.io/defenseunicorns/uds-app-portal:0.1.0
     # x-release-please-end
-  - name: uds-runtime
+  - name: uds-app-portal
     required: true
     only:
       flavor: registry1
@@ -35,8 +35,8 @@ components:
     import:
       path: hack/flavors/common
     images:
-      - registry1.dso.mil/ironbank/opensource/defenseunicorns/uds/runtime:v0.14.0
+      - registry1.dso.mil/ironbank/opensource/defenseunicorns/uds/app-portal:v0.1.0
     charts:
-      - name: uds-runtime
+      - name: uds-app-portal
         valuesFiles:
           - hack/flavors/values/registry1-values.yaml

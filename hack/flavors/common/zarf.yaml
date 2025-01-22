@@ -3,30 +3,27 @@
 
 kind: ZarfPackageConfig
 metadata:
-  name: uds-common-runtime
-  description: "UDS Common Runtime"
+  name: uds-common-app-portal
+  description: "UDS Common App Portal"
 components:
   - name: uds-runtime
     required: true
     charts:
-      - name: uds-runtime
+      - name: uds-app-portal
         localPath: ../../../chart
-        namespace: uds-runtime
+        namespace: uds-app-portal
         version: 0.1.0
         # Default values are added here so that Zarf templates them before evaluating Helm conditionals
         valuesFiles:
           - ../../../chart/values.yaml
-    images:
-      # renovate: datasource=docker depName=ghcr.io/defenseunicorns/uds-security-hub versioning=loose
-      - ghcr.io/defenseunicorns/uds-security-hub:v2.2.0-20250107.0413
     actions:
       onDeploy:
         after:
-          - description: Validate Runtime Package
+          - description: Validate App Portal Package
             maxTotalSeconds: 300
             wait:
               cluster:
                 kind: packages.uds.dev
-                name: uds-runtime
-                namespace: uds-runtime
+                name: uds-app-portal
+                namespace: uds-app-portal
                 condition: "'{.status.phase}'=Ready"

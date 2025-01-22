@@ -3,7 +3,7 @@
 
 kind: ZarfPackageConfig
 metadata:
-  name: uds-runtime
+  name: uds-app-portal
   version: test
 
 variables:
@@ -13,17 +13,15 @@ variables:
   - name: ADMIN_DOMAIN
 
 components:
-  - name: uds-runtime
+  - name: uds-app-portal
     required: true
-    description: smoke test of nightly release of uds-runtime
+    description: smoke test of nightly release of uds-app-portal
     images:
-      - uds-runtime:test # local copy of uds-runtime
-      # renovate: datasource=docker depName=ghcr.io/defenseunicorns/uds-security-hub versioning=loose
-      - ghcr.io/defenseunicorns/uds-security-hub:v2.2.0-20250107.0413
+      - uds-app-portal:test # local copy of uds-app-portal
     charts:
-      - name: uds-runtime
+      - name: uds-app-portal
         localPath: ../../chart
-        namespace: uds-runtime
+        namespace: uds-app-portal
         version: 0.1.0
         valuesFiles:
           # Default values are added here so that Zarf templates them before evaluating Helm conditionals
@@ -37,6 +35,6 @@ components:
             wait:
               cluster:
                 kind: packages.uds.dev
-                name: uds-runtime
-                namespace: uds-runtime
+                name: uds-app-portal
+                namespace: uds-app-portal
                 condition: "'{.status.phase}'=Ready"

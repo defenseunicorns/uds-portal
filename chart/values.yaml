@@ -3,16 +3,16 @@
 
 replicaCount: 1
 image:
-  repository: ghcr.io/defenseunicorns/uds-runtime
+  repository: ghcr.io/defenseunicorns/uds-app-portal
   # x-release-please-start-version
-  tag: 0.14.0
+  tag: 0.1.0
   # x-release-please-end
   pullPolicy: IfNotPresent
 sso:
   enabled: true
 package:
-  gateway: admin
-  host: runtime
+  gateway: tenant
+  host: apps
   domain: "###ZARF_VAR_DOMAIN###"
   adminDomain: "###ZARF_VAR_ADMIN_DOMAIN###"
 
@@ -32,11 +32,6 @@ podSecurityContext:
 containerSecurityContext:
   runAsUser: 65532
   runAsGroup: 65532
-
-security_hub_db:
-  # renovate: datasource=docker depName=ghcr.io/defenseunicorns/uds-security-hub versioning=loose
-  image: ghcr.io/defenseunicorns/uds-security-hub:v2.2.0-20250107.0413
-  pullPolicy: Always
 
 classificationBanner:
   enabled: false

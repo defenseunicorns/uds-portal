@@ -4,13 +4,13 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: uds-runtime-cluster-role-binding
+  name: uds-app-portal-cluster-role-binding
   namespace: {{ .Release.Namespace }}
 subjects:
   - kind: ServiceAccount
-    name: uds-runtime-sa
+    name: uds-app-portal-sa
     namespace: {{ .Release.Namespace }}
 roleRef:
   kind: ClusterRole
-  name: uds-runtime-cluster-role
+  name: uds-app-portal-cluster-role
   apiGroup: rbac.authorization.k8s.io

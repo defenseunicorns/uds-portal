@@ -4,23 +4,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uds-runtime
+  name: uds-app-portal
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: uds-runtime
+      app: uds-app-portal
   template:
     metadata:
       labels:
-        app: uds-runtime
+        app: uds-app-portal
     spec:
-      serviceAccountName: uds-runtime-sa
+      serviceAccountName: uds-app-portal-sa
       securityContext:
           {{- .Values.podSecurityContext | toYaml | nindent 8 }}
       containers:
-        - name: uds-runtime
+        - name: uds-app-portal
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
@@ -43,20 +43,3 @@ spec:
               value: {{ .Values.classificationBanner.text | quote }}
             - name: CLASSIFICATION_BANNER_FOOTER
               value: {{ .Values.classificationBanner.addFooter | quote }}
-          volumeMounts:
-            - name: security-hub-db
-              mountPath: /data/uds
-      initContainers:
-        - name: security-hub-db
-          image: {{ .Values.security_hub_db.image }}
-          imagePullPolicy: {{ .Values.security_hub_db.pullPolicy }}
-          command:
-            - sh
-            - -c
-            - cp -R /data/uds/* /shared
-          volumeMounts:
-            - name: security-hub-db
-              mountPath: /shared
-      volumes:
-        - name: security-hub-db
-          emptyDir: {}

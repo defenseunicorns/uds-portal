@@ -4,14 +4,14 @@
 apiVersion: uds.dev/v1alpha1
 kind: Package
 metadata:
-  name: uds-runtime
+  name: uds-app-portal
   namespace: {{ .Release.Namespace }}
 spec:
   network:
     expose:
-      - service: uds-runtime
+      - service: uds-app-portal
         selector:
-          app: uds-runtime
+          app: uds-app-portal
         host: {{ .Values.package.host }}
         gateway: {{ .Values.package.gateway }}
         port: 8080
@@ -19,12 +19,12 @@ spec:
     allow:
       - direction: Egress
         selector:
-          app: uds-runtime
+          app: uds-app-portal
         remoteGenerated: KubeAPI
   {{- if .Values.sso.enabled }}
   sso:
-    - name: uds-runtime
-      clientId: runtime
+    - name: uds-app-portal
+      clientId: app-portal
       attributes:
         access.token.lifespan: "120"
         client.session.idle.timeout: "3600"
@@ -39,7 +39,7 @@ spec:
         - "https://{{ .Values.package.host }}.{{ .Values.package.domain }}/auth"
         {{- end }}
       enableAuthserviceSelector:
-        app: uds-runtime
+        app: uds-app-portal
       groups:
         anyOf:
           - /UDS Core/Admin
