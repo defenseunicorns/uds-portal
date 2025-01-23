@@ -7,8 +7,8 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/defenseunicorns/uds-runtime/src/pkg/api/auth/incluster"
-	"github.com/defenseunicorns/uds-runtime/src/pkg/config"
+	"github.com/defenseunicorns/uds-app-portal/src/pkg/api/auth/incluster"
+	"github.com/defenseunicorns/uds-app-portal/src/pkg/config"
 )
 
 // Auth is a middleware that handles all API authentication for UDS Runtime
