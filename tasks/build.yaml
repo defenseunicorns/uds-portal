@@ -133,7 +133,7 @@ tasks:
   - name: e2e-img-pkg
     description: "build docker image and zarf package for e2e in cluster tests based on local arch"
     actions:
-#      - task: ui
+      - task: ui
       - task: api-linux
       - cmd: docker build --build-arg TARGETARCH=$UDS_ARCH -t uds-app-portal:test -f ./Dockerfile .
       - cmd: uds zarf package create -o build/e2e --confirm

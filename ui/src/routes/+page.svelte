@@ -53,6 +53,23 @@
   function clearSearch() {
     searchValue = ''
   }
+
+  function formatAppName(name: string): string {
+    if (!name) return ''
+
+    // Replace hyphens with spaces
+    let formattedName = name.replace(/-/g, ' ')
+
+    // Capitalize the first letter of each word
+    formattedName = formattedName.replace(/\b\w/g, (char) => char.toUpperCase())
+
+    // Capitalize 'uds' if it starts with 'uds'
+    if (formattedName.toLowerCase().startsWith('uds')) {
+      formattedName = formattedName.replace(/^uds/i, 'UDS')
+    }
+
+    return formattedName
+  }
 </script>
 
 <div class="flex flex-col items-center space-y-8">
@@ -88,25 +105,22 @@
   </div>
 
   <!-- Apps Grid -->
-  <div
-    class="grid w-full max-w-6xl grid-cols-2 gap-8 px-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-[repeat(auto-fit, minmax(150px, 1fr))] justify-center place-items-center"
-  >
+  <div class="grid w-full grid-cols-2 gap-8 px-4 sm:grid-cols-3 md:grid-cols-5 justify-center place-items-center">
     {#each filteredApps as app}
       {#each app.status.endpoints as endpoint}
-        <a
-          href="https://{endpoint}"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="group flex flex-col items-center space-y-3 text-center"
-        >
-          <div
-            class="flex h-16 w-16 items-center justify-center rounded-lg
-                       transition-colors duration-200 group-hover:bg-gray-700"
+        <div class="rounded-lg p-4 hover:bg-gray-700 transition-colors duration-200">
+          <a
+            href="https://{endpoint}"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="flex flex-col space-y-3 text-center"
           >
-            <svelte:component this={app.icon} class="h-8 w-8 text-blue-400" />
-          </div>
-          <span class="text-sm font-medium text-gray-100">{app.metadata.name}</span>
-        </a>
+            <div class="flex items-center justify-center">
+              <svelte:component this={app.icon} class="h-8 w-8 text-blue-400" />
+            </div>
+            <span class="text-md text-gray-100">{formatAppName(app.metadata.name)}</span>
+          </a>
+        </div>
       {/each}
     {/each}
   </div>

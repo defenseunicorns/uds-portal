@@ -30,7 +30,7 @@ func ValidateJWT(w http.ResponseWriter, r *http.Request) (*http.Request, bool) {
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-	// Parse the JWT token without validation
+	// parse the JWT token without validation
 	token, _, err := jwt.NewParser(jwt.WithoutClaimsValidation()).ParseUnverified(tokenString, jwt.Claims(jwt.MapClaims{}))
 	if err != nil {
 		http.Error(w, "Invalid token", http.StatusUnauthorized)
@@ -43,17 +43,18 @@ func ValidateJWT(w http.ResponseWriter, r *http.Request) (*http.Request, bool) {
 		return r, false
 	}
 
-	// Extract and validate groups claim
+	// extract and validate groups claim
 	groups, groupsOk := claims["groups"].([]interface{})
 	if !groupsOk || len(groups) == 0 {
 		http.Error(w, "Token does not contain a valid groups claim", http.StatusUnauthorized)
 		return r, false
 	}
 
-	// Set the first group into the context
+	// set the first group into the context
+	// todo: handle multiple groups taking hierarchy into account
 	r = r.WithContext(context.WithValue(r.Context(), GroupKey, groups[0]))
 
-	// Extract and validate preferred username and name
+	// extract and validate preferred username and name
 	preferredUsername, preferredUsernameOk := claims["preferred_username"].(string)
 	name, nameOk := claims["name"].(string)
 
@@ -62,7 +63,7 @@ func ValidateJWT(w http.ResponseWriter, r *http.Request) (*http.Request, bool) {
 		return r, false
 	}
 
-	// Set additional user details in context
+	// set additional user details in context
 	r = r.WithContext(context.WithValue(r.Context(), PreferredUserNameKey, preferredUsername))
 	r = r.WithContext(context.WithValue(r.Context(), NameKey, name))
 

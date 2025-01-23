@@ -5,5 +5,7 @@
 </script>
 
 <div class="h-[5%] flex items-center justify-center bg-gray-900 border-t border-gray-700">
-  <span class="text-sm">Powered by Defense Unicorns</span>
+  <img src="/doug.svg" class="mr-1 h-8" alt="FlowBite Logo" />
+  <span class="text-sm">Powered by</span>
+  <img src="/defense_unicorns.svg" class="ml-1 h-6" alt="Defense Unicorns Logo" />
 </div>

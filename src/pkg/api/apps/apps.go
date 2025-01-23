@@ -80,7 +80,8 @@ func filterPackages(packages *unstructured.UnstructuredList) []App {
 			slog.Error("Failed to unmarshal package", "error", err)
 			continue
 		}
-		if len(app.Status.Endpoints) > 0 {
+		// ensure app has valid endpoints and is not the admin portal
+		if len(app.Status.Endpoints) > 0 && app.Metadata.Name != "uds-app-portal" {
 			apps = append(apps, app)
 		}
 	}
@@ -97,20 +98,29 @@ func filterByUserGroup(r *http.Request, apps []App) []App {
 	var filteredByGroup []App
 	for _, app := range apps {
 		var filteredApp App
+		// filter out apps on the admin gw
 		for _, endpoint := range app.Status.Endpoints {
 			if !strings.Contains(endpoint, ".admin.") {
 				filteredApp.Status.Endpoints = append(filteredApp.Status.Endpoints, endpoint)
 			}
 		}
-		if len(filteredApp.Status.Endpoints) > 0 && len(app.Spec.SSO) > 0 {
-			for _, sso := range app.Spec.SSO {
-				for _, appGroup := range sso.Groups.AnyOf {
-					if appGroup == userGroup {
-						filteredApp.Metadata = app.Metadata
-						filteredByGroup = append(filteredByGroup, filteredApp)
-						break
+		// filter out apps that don't match the user group
+		if len(filteredApp.Status.Endpoints) > 0 {
+			if len(app.Spec.SSO) > 0 {
+				for _, sso := range app.Spec.SSO {
+					for _, appGroup := range sso.Groups.AnyOf {
+						if appGroup == userGroup {
+							// user is in the app's group
+							filteredApp.Metadata = app.Metadata
+							filteredByGroup = append(filteredByGroup, filteredApp)
+							break
+						}
 					}
 				}
+			} else {
+				// no SSO groups are defined, allow all users
+				filteredApp.Metadata = app.Metadata
+				filteredByGroup = append(filteredByGroup, filteredApp)
 			}
 		}
 	}
