@@ -1,8 +1,6 @@
 // Copyright 2025 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
-export { default as ClusterMenu } from './navbar/clustermenu/component.svelte'
-export { default as LoadingCluster } from './navbar/clustermenu/loading.svelte'
 export { default as Navbar } from './navbar/component.svelte'
 export { default as UserMenu } from './navbar/usermenu/component.svelte'
 export { default as Sidebar } from './sidebar/component.svelte'

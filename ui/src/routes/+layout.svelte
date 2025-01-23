@@ -8,14 +8,13 @@
 
   import { afterNavigate, goto } from '$app/navigation'
   import { authenticated } from '$features/auth/store'
-  import { LoadingCluster, Navbar, Sidebar } from '$features/navigation'
+  import { Navbar, Sidebar } from '$features/navigation'
   import { ToastPanel } from '$features/toast'
   import { initFlowbite } from 'flowbite'
 
   import '../app.postcss'
 
   import { ClassBanner, Footer } from '$components'
-  import { loadingCluster } from '$features/navigation/navbar/clustermenu/store'
   import { ClusterCheck } from '$lib/utils/cluster-check/cluster-check'
 
   import { _bannerCfg } from './+layout'
@@ -54,13 +53,9 @@
 
     <main class="flex h-[95%] pt-16 transition-all duration-300 ease-in-out">
       <ToastPanel />
-      {#if $loadingCluster.loading}
-        <LoadingCluster cluster={$loadingCluster.cluster} error={$loadingCluster.err} />
-      {:else}
-        <div class="mx-auto w-full max-w-3xl p-4 pt-16">
-          <slot />
-        </div>
-      {/if}
+      <div class="mx-auto w-full max-w-3xl p-4 pt-16">
+        <slot />
+      </div>
     </main>
     <Footer />
   </div>

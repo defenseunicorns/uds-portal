@@ -19,7 +19,6 @@ import (
 	"github.com/defenseunicorns/uds-app-portal/src/pkg/api/k8s/session"
 	udsMiddleware "github.com/defenseunicorns/uds-app-portal/src/pkg/api/middleware"
 	"github.com/defenseunicorns/uds-app-portal/src/pkg/config"
-	"github.com/defenseunicorns/uds-runtime/src/pkg/api/auth/local"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -54,7 +53,7 @@ func Setup(assets *embed.FS) (*chi.Mux, bool, error) {
 		host := "apps-local.uds.dev"
 		colorYellow := "\033[33m"
 		colorReset := "\033[0m"
-		url := fmt.Sprintf("https://%s:%s?token=%s", host, port, local.AuthToken)
+		url := fmt.Sprintf("https://%s:%s", host, port)
 		log.Printf("%sConnect to UDS App Portal: %s%s", colorYellow, url, colorReset)
 		err := exec.LaunchURL(url)
 		if err != nil {

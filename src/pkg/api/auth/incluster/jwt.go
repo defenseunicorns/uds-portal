@@ -11,11 +11,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
-var allowedGroups = []string{
-	"/UDS Core/Admin",
-	"/UDS Core/Auditor",
-}
-
 type contextKey string
 
 const (
@@ -35,39 +30,41 @@ func ValidateJWT(w http.ResponseWriter, r *http.Request) (*http.Request, bool) {
 
 	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 
-	// parse the JWT token without validation (authservice will validate it, we only need the groups here)
+	// Parse the JWT token without validation
 	token, _, err := jwt.NewParser(jwt.WithoutClaimsValidation()).ParseUnverified(tokenString, jwt.Claims(jwt.MapClaims{}))
 	if err != nil {
 		http.Error(w, "Invalid token", http.StatusUnauthorized)
 		return r, false
 	}
 
-	// Check if the token contains a "groups" claim
-	if groups, ok := token.Claims.(jwt.MapClaims)["groups"].([]interface{}); ok {
-		// Check if any of the token's groups match the allowed groups
-		for _, group := range groups {
-			for _, allowedGroup := range allowedGroups {
-				if group == allowedGroup {
-					// Group is allowed, add group and username to request context
-					// set context values on request
-					r = r.WithContext(context.WithValue(r.Context(), GroupKey, group))
-					preferredUsername, preferredUsernameOk := token.Claims.(jwt.MapClaims)["preferred_username"].(string)
-					name, nameOk := token.Claims.(jwt.MapClaims)["name"].(string)
-					if preferredUsernameOk && nameOk {
-						r = r.WithContext(context.WithValue(r.Context(), PreferredUserNameKey, preferredUsername))
-						r = r.WithContext(context.WithValue(r.Context(), NameKey, name))
-						return r, true
-					}
-					http.Error(w, "Invalid token claims", http.StatusUnauthorized)
-					return r, false
-				}
-			}
-		}
-		// If we reach here, no matching group was found
-		http.Error(w, "Insufficient permissions", http.StatusForbidden)
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		http.Error(w, "Invalid token claims", http.StatusUnauthorized)
 		return r, false
 	}
 
-	http.Error(w, "Invalid token claims", http.StatusUnauthorized)
-	return r, false
+	// Extract and validate groups claim
+	groups, groupsOk := claims["groups"].([]interface{})
+	if !groupsOk || len(groups) == 0 {
+		http.Error(w, "Token does not contain a valid groups claim", http.StatusUnauthorized)
+		return r, false
+	}
+
+	// Set the first group into the context
+	r = r.WithContext(context.WithValue(r.Context(), GroupKey, groups[0]))
+
+	// Extract and validate preferred username and name
+	preferredUsername, preferredUsernameOk := claims["preferred_username"].(string)
+	name, nameOk := claims["name"].(string)
+
+	if !preferredUsernameOk || !nameOk {
+		http.Error(w, "Invalid token claims", http.StatusUnauthorized)
+		return r, false
+	}
+
+	// Set additional user details in context
+	r = r.WithContext(context.WithValue(r.Context(), PreferredUserNameKey, preferredUsername))
+	r = r.WithContext(context.WithValue(r.Context(), NameKey, name))
+
+	return r, true
 }

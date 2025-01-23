@@ -29,19 +29,7 @@ spec:
         access.token.lifespan: "120"
         client.session.idle.timeout: "3600"
       redirectUris:
-        {{- if eq .Values.package.gateway "admin" }}
-          {{- if .Values.package.adminDomain }}
-        - "https://{{ .Values.package.host }}.{{ .Values.package.adminDomain }}/auth"
-          {{- else }}
-        - "https://{{ .Values.package.host }}.admin.{{ .Values.package.domain }}/auth"
-          {{- end }}
-        {{- else }}
         - "https://{{ .Values.package.host }}.{{ .Values.package.domain }}/auth"
-        {{- end }}
       enableAuthserviceSelector:
         app: uds-app-portal
-      groups:
-        anyOf:
-          - /UDS Core/Admin
-          - /UDS Core/Auditor
   {{- end }}

@@ -100,13 +100,12 @@
           class="group flex flex-col items-center space-y-3 text-center"
         >
           <div
-            class="flex h-16 w-16 items-center justify-center rounded-lg bg-gray-800
+            class="flex h-16 w-16 items-center justify-center rounded-lg
                        transition-colors duration-200 group-hover:bg-gray-700"
           >
             <svelte:component this={app.icon} class="h-8 w-8 text-blue-400" />
           </div>
           <span class="text-sm font-medium text-gray-100">{app.metadata.name}</span>
-          <span class="text-xs text-gray-400">{endpoint}</span>
         </a>
       {/each}
     {/each}

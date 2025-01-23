@@ -4,12 +4,8 @@
 <script lang="ts">
   import { get } from 'svelte/store'
 
-  import { authenticated } from '$features/auth/store'
   import { UserMenu } from '$features/navigation'
   import type { UserData } from '$features/navigation/types'
-
-  import { default as ClusterMenu } from './clustermenu/component.svelte'
-  import { clusters } from './clustermenu/store'
 
   export let userData: UserData
 
@@ -28,9 +24,6 @@
         </a>
       </div>
       <div class="flex items-center lg:order-2">
-        {#if get(clusters).length > 0}
-          <ClusterMenu />
-        {/if}
         {#if inClusterAuth}
           <UserMenu {userData} />
         {/if}

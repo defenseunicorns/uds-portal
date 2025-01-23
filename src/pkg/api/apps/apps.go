@@ -10,17 +10,21 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"strings"
 
 	"github.com/defenseunicorns/uds-app-portal/src/pkg/api/auth/incluster"
+	"github.com/defenseunicorns/uds-app-portal/src/pkg/config"
 	"github.com/defenseunicorns/uds-runtime/src/pkg/api/rest"
 	"github.com/defenseunicorns/uds-runtime/src/pkg/k8s/client"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/client-go/dynamic"
 )
 
+// GetUDSPackages retrieves UDS packages from the cluster and filters them based on user group membership.
 func GetUDSPackages(client *client.Clients, w http.ResponseWriter, r *http.Request) {
 	udsPackageGVR := schema.GroupVersionResource{
 		Group:    "uds.dev",
@@ -28,67 +32,89 @@ func GetUDSPackages(client *client.Clients, w http.ResponseWriter, r *http.Reque
 		Resource: "packages",
 	}
 
-	// create dynamic client to get CRD directly and check if the CRD exists
+	// create client and ensure CRD exists
 	dynamicClient, err := dynamic.NewForConfig(client.Config)
+	if err != nil {
+		http.Error(w, "cluster error", http.StatusInternalServerError)
+		slog.Error("dynamic client error", "error", err)
+		return
+	}
 	exists, err := checkCRDExists(dynamicClient, udsPackageGVR)
 	if err != nil {
+		http.Error(w, "crd error", http.StatusInternalServerError)
+		slog.Error("error checking CRD", "error", err)
 		return
 	}
-
-	// return packages if the CRD exists
 	if !exists {
-		http.Error(w, "CRD not found", http.StatusNotFound)
+		http.Error(w, "crd error", http.StatusInternalServerError)
+		slog.Error("CRD not found", "error", err)
 		return
 	}
 
-	// get all Packages using the dynamic client
+	// get packages
 	packages, err := dynamicClient.Resource(udsPackageGVR).List(r.Context(), metav1.ListOptions{})
 	if err != nil {
 		http.Error(w, fmt.Sprintf("Failed to get packages: %v", err), http.StatusInternalServerError)
 		return
 	}
 
-	// todo: filter packages further based on group
+	// filter packages
+	filteredByEndpoint := filterPackages(packages)
+	filteredByGroup := filterByUserGroup(r, filteredByEndpoint)
 
-	// retrieve groups from auth middleware context
-	group := r.Context().Value(incluster.GroupKey)
-	username := r.Context().Value(incluster.PreferredUserNameKey)
-	name := r.Context().Value(incluster.NameKey)
+	// return the filtered packages
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(filteredByGroup); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to encode response: %v", err), http.StatusInternalServerError)
+	}
+}
 
-	// log group, username, and name
-	slog.Warn("Group", "group", group)
-	slog.Warn("Username", "username", username)
-	slog.Warn("Name", "name", name)
-
-	// filter the Packages to send only the necessary fields
-	fields := []string{"metadata.name", "spec.sso.groups.anyOf", "status.endpoints"}
+func filterPackages(packages *unstructured.UnstructuredList) []App {
+	fields := []string{"metadata.name", "spec.sso[].groups.anyOf", "status.endpoints"}
 	filteredFields := rest.FilterItemsByFields(packages.Items, fields)
 
-	type Status struct {
-		Endpoints []string `json:"endpoints"`
-	}
-
-	// remove packages without endpoints
-	var filteredData []map[string]interface{}
+	var apps []App
 	for _, item := range filteredFields {
-		// marshall unstructured status into Status struct to check endpoints
-		status := Status{}
-		err := runtime.DefaultUnstructuredConverter.FromUnstructured(item["status"].(map[string]interface{}), &status)
-		if err != nil {
-			slog.Error("Failed to unmarshal status", "error", err)
+		app := App{}
+		if err := runtime.DefaultUnstructuredConverter.FromUnstructured(item, &app); err != nil {
+			slog.Error("Failed to unmarshal package", "error", err)
 			continue
 		}
-		if len(status.Endpoints) > 0 {
-			filteredData = append(filteredData, item)
+		if len(app.Status.Endpoints) > 0 {
+			apps = append(apps, app)
 		}
 	}
+	return apps
+}
 
-	// convert to JSON and write response
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(filteredData); err != nil {
-		http.Error(w, fmt.Sprintf("Failed to encode response: %v", err), http.StatusInternalServerError)
-		return
+func filterByUserGroup(r *http.Request, apps []App) []App {
+	userGroup := r.Context().Value(incluster.GroupKey)
+
+	if !config.InClusterAuthEnabled || userGroup == "/UDS Core/Admin" || userGroup == "/UDS Core/Auditor" {
+		return apps
 	}
+
+	var filteredByGroup []App
+	for _, app := range apps {
+		var filteredApp App
+		for _, endpoint := range app.Status.Endpoints {
+			if !strings.Contains(endpoint, ".admin.") {
+				filteredApp.Status.Endpoints = append(filteredApp.Status.Endpoints, endpoint)
+			}
+		}
+		if len(filteredApp.Status.Endpoints) > 0 && len(app.Spec.SSO) > 0 {
+			for _, sso := range app.Spec.SSO {
+				for _, appGroup := range sso.Groups.AnyOf {
+					if appGroup == userGroup {
+						filteredApp.Metadata = app.Metadata
+						filteredByGroup = append(filteredByGroup, filteredApp)
+						break
+					}
+				}
+			}
+		}
+	}
+	return filteredByGroup
 }
 
 func checkCRDExists(client *dynamic.DynamicClient, gvr schema.GroupVersionResource) (bool, error) {

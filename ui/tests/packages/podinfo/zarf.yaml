@@ -8,6 +8,10 @@ metadata:
     used to load the cluster for e2e testing; using a local zarf.yaml for dev deploy
   version: 0.0.1
 
+variables:
+  - name: DOMAIN
+    default: 'uds.dev'
+
 components:
   - name: podinfo-configs
     required: true

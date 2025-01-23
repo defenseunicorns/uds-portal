@@ -214,4 +214,4 @@ tasks:
     description: creates a doug user in keycloak
     actions:
       - task: core-utils:keycloak-admin-user
-      - cmd: uds run -f tasks/test.yaml common-setup:create-doug-user --set KEYCLOAK_GROUP="/UDS Core/Admin"
+      - cmd: uds run -f tasks/test.yaml common-setup:create-doug-user --set KEYCLOAK_GROUP="/SHOC-N"
