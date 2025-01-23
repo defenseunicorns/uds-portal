@@ -16,14 +16,14 @@ interface AuthResponse {
 }
 
 // auth function that returns both auth status and user data
-async function auth(token: string): Promise<AuthResponse> {
+async function auth(): Promise<AuthResponse> {
   const baseURL = '/api/v1'
   const headers = new Headers({
     'Content-Type': 'application/json',
   })
 
   try {
-    const url = token ? `${baseURL}/auth?token=${token}` : `${baseURL}/auth`
+    const url = `${baseURL}/auth`
     const response = await fetch(url, {
       method: 'GET',
       headers,
@@ -58,8 +58,6 @@ async function auth(token: string): Promise<AuthResponse> {
 
 // load namespace and auth data before rendering the app
 export const load = async () => {
-  const url = new URL(window.location.href)
-  const localAuthToken = url.searchParams.get('token') || ''
   let userData: UserData = {
     name: '',
     preferredUsername: '',
@@ -68,7 +66,7 @@ export const load = async () => {
   }
 
   try {
-    const authResult = await auth(localAuthToken)
+    const authResult = await auth()
 
     if (authResult.authenticated) {
       authenticated.set(true)

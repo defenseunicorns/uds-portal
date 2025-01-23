@@ -16,10 +16,10 @@ import (
 	"time"
 
 	"github.com/defenseunicorns/pkg/exec"
-	"github.com/defenseunicorns/uds-app-portal/src/pkg/api/auth/local"
 	"github.com/defenseunicorns/uds-app-portal/src/pkg/api/k8s/session"
 	udsMiddleware "github.com/defenseunicorns/uds-app-portal/src/pkg/api/middleware"
 	"github.com/defenseunicorns/uds-app-portal/src/pkg/config"
+	"github.com/defenseunicorns/uds-runtime/src/pkg/api/auth/local"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 )
@@ -49,7 +49,7 @@ func Setup(assets *embed.FS) (*chi.Mux, bool, error) {
 	})
 
 	// launch app in local mode
-	if config.LocalAuthEnabled {
+	if config.LocalMode {
 		port := "8443"
 		host := "apps-local.uds.dev"
 		colorYellow := "\033[33m"

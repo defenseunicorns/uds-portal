@@ -9,7 +9,6 @@ import (
 	"net/http"
 
 	"github.com/defenseunicorns/uds-runtime/src/pkg/api/auth/incluster"
-	"github.com/defenseunicorns/uds-runtime/src/pkg/api/auth/local"
 	"github.com/defenseunicorns/uds-runtime/src/pkg/config"
 )
 
@@ -26,10 +25,6 @@ type UserResponse struct {
 func RequestHandler(w http.ResponseWriter, r *http.Request) {
 	resp := UserResponse{
 		InClusterAuth: false,
-	}
-	if config.LocalAuthEnabled && !local.Auth(w, r) {
-		// auth failed, response is already written
-		return
 	}
 
 	if config.InClusterAuthEnabled {
