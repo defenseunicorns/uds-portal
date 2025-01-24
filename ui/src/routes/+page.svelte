@@ -27,7 +27,7 @@
         const json = await response.json()
         let appData = json as App[]
 
-        // Simple validation that the response matches our type
+        // validate response format
         if (
           !Array.isArray(appData) ||
           !appData.every((app) => app.metadata?.name && Array.isArray(app.status?.endpoints))
@@ -38,7 +38,16 @@
           ...app,
           icon: Cube,
         }))
-        apps = appData
+
+        // flatten apps by endpoint such that each App has only one endpoint
+        apps = splitAppsByEndpoint(appData)
+
+        // process app data for rendering
+        apps = apps.map((app) => {
+          app.metadata.name = formatAppName(app)
+          return app
+        })
+
         return
       }
       console.error('Failed to fetch services')
@@ -49,44 +58,59 @@
 
   $: filteredApps = apps.filter((app) => app.metadata.name.toLowerCase().includes(searchValue.toLowerCase())) as App[]
 
-  // Clear search
   function clearSearch() {
     searchValue = ''
   }
 
-  function formatAppName(name: string): string {
-    if (!name) return ''
+  function splitAppsByEndpoint(apps: App[]): App[] {
+    return apps.flatMap((app) =>
+      app.status.endpoints.map((endpoint) => ({
+        metadata: { ...app.metadata },
+        status: { endpoints: [endpoint] },
+        icon: app.icon,
+      })),
+    )
+  }
 
-    // Replace hyphens with spaces
-    let formattedName = name.replace(/-/g, ' ')
+  function formatAppName(app: App): string {
+    if (!app.metadata.name) return ''
 
-    // Capitalize the first letter of each word
+    // replace hyphens with spaces
+    let formattedName = app.metadata.name.replace(/-/g, ' ')
+
+    // capitalize the first letter of each word
     formattedName = formattedName.replace(/\b\w/g, (char) => char.toUpperCase())
 
-    // Capitalize 'uds' if it starts with 'uds'
+    // capitalize 'uds' if it starts with 'uds'
     if (formattedName.toLowerCase().startsWith('uds')) {
       formattedName = formattedName.replace(/^uds/i, 'UDS')
+    }
+
+    // rename sso endpoint to "My Account"
+    if (app.status.endpoints[0].startsWith('sso.')) {
+      formattedName = 'My Account'
     }
 
     return formattedName
   }
 </script>
 
-<div class="flex flex-col items-center space-y-8">
+<div class="w-full flex flex-col items-center space-y-8">
+  <!-- Title -->
   <span class="text-2xl font-medium text-gray-100">My Apps</span>
 
-  <div class="w-full max-w-md">
+  <!-- Search Input -->
+  <div class="md:w-full max-w-md sm:w-[50%]">
     <div class="relative">
       <div class="pointer-events-none absolute inset-y-0 left-3 flex items-center">
         <Search class="h-4 w-4 text-gray-400" />
       </div>
-
       <input
         type="text"
         bind:value={searchValue}
         name="input-search"
         autocomplete="off"
-        class="block w-full rounded-lg border border-transparent bg-gray-900 py-2 pl-10 pr-8 text-sm text-gray-200
+        class="block w-full rounded-lg border border-transparent bg-gray-800 py-2 pl-10 pr-8 text-sm text-gray-200
                        placeholder-gray-400 outline-none transition-colors duration-200
                        focus:border-gray-700 focus:bg-gray-800 focus:ring-0"
         placeholder="Search"
@@ -104,24 +128,28 @@
     </div>
   </div>
 
-  <!-- Apps Grid -->
-  <div class="grid w-full grid-cols-2 gap-8 px-4 sm:grid-cols-3 md:grid-cols-5 justify-center place-items-center">
-    {#each filteredApps as app}
-      {#each app.status.endpoints as endpoint}
-        <div class="rounded-lg p-4 hover:bg-gray-700 transition-colors duration-200">
+  <!-- App Grid -->
+  <div class="w-full flex justify-center">
+    <div class="flex flex-wrap justify-start gap-8 w-full max-w-3xl">
+      {#each filteredApps.sort((a, b) => (a.metadata.name > b.metadata.name ? 1 : -1)) as app}
+        <div
+          class="w-28 h-24 flex flex-col items-center justify-center rounded-lg hover:bg-gray-700 transition-colors duration-200"
+        >
           <a
-            href="https://{endpoint}"
+            href="https://{app.status.endpoints[0]}"
             target="_blank"
             rel="noopener noreferrer"
-            class="flex flex-col space-y-3 text-center"
+            class="flex flex-col items-center justify-center w-full h-full"
           >
             <div class="flex items-center justify-center">
               <svelte:component this={app.icon} class="h-8 w-8 text-blue-400" />
             </div>
-            <span class="text-md text-gray-100">{formatAppName(app.metadata.name)}</span>
+            <span class="text-md text-gray-100 text-center w-full truncate mt-3">
+              {app.metadata.name}
+            </span>
           </a>
         </div>
       {/each}
-    {/each}
+    </div>
   </div>
 </div>
