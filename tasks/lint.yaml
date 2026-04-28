@@ -1,0 +1,20 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+includes:
+  - remote: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.4/tasks/lint.yaml
+
+tasks:
+  - name: check
+    description: "Run linting checks"
+    actions:
+      - description: yaml lint
+        cmd: uvx yamllint . -c .yamllint --no-warnings
+      - description: license header lint
+        task: remote:license
+
+  - name: fix
+    description: "Fix formatting issues"
+    actions:
+      - description: add license headers
+        task: remote:fix-license

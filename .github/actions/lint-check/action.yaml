@@ -1,0 +1,17 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+name: lint-check
+description: "Check project for linting errors"
+
+runs:
+  using: composite
+  steps:
+    - name: Environment setup
+      uses: ./.github/actions/setup-tools
+      with:
+        installUv: 'true'
+
+    - name: Run linting checks
+      run: uds run lint-check --no-progress
+      shell: bash

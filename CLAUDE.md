@@ -1,0 +1,1 @@
+When modifying any file that has a copyright header, ensure the year includes the current year. If the header says `Copyright 2024` and the current year is 2026, update it to `Copyright 2024-2026`. If it already includes the current year, leave it as-is.
