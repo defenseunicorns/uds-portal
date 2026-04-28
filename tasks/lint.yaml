@@ -10,11 +10,17 @@ tasks:
     actions:
       - description: yaml lint
         cmd: uvx yamllint . -c .yamllint --no-warnings
+      - description: install addlicense
+        # renovate: datasource=github-tags depName=google/addlicense versioning=semver
+        cmd: GOPATH="$HOME/go" go install github.com/google/addlicense@v1.1.1
       - description: license header lint
         task: remote:license
 
   - name: fix
     description: "Fix formatting issues"
     actions:
+      - description: install addlicense
+        # renovate: datasource=github-tags depName=google/addlicense versioning=semver
+        cmd: GOPATH="$HOME/go" go install github.com/google/addlicense@v1.1.1
       - description: add license headers
         task: remote:fix-license
