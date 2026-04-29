@@ -1,0 +1,14 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+[tools]
+hk = "latest"
+"aqua:defenseunicorns/uds-cli" = "0.30.2"
+"aqua:google/addlicense" = "1.2.0"
+pkl = "0.31.1"
+yamllint = "1.38.0"
+
+[env]
+# Disables version download tracking introduced in 2025.12.6, see:
+# https://mise.jdx.dev/configuration/settings.html#use_versions_host_track
+MISE_USE_VERSIONS_HOST_TRACK = "0"
