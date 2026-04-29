@@ -1,6 +1,6 @@
 # Security Policy
 
-This document outlines the security policy for UDS App Portal, including how to report vulnerabilities.
+This document outlines the security policy for UDS Portal, including how to report vulnerabilities.
 
 ## Reporting a vulnerability
 

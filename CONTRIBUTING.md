@@ -1,8 +1,8 @@
-# Contributing to UDS App Portal
+# Contributing to UDS Portal
 
-Welcome :unicorn: to UDS App Portal!
+Welcome :unicorn: to UDS Portal!
 
-To report a bug, request a feature, or ask a question, review [open issues](https://github.com/defenseunicorns/uds-app-portal/issues) or open a [new issue](https://github.com/defenseunicorns/uds-app-portal/issues/new/choose).
+To report a bug, request a feature, or ask a question, review [open issues](https://github.com/defenseunicorns/uds-portal/issues) or open a [new issue](https://github.com/defenseunicorns/uds-portal/issues/new/choose).
 
 ## Submissions
 
