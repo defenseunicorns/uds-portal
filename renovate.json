@@ -4,5 +4,20 @@
     "github>defenseunicorns/uds-common//config/renovate.json5",
     ":semanticCommits",
     ":semanticCommitTypeAll(chore)"
+  ],
+  "ignorePresets": [":ignoreModulesAndTests"],
+  "branchConcurrentLimit": 0,
+  "prConcurrentLimit": 0,
+  "prHourlyLimit": 0,
+  "packageRules": [
+    {
+      "matchFileNames": [
+        ".github/**",
+        "tasks.yaml",
+        "tasks/*.yaml"
+      ],
+      "groupName": "support-deps",
+      "commitMessageTopic": "support dependencies"
+    }
   ]
 }
