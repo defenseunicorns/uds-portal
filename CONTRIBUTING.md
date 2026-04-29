@@ -2,7 +2,7 @@
 
 Welcome :unicorn: to UDS Portal!
 
-To report a bug, request a feature, or ask a question, review [open issues](https://github.com/defenseunicorns/uds-portal/issues) or open a [new issue](https://github.com/defenseunicorns/uds-portal/issues/new/choose).
+To report a bug, request a feature, or ask a question, review [open issues](/issues) or open a [new issue](/issues/new/choose).
 
 ## Submissions
 
