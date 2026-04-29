@@ -1,0 +1,16 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+includes:
+  - lint: ./tasks/lint.yaml
+
+tasks:
+  - name: lint-check
+    description: "Run linting checks"
+    actions:
+      - task: lint:check
+
+  - name: lint-fix
+    description: "Fix linting issues"
+    actions:
+      - task: lint:fix

@@ -1,0 +1,27 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+# yaml-language-server: $schema=https://raw.githubusercontent.com/defenseunicorns/maru-runner/refs/heads/main/tasks.schema.json
+includes:
+  - common: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.4/tasks/lint.yaml
+
+tasks:
+  - name: check
+    description: "Run all lint checks via hk against full tree"
+    actions:
+      - cmd: hk run check --all
+
+  - name: fix
+    description: "Apply lint fixes via hk against full tree"
+    actions:
+      - cmd: hk run fix --all
+
+  - name: license
+    description: "Lint SPDX license identifier in source files"
+    actions:
+      - task: common:license
+
+  - name: fix-license
+    description: "Add SPDX license identifier to source files"
+    actions:
+      - task: common:fix-license

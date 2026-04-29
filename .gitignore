@@ -1,0 +1,30 @@
+# Go
+/bin/
+/build/
+*.test
+*.out
+coverage.out
+coverage.txt
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Dev
+tmp/
+artifacts/
+*.pem
+
+# Node
+node_modules/

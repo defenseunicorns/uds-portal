@@ -1,0 +1,25 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+name: PR Title and Commit Lint
+
+permissions:
+  pull-requests: read
+  contents: read
+
+on:
+  pull_request:
+    branches: [main]
+    # `milestoned` is a workaround for release-please not triggering PR workflows
+    # (PRs should be added to a milestone to trigger). `reopened` covers PRs
+    # release-please reopens after merge.
+    types: [milestoned, opened, reopened, edited, synchronize]
+
+concurrency:
+  group: commitlint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pr-title-lint:
+    name: PR Title Lint
+    uses: defenseunicorns/uds-common/.github/workflows/callable-commitlint.yaml@fd0cab3563f7d70ea20850c81c2bbdf30c5fcd6b # v1.21.4
