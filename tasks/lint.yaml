@@ -7,14 +7,14 @@ includes:
 
 tasks:
   - name: check
-    description: "Run all lint checks via hk"
+    description: "Run all lint checks via hk against full tree"
     actions:
-      - cmd: hk run check
+      - cmd: hk run check --all
 
   - name: fix
-    description: "Apply lint fixes via hk"
+    description: "Apply lint fixes via hk against full tree"
     actions:
-      - cmd: hk run fix
+      - cmd: hk run fix --all
 
   - name: license
     description: "Lint SPDX license identifier in source files"
