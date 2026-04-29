@@ -1,12 +1,12 @@
 ## Description
 
-...
+-
 
 ## Related Issue
 
-Fixes #
+Fixes CORE-
 <!-- or -->
-Relates to #
+Related to CORE-
 
 ## Type of change
 
