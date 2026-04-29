@@ -17,6 +17,7 @@ jobs:
       contents: write
       pull-requests: write
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     outputs:
       release_created: ${{ steps.tag.outputs.release_created }}
     steps:

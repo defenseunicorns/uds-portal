@@ -15,6 +15,10 @@ on:
     # release-please reopens after merge.
     types: [milestoned, opened, reopened, edited, synchronize]
 
+concurrency:
+  group: commitlint-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   pr-title-lint:
     name: PR Title Lint
