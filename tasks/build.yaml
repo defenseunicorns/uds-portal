@@ -58,7 +58,6 @@ tasks:
   - name: container
     description: "build container and push to GHCR (multi-arch)"
     actions:
-      - cmd: rm -fr build ui/build
       - cmd: go mod tidy
       - task: ui
       - task: api-linux-amd64
