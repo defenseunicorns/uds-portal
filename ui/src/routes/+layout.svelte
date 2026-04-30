@@ -35,7 +35,9 @@
   <div class="flex-grow overflow-auto">
     <Navbar userData={data.userData} />
 
-    <main class="flex min-h-[calc(100dvh-32px)] bg-[linear-gradient(180deg,_#030712_66.35%,_#213E68_100%)] pt-16 transition-all duration-300 ease-in-out">
+    <main
+      class="flex min-h-[calc(100dvh-32px)] bg-[linear-gradient(180deg,_#030712_66.35%,_#213E68_100%)] pt-16 transition-all duration-300 ease-in-out"
+    >
       <div class="mx-auto w-full max-w-6xl p-4 pt-16">
         <slot />
       </div>

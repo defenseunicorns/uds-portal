@@ -41,4 +41,4 @@ jobs:
           cache: true
 
       - name: Lint
-        run: uds run lint:check
+        run: uds run lint:all

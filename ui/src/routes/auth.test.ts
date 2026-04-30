@@ -27,7 +27,9 @@ describe('load function', () => {
 
   beforeEach(() => {
     vi.clearAllMocks()
-    ;(window as Window & { __APP__?: { CLASSIFICATION_BANNER?: { enabled: boolean; text: string; footer: boolean } } }).__APP__ = {
+    ;(
+      window as Window & { __APP__?: { CLASSIFICATION_BANNER?: { enabled: boolean; text: string; footer: boolean } } }
+    ).__APP__ = {
       CLASSIFICATION_BANNER: {
         enabled: false,
         text: '',
