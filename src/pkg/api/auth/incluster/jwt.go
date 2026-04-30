@@ -43,16 +43,28 @@ func ValidateJWT(w http.ResponseWriter, r *http.Request) (*http.Request, bool) {
 		return r, false
 	}
 
-	// extract and validate groups claim
-	groups, groupsOk := claims["groups"].([]interface{})
-	if !groupsOk || len(groups) == 0 {
-		http.Error(w, "Token does not contain a valid groups claim", http.StatusUnauthorized)
-		return r, false
+	// extract groups claim (optional) and set all groups into context
+	groups := []string{}
+	if rawGroups, exists := claims["groups"]; exists {
+		parsedGroups, ok := rawGroups.([]interface{})
+		if !ok {
+			http.Error(w, "Invalid token claims", http.StatusUnauthorized)
+			return r, false
+		}
+
+		for _, group := range parsedGroups {
+			groupStr, ok := group.(string)
+			if !ok {
+				http.Error(w, "Invalid token claims", http.StatusUnauthorized)
+				return r, false
+			}
+			if groupStr != "" {
+				groups = append(groups, groupStr)
+			}
+		}
 	}
 
-	// set the first group into the context
-	// todo: handle multiple groups taking hierarchy into account
-	r = r.WithContext(context.WithValue(r.Context(), GroupKey, groups[0]))
+	r = r.WithContext(context.WithValue(r.Context(), GroupKey, groups))
 
 	// extract and validate preferred username and name
 	preferredUsername, preferredUsernameOk := claims["preferred_username"].(string)

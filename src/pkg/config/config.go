@@ -5,10 +5,10 @@
 package config
 
 import (
-	"encoding/json"
-	"log/slog"
-	"net/http"
+	"fmt"
+	"html/template"
 	"os"
+	"strings"
 )
 
 type ClassificationBanners struct {
@@ -18,23 +18,18 @@ type ClassificationBanners struct {
 }
 
 var (
-	LocalMode            = true
-	InClusterAuthEnabled = false
-	ClassBannerCfg       = ClassificationBanners{Enabled: false, Text: "", Footer: false}
+	LocalMode      = true
+	ClassBannerCfg = ClassificationBanners{Enabled: false, Text: "", Footer: false}
+)
+
+const (
+	bootstrapConfigNamespace = "window.__APP__"
 )
 
 func init() {
 	// configure auth settings
-	if os.Getenv("LOCAL_MODE") == "true" && os.Getenv("IN_CLUSTER_AUTH_ENABLED") == "true" {
-		slog.Error("Cannot enable both local mode and in-cluster auth")
-		os.Exit(1)
-	}
 	if os.Getenv("LOCAL_MODE") == "false" {
 		LocalMode = false
-	}
-	if os.Getenv("IN_CLUSTER_AUTH_ENABLED") == "true" {
-		slog.Info("In-cluster auth enabled")
-		InClusterAuthEnabled = true
 	}
 
 	// Class Banner ENV vars must match the names in chart/templates/deployment.yaml
@@ -54,19 +49,15 @@ func init() {
 	}
 }
 
-func ServeClassBannerCfg() http.HandlerFunc {
-	return func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "application/json; charset=utf-8")
-		w.Header().Set("Cache-Control", "no-cache")
+func GenerateBootstrapConfigScript() string {
+	var builder strings.Builder
+	builder.WriteString("<script>\n")
+	builder.WriteString(bootstrapConfigNamespace + " = {};\n")
+	builder.WriteString(bootstrapConfigNamespace + ".CLASSIFICATION_BANNER = {};\n")
+	fmt.Fprintf(&builder, "%s.CLASSIFICATION_BANNER.enabled = %t;\n", bootstrapConfigNamespace, ClassBannerCfg.Enabled)
+	fmt.Fprintf(&builder, "%s.CLASSIFICATION_BANNER.footer = %t;\n", bootstrapConfigNamespace, ClassBannerCfg.Footer)
+	fmt.Fprintf(&builder, "%s.CLASSIFICATION_BANNER.text = \"%s\";\n", bootstrapConfigNamespace, template.JSEscapeString(ClassBannerCfg.Text))
+	builder.WriteString("</script>\n")
 
-		data, err := json.Marshal(ClassBannerCfg)
-		if err != nil {
-			http.Error(w, "failed to marshal classification banners", http.StatusInternalServerError)
-			return
-		}
-
-		if _, err := w.Write(data); err != nil {
-			http.Error(w, "failed to write classification banner config", http.StatusInternalServerError)
-		}
-	}
+	return builder.String()
 }

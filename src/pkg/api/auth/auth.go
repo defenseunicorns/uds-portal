@@ -8,40 +8,35 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/defenseunicorns/uds-app-portal/src/pkg/api/auth/incluster"
-	"github.com/defenseunicorns/uds-app-portal/src/pkg/config"
+	"github.com/defenseunicorns/uds-portal/src/pkg/api/auth/incluster"
+	"github.com/defenseunicorns/uds-portal/src/pkg/config"
 )
 
 // UserResponse is the response for the /auth endpoint
 type UserResponse struct {
-	Group             string `json:"group"`
-	PreferredUsername string `json:"preferred-username"`
-	Name              string `json:"name"`
-	InClusterAuth     bool   `json:"in-cluster-auth"`
+	Username string `json:"username"`
+	Name     string `json:"name"`
 }
 
 // RequestHandler is the main handler for the /auth endpoint; it returns a userResponse struct
 // indicating whether the request was authenticated via local or in-cluster auth, and relevant user data
 func RequestHandler(w http.ResponseWriter, r *http.Request) {
-	resp := UserResponse{
-		InClusterAuth: false,
-	}
+	resp := UserResponse{}
 
-	if config.InClusterAuthEnabled {
+	if config.LocalMode {
+		resp.Username = "local"
+		resp.Name = "First Last"
+	} else {
 		// grab values from context set by Auth JWT middleware
-		group := r.Context().Value(incluster.GroupKey)
 		username := r.Context().Value(incluster.PreferredUserNameKey)
 		name := r.Context().Value(incluster.NameKey)
 
-		resp.InClusterAuth = true
-
 		// ensure values are valid
-		if group != nil && username != nil && name != nil {
-			resp.Group = group.(string)
+		if username != nil && name != nil {
 			resp.Name = name.(string)
-			resp.PreferredUsername = username.(string)
+			resp.Username = username.(string)
 		} else {
-			slog.Warn("Failed to get group and username from context")
+			slog.Warn("Failed to get username from context")
 			http.Error(w, "authorization failure", http.StatusInternalServerError)
 			return
 		}

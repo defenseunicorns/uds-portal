@@ -1,11 +1,11 @@
 // Copyright 2025 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
-import type { CarbonIcon } from 'carbon-icons-svelte'
+import type { Component } from 'svelte'
 
 export interface BaseRoute {
   name: string
-  icon?: typeof CarbonIcon
+  icon?: Component
   class?: string
   children?: string[]
   path?: string
@@ -14,7 +14,7 @@ export interface BaseRoute {
 export interface Route {
   name: string
   path: string
-  icon?: typeof CarbonIcon
+  icon?: Component
   class?: string
   children?: RouteChild[]
 }
@@ -27,7 +27,5 @@ export interface RouteChild {
 // UserData is the shape of the user data returned from /user
 export interface UserData {
   name: string
-  preferredUsername: string
-  group: string
-  inClusterAuth: boolean
+  username: string
 }

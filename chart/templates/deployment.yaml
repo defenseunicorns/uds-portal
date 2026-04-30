@@ -4,23 +4,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: uds-app-portal
+  name: uds-portal
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: uds-app-portal
+      app: uds-portal
   template:
     metadata:
       labels:
-        app: uds-app-portal
+        app: uds-portal
     spec:
-      serviceAccountName: uds-app-portal-sa
+      serviceAccountName: uds-portal-sa
       securityContext:
           {{- .Values.podSecurityContext | toYaml | nindent 8 }}
       containers:
-        - name: uds-app-portal
+        - name: uds-portal
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           securityContext:
@@ -35,8 +35,8 @@ spec:
               memory: {{ .Values.resources.limits.memory | quote }}
               cpu: {{ .Values.resources.limits.cpu | quote }}
           env:
-            - name: IN_CLUSTER_AUTH_ENABLED
-              value: {{ .Values.sso.enabled | quote }}
+            - name: LOCAL_MODE
+              value: {{ not .Values.sso.enabled | quote }}
             - name: CLASSIFICATION_BANNER_ENABLED
               value: {{ .Values.classificationBanner.enabled | quote }}
             - name: CLASSIFICATION_BANNER_TEXT

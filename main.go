@@ -8,17 +8,11 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/defenseunicorns/uds-app-portal/src/pkg/api"
+	"github.com/defenseunicorns/uds-portal/src/pkg/api"
 )
 
 //go:embed ui/build/*
 var assets embed.FS
-
-//go:embed hack/certs/cert.pem
-var localCert []byte
-
-//go:embed hack/certs/key.pem
-var localKey []byte
 
 func main() {
 	slog.SetLogLoggerLevel(slog.LevelDebug)
@@ -30,7 +24,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = api.Serve(r, localCert, localKey, inCluster)
+	err = api.Serve(r, inCluster)
 	if err != nil {
 		os.Exit(1)
 	}

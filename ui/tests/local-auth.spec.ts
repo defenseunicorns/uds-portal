@@ -12,7 +12,7 @@ let extractedToken: string | null = null
 test.beforeAll(async () => {
   // Start the server here (not in playwright config) so we can grab the token from the logs
   return new Promise<void>((resolve, reject) => {
-    serverProcess = exec('../build/uds-runtime', (error) => {
+    serverProcess = exec('../build/uds-portal', (error) => {
       if (error) {
         console.error(`Error starting server: ${error}`)
       }

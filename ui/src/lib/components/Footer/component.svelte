@@ -4,8 +4,7 @@
 <script lang="ts">
 </script>
 
-<div class="h-[5%] flex items-center justify-center bg-gray-900 border-t border-gray-700">
-  <img src="/doug.svg" class="mr-1 h-8" alt="FlowBite Logo" />
-  <span class="text-sm">Powered by</span>
-  <img src="/defense_unicorns.svg" class="ml-1 h-6" alt="Defense Unicorns Logo" />
+<div class="flex h-8 items-center justify-center border-t border-gray-700 bg-gray-900">
+  <span class="text-xs">Powered by</span>
+  <img src="/defense_unicorns.svg" class="ml-1 h-3" alt="Defense Unicorns Logo" />
 </div>

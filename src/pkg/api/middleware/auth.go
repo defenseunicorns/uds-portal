@@ -7,14 +7,14 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/defenseunicorns/uds-app-portal/src/pkg/api/auth/incluster"
-	"github.com/defenseunicorns/uds-app-portal/src/pkg/config"
+	"github.com/defenseunicorns/uds-portal/src/pkg/api/auth/incluster"
+	"github.com/defenseunicorns/uds-portal/src/pkg/config"
 )
 
-// Auth is a middleware that handles all API authentication for UDS Runtime
+// Auth is a middleware that handles all API authentication for UDS Portal
 func Auth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if config.InClusterAuthEnabled {
+		if !config.LocalMode {
 			req, valid := incluster.ValidateJWT(w, r)
 			if valid {
 				next.ServeHTTP(w, req)

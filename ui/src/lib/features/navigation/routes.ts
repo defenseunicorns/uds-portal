@@ -7,7 +7,7 @@ import type { BaseRoute, Route } from './types'
 
 const baseRoutes: BaseRoute[] = [
   {
-    name: 'My Apps',
+    name: 'Your Apps',
     icon: Apps,
     path: '/',
   },

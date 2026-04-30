@@ -2,8 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - common: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.1.0/tasks/lint.yaml
-  - setup: ./setup.yaml
+  - common: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.5/tasks/lint.yaml
 
 tasks:
   - name: all
@@ -12,29 +11,29 @@ tasks:
       - task: yaml
       - task: golangci
       - task: ui
+      - task: common:license
 
   - name: golangci
     description: "Run golang linters"
     actions:
-      - cmd: which golangci-lint || echo "install golangci-lint -- https://golangci-lint.run/welcome/install/#local-installation" exit 1
-      - cmd: golangci-lint run --timeout 5m0s
+      - cmd: |
+          golangci-lint run ./...
 
   - name: yaml
     description: "Run yaml linters"
     actions:
-      - task: common:deps
       - task: common:yaml
 
   - name: ui
     description: "Run ui lint and type check"
     actions:
-      - cmd: npm run lint
+      - cmd: pnpm run lint
         dir: ui
-      - cmd: npm run check
+      - cmd: pnpm run check
         dir: ui
 
   - name: format-ui
     description: "Format ui code"
     actions:
-      - cmd: npm ci && npm run format
+      - cmd: pnpm install --frozen-lockfile && pnpm run format
         dir: ui

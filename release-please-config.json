@@ -15,8 +15,7 @@
         "tasks.yaml",
         "tasks/build.yaml",
         "tasks/test.yaml",
-        "chart/values.yaml",
-        ".github/test-infra/terraform/variables.tf"
+        "chart/values.yaml"
       ]
     }
   }

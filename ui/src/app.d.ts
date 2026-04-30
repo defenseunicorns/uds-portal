@@ -16,4 +16,6 @@ declare global {
   }
 }
 
+declare module '*.postcss'
+
 export {}

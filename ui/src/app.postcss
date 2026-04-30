@@ -3,9 +3,9 @@
   SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 */
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import '../node_modules/tailwindcss/theme.css';
+@import '../node_modules/tailwindcss/preflight.css';
+@import '../node_modules/tailwindcss/utilities.css';
 
 @layer components {
   /* width */
@@ -29,12 +29,12 @@
   }
 
   .tooltip {
-    @apply absolute top-0 transform -translate-y-0 p-2 bg-gray-900 text-gray-100 text-xs rounded shadow-lg opacity-0 group-hover:opacity-90 transition-opacity duration-300 z-50 pointer-events-none whitespace-nowrap;
+    @apply pointer-events-none absolute top-0 z-50 -translate-y-0 transform rounded bg-gray-900 p-2 text-xs whitespace-nowrap text-gray-100 opacity-0 shadow-lg transition-opacity duration-300 group-hover:opacity-90;
   }
 
   .tooltip::before {
     content: '';
-    @apply absolute top-[16px] transform -translate-y-0 border-solid border-8;
+    @apply absolute top-[16px] -translate-y-0 transform border-8 border-solid;
   }
 
   .tooltip-left {
@@ -50,15 +50,15 @@
   }
 
   .tooltip-right::before {
-    @apply right-full border-y-transparent border-l-transparent border-r-gray-900;
+    @apply right-full border-y-transparent border-r-gray-900 border-l-transparent;
   }
 
   select {
-    @apply bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg block w-full p-2.5 dark:bg-gray-800 dark:border-gray-700 dark:placeholder-gray-400 dark:text-gray-100;
+    @apply block w-full rounded-lg border border-gray-300 bg-gray-50 p-2.5 text-sm text-gray-900 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:placeholder-gray-400;
   }
 
   .table-section {
-    @apply flex flex-grow h-[65%] flex-shrink-0 flex-col bg-gray-50 dark:bg-gray-900 rounded-lg;
+    @apply flex h-[65%] flex-shrink-0 flex-grow flex-col rounded-lg bg-gray-50 dark:bg-gray-900;
 
     .table-container {
       @apply flex h-full w-full flex-col;
@@ -67,11 +67,11 @@
         @apply relative flex h-full w-full flex-col overflow-hidden sm:rounded-lg;
 
         .table-header {
-          @apply flex items-center space-y-0 mx-4 py-3;
+          @apply mx-4 flex items-center space-y-0 py-3;
         }
 
         .table-filter-section {
-          @apply sticky top-0 z-20 flex flex-col space-y-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:space-x-4 lg:space-y-0;
+          @apply sticky top-0 z-20 flex flex-col space-y-3 px-4 py-3 lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:space-x-4;
 
           button {
             @apply flex flex-shrink-0 items-center justify-center border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:z-10 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700 dark:hover:text-gray-100 dark:focus:ring-gray-700;
@@ -98,10 +98,10 @@
             @apply w-full text-left text-sm text-gray-500 dark:text-gray-100;
 
             .thead {
-              @apply sticky top-0 z-10 bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-800 dark:text-gray-100;
+              @apply sticky top-0 z-10 bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-800 dark:text-gray-100;
 
               .th {
-                @apply flex whitespace-nowrap px-4 py-3.5;
+                @apply flex px-4 py-3.5 whitespace-nowrap;
 
                 &:hover {
                   svg.sort {
@@ -115,7 +115,7 @@
               @apply border-b hover:bg-gray-100 dark:border-gray-600 dark:hover:bg-gray-800;
 
               &.active {
-                @apply border-solid border-4 bg-gray-100 dark:bg-gray-800/50;
+                @apply border-4 border-solid bg-gray-100 dark:bg-gray-800/50;
               }
 
               .td {
@@ -129,10 +129,10 @@
             @apply w-full text-left text-sm text-gray-500 dark:text-gray-100;
 
             thead {
-              @apply sticky top-0 z-10 bg-gray-50 text-xs uppercase text-gray-700 dark:bg-gray-800 dark:text-gray-100;
+              @apply sticky top-0 z-10 bg-gray-50 text-xs text-gray-700 uppercase dark:bg-gray-800 dark:text-gray-100;
 
               th {
-                @apply whitespace-nowrap px-4 py-3;
+                @apply px-4 py-3 whitespace-nowrap;
 
                 button {
                   @apply uppercase;
@@ -159,7 +159,7 @@
                 @apply border-b hover:bg-gray-100 dark:border-gray-700 dark:hover:bg-gray-800;
 
                 &.active {
-                  @apply border-solid border-4 bg-gray-100 dark:bg-gray-700/50;
+                  @apply border-4 border-solid bg-gray-100 dark:bg-gray-700/50;
                 }
 
                 td {

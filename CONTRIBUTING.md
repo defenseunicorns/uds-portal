@@ -1,6 +1,6 @@
-# Contributing to UDS App Portal
+# Contributing to UDS Portal
 
-Welcome :unicorn: to the UDS App Portal repo! If you'd like to contribute, please reach out to one of the [CODEOWNERS](CODEOWNERS) and we'll be happy to get you started!
+Welcome :unicorn: to the UDS Portal repo! If you'd like to contribute, please reach out to one of the [CODEOWNERS](CODEOWNERS) and we'll be happy to get you started!
 
 Below are some notes on our core software design philosophies that should help guide contributors.
 
@@ -15,11 +15,11 @@ Below are some notes on our core software design philosophies that should help g
 
 ## Code Quality and Standards
 
-Below are some general guidelines for code quality and standards that make UDS Runtime :sparkles:
+Below are some general guidelines for code quality and standards that make UDS Portal :sparkles:
 
 - **Write tests that give confidence**: Unless there is a technical blocker, every new feature and bug fix should be tested in the project's automated test suite.
 
-- **Prefer readability over being clever**: We have a strong preference for code readability in UDS Runtime. Specifically, this means things like: naming variables appropriately, keeping functions to a reasonable size and avoiding complicated solutions when simple ones exist.
+- **Prefer readability over being clever**: We have a strong preference for code readability in UDS Portal. Specifically, this means things like: naming variables appropriately, keeping functions to a reasonable size and avoiding complicated solutions when simple ones exist.
 
 - **Design Decision**: We use [Architectural Decision Records](https://adr.github.io/) to document the design decisions that we make. These records live in the `adr` directory. We highly recommend reading through the existing ADRs to understand the context and decisions that have been made in the past, and to inform current development.
 
@@ -36,9 +36,9 @@ Specifically:
 
 ## How to Contribute
 
-Please ensure there is a Github issue for your proposed change, this helps the UDS Runtime team to understand the context of the change and to track the progress of the work. If there isn't an issue for your change, please create one before starting work. The recommended workflow for contributing is as follows:
+Please ensure there is a Github issue for your proposed change, this helps the UDS Portal team to understand the context of the change and to track the progress of the work. If there isn't an issue for your change, please create one before starting work. The recommended workflow for contributing is as follows:
 
-\*Before starting development, we highly recommend reading through the UDS Runtime [documentation](https://uds.defenseunicorns.com/) and our [ADRs](./adr).
+\*Before starting development, we highly recommend reading through the UDS Portal [documentation](https://uds.defenseunicorns.com/) and our [ADRs](./adr).
 
 1. **Fork this repo** and clone it locally
 1. **Create a branch** for your changes
@@ -49,14 +49,14 @@ Please ensure there is a Github issue for your proposed change, this helps the U
 
 ## Local Development
 
-Most of the actions needed for running and testing UDS Runtime are contained in tasks ran by UDS CLI's `run` feature (ie. vendored [Maru](https://github.com/defenseunicorns/maru-runner)). While the actions can be performed manually without running tasks, we recommend installing the [`uds` binary](https://uds.defenseunicorns.com/cli/quickstart-and-usage/) and using tasks as much as possible.
+Most of the actions needed for running and testing UDS Portal are contained in tasks ran by UDS CLI's `run` feature (ie. vendored [Maru](https://github.com/defenseunicorns/maru-runner)). While the actions can be performed manually without running tasks, we recommend installing the [`uds` binary](https://uds.defenseunicorns.com/cli/quickstart-and-usage/) and using tasks as much as possible.
 
 > !NOTE
 > Tasks are used in CI. See the [pull request workflow](.github/workflows/pr-tests.yaml) for an example.
 
 To view a complete list of all runnable tasks, run `uds run --list-all`.
 
-Local API authentication is enabled by default. To disable it, you can set the `LOCAL_AUTH_ENABLED` environment variable to false when running the backend. When running the backend and frontend locally with API auth enabled, when you start the backend, it will print a URL to the console with the api token query parameter as well as launch the app in your browser. If you are also running the frontend locally (via `npm run dev`), you will want to grab the token and update the url in your browser to use port `:5173` which is used by default. Example: `http://localhost:5173/auth?token=your-token-here`. More information on API authentication can be found in the [API Auth docs](./docs/api-auth.md).
+Local API authentication is enabled by default. To disable it, you can set the `LOCAL_AUTH_ENABLED` environment variable to false when running the backend. When running the backend and frontend locally with API auth enabled, when you start the backend, it will print a URL to the console with the api token query parameter as well as launch the app in your browser. If you are also running the frontend locally (via `pnpm run dev`), you will want to grab the token and update the url in your browser to use port `:5173` which is used by default. Example: `http://localhost:5173/auth?token=your-token-here`. More information on API authentication can be found in the [API Auth docs](./docs/api-auth.md).
 
 ### Pre-Commit Hooks and Linting
 
@@ -64,7 +64,7 @@ In this repo you can optionally use [pre-commit](https://pre-commit.com/) hooks 
 
 ### Testing
 
-We strive to test all changes made to UDS Runtime. If you're adding a new feature or fixing a bug, please add tests to cover the new functionality. Unit tests and E2E tests are both welcome, but we leave it up to the contributor to decide which is most appropriate for the change. Below are some guidelines for testing:
+We strive to test all changes made to UDS Portal. If you're adding a new feature or fixing a bug, please add tests to cover the new functionality. Unit tests and E2E tests are both welcome, but we leave it up to the contributor to decide which is most appropriate for the change. Below are some guidelines for testing:
 
 #### Unit Tests
 
@@ -95,8 +95,5 @@ When using locators for Playwright, these are the recommended built-in locators.
 - **`page.getByTitle()`** to _locate an element by its title attribute_.
 - **`page.getByTestId()`** to _locate an element based on its data-testid attribute (other attributes can be configured)_.
 
-Before using `page.locator()` to use either the html structure or some complicated locator, please use the `page.getByTestID` locator to target an element. Naming conventions can be found in this [Test ID's ADR](https://github.com/defenseunicorns/uds-runtime/blob/main/adr/0002-testing-with-data-testids.md#decision) as well as the reasoning behind this decision
+Before using `page.locator()` to use either the html structure or some complicated locator, please use the `page.getByTestID` locator to target an element. Naming conventions can be found in this [Test ID's ADR](https://github.com/defenseunicorns/uds-portal/blob/main/adr/0002-testing-with-data-testids.md#decision) as well as the reasoning behind this decision
 
-#### Ephemeral EC2 for Usability Tests
-
-There is an ephemeral ec2 instance deploying the nightly release of UDS Runtime along with `UDS Core`. For more details, please see the test IAC [README.md](./.github/test-infra/README.md).

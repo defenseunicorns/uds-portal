@@ -5,7 +5,8 @@
 package apps
 
 type Metadata struct {
-	Name string `json:"name"`
+	Name   string            `json:"name"`
+	Labels map[string]string `json:"labels,omitempty"`
 }
 
 type Groups struct {
@@ -24,8 +25,14 @@ type Spec struct {
 	SSO []SSO `json:"sso"`
 }
 
-type App struct {
+type Package struct {
 	Metadata Metadata `json:"metadata"`
 	Spec     Spec     `json:"spec,omitempty"`
 	Status   Status   `json:"status"`
+}
+
+type APIApp struct {
+	Name string `json:"name"`
+	Icon string `json:"icon,omitempty"`
+	URL  string `json:"url"`
 }

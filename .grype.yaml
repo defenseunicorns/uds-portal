@@ -5,6 +5,5 @@ fail-on-severity: "critical"
 output: "json"
 file: "grype-scan.json"
 exclude:
-  - "./hack/**"
   - "./tmp/**"
   - "**/node_modules/**"

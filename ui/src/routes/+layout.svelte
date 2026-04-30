@@ -4,41 +4,29 @@
 <script lang="ts">
   import 'flowbite'
 
-  import { onDestroy, onMount } from 'svelte'
-
-  import { afterNavigate, goto } from '$app/navigation'
+  import { afterNavigate } from '$app/navigation'
   import { authenticated } from '$features/auth/store'
-  import { Navbar, Sidebar } from '$features/navigation'
-  import { ToastPanel } from '$features/toast'
+  import { Navbar } from '$features/navigation'
   import { initFlowbite } from 'flowbite'
 
   import '../app.postcss'
 
   import { ClassBanner, Footer } from '$components'
-  import { ClusterCheck } from '$lib/utils/cluster-check/cluster-check'
 
   import { _bannerCfg } from './+layout'
 
   export let data
 
-  let clusterCheck: ClusterCheck
-
-  onMount(() => {
-    // initFlowbite loads the js necessary to target components which use flowbite js
-    // i.e. data-dropdown-toggle
-    initFlowbite()
-  })
-
-  onDestroy(() => {
-    if (clusterCheck) clusterCheck.close()
-  })
-
   afterNavigate(initFlowbite)
 
-  $: if ($authenticated) {
-    clusterCheck = new ClusterCheck()
-  } else {
-    goto('/auth')
+  // initFlowbite loads the js necessary to target components which use flowbite js
+  // i.e. data-dropdown-toggle
+  initFlowbite()
+
+  $: if (!$authenticated) {
+    if (window.location.pathname !== '/auth') {
+      window.location.assign('/auth')
+    }
   }
 </script>
 
@@ -47,13 +35,8 @@
   <div class="flex-grow overflow-auto">
     <Navbar userData={data.userData} />
 
-    {#if $authenticated}
-      <Sidebar />
-    {/if}
-
-    <main class="flex h-[95%] pt-16 transition-all duration-300 ease-in-out">
-      <ToastPanel />
-      <div class="mx-auto w-full max-w-3xl p-4 pt-16">
+    <main class="flex min-h-[calc(100dvh-32px)] bg-[linear-gradient(180deg,_#030712_66.35%,_#213E68_100%)] pt-16 transition-all duration-300 ease-in-out">
+      <div class="mx-auto w-full max-w-6xl p-4 pt-16">
         <slot />
       </div>
     </main>

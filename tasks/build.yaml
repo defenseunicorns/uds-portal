@@ -7,11 +7,6 @@ variables:
     # x-release-please-start-version
     default: 0.9.1
     # x-release-please-end
-  - name: DIR
-    description: "directory of the zarf.yaml"
-    default: .
-  - name: FLAVOR
-    default: ""
 
 tasks:
   - name: all
@@ -27,41 +22,41 @@ tasks:
   - name: api-linux-amd64
     description: "build the go api server for linux amd64 (used for multi-arch container)"
     actions:
-      - cmd: CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o build/uds-app-portal-linux-amd64 .
+      - cmd: CGO_ENABLED=0 GOARCH=amd64 GOOS=linux go build -o build/uds-portal-linux-amd64 .
 
   - name: api-linux-arm64
     description: "build the go api server for linux arm64 (used for multi-arch container)"
     actions:
-      - cmd: CGO_ENABLED=0 GOARCH=arm64 GOOS=linux go build -o build/uds-app-portal-linux-arm64 .
+      - cmd: CGO_ENABLED=0 GOARCH=arm64 GOOS=linux go build -o build/uds-portal-linux-arm64 .
 
   - name: api-darwin-amd64
     description: "build the go api server for darwin amd64"
     actions:
-      - cmd: CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o build/uds-app-portal-darwin-amd64 .
+      - cmd: CGO_ENABLED=0 GOARCH=amd64 GOOS=darwin go build -o build/uds-portal-darwin-amd64 .
 
   - name: api-darwin-arm64
     description: "build the go api server for darwin arm64"
     actions:
-      - cmd: CGO_ENABLED=0 GOARCH=arm64 GOOS=darwin go build -o build/uds-app-portal-darwin-arm64 .
+      - cmd: CGO_ENABLED=0 GOARCH=arm64 GOOS=darwin go build -o build/uds-portal-darwin-arm64 .
 
   - name: api-linux
     description: "build the go api server for linux and local architecture"
     actions:
-      - cmd: CGO_ENABLED=0 GOOS=linux go build -o build/uds-app-portal-linux-$UDS_ARCH .
+      - cmd: CGO_ENABLED=0 GOOS=linux go build -o build/uds-portal-linux-$UDS_ARCH .
 
   - name: api
     description: "build the go api server for the local platform"
     actions:
-      - cmd: CGO_ENABLED=0 go build -o ./build/uds-app-portal .
+      - cmd: CGO_ENABLED=0 go build -o ./build/uds-portal .
 
   - name: ui
     description: "build ui"
     actions:
-      - cmd: npm ci && npm run build
+      - cmd: pnpm install --frozen-lockfile && pnpm run build
         dir: ui
 
-  - name: publish-uds-app-portal
-    description: "publish the uds app portal including its image and Zarf pkg (multi-arch)"
+  - name: publish-uds-portal
+    description: "publish the uds portal including its image and Zarf pkg (multi-arch)"
     actions:
       - task: push-container
       - task: build-zarf-packages
@@ -76,65 +71,16 @@ tasks:
       - task: api-linux-amd64
       - task: api-linux-arm64
       - cmd: |
-          docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/defenseunicorns/uds-app-portal:${REF} --push .
+          docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/defenseunicorns/uds-portal:${REF} --push .
 
-  - name: build-zarf-packages
-    description: "build the uds app portal zarf packages (multi-arch)"
+  - name: zarf-packages
+    description: "build the uds portal zarf packages (multi-arch)"
     actions:
-      - cmd: |
-          if [ -n "${FLAVOR}" ]; then
-            ./uds zarf p create --set REF=${REF} -a amd64 --flavor ${FLAVOR} -o build --confirm
-          else
-            ./uds zarf p create --set REF=${REF} -a amd64 -o build --confirm
-          fi
-        dir: ${DIR}
-      - cmd: |
-          # dont build arm64 for registry1 since IB images are only amd64
-          if [ "${FLAVOR}" != "registry1" ]; then
-            if [ -n "${FLAVOR}" ]; then
-              ./uds zarf p create --set REF=${REF} -a arm64 --flavor ${FLAVOR} -o build --confirm
-            else
-              ./uds zarf p create --set REF=${REF} -a arm64 -o build --confirm
-            fi
-          fi
-        dir: ${DIR}
-
+      - cmd: ./uds zarf p create --set REF=${REF} -a amd64 -o build --confirm
+      - cmd: ./uds zarf p create --set REF=${REF} -a arm64 -o build --confirm
 
   - name: publish-zarf-packages
-    description: "publish uds app-portal zarf packages (multi-arch)"
+    description: "publish uds portal zarf packages (multi-arch)"
     actions:
-      - cmd: ./uds zarf p publish build/zarf-package-uds-app-portal-amd64-${REF}.tar.zst oci://ghcr.io/defenseunicorns/packages/uds
-        dir: ${DIR}
-      - cmd: |
-          # dont publish arm64 for registry1 since IB images are only amd64
-          if [ "${FLAVOR}" != "registry1" ]; then
-            ./uds zarf p publish build/zarf-package-uds-app-portal-arm64-${REF}.tar.zst oci://ghcr.io/defenseunicorns/packages/uds
-          fi
-        dir: ${DIR}
-
-  - name: smoke-img-pkg-amd
-    description: "build amd docker image and zarf package for nightly smoke test"
-    actions:
-      - task: ui
-      - task: api-linux-amd64
-      - cmd: docker build --build-arg TARGETARCH=amd64 -t uds-app-portal:test -f ./Dockerfile .
-      - cmd: uds zarf package create -o build/smoke --flavor smoke --confirm
-        dir: hack/test
-
-  - name: smoke-img-pkg-arm
-    description: "build arm docker image and zarf package for nightly smoke test"
-    actions:
-      - task: ui
-      - task: api-linux-arm64
-      - cmd: docker build --build-arg TARGETARCH=arm64 -t uds-app-portal:test -f ./Dockerfile .
-      - cmd: uds zarf package create -o build/smoke --flavor smoke --confirm
-        dir: hack/test
-
-  - name: e2e-img-pkg
-    description: "build docker image and zarf package for e2e in cluster tests based on local arch"
-    actions:
-      - task: ui
-      - task: api-linux
-      - cmd: docker build --build-arg TARGETARCH=$UDS_ARCH -t uds-app-portal:test -f ./Dockerfile .
-      - cmd: uds zarf package create -o build/e2e --confirm
-        dir: hack/test
+      - cmd: ./uds zarf p publish build/zarf-package-uds-portal-amd64-${REF}.tar.zst oci://ghcr.io/defenseunicorns/packages/uds
+      - cmd: ./uds zarf p publish build/zarf-package-uds-portal-arm64-${REF}.tar.zst oci://ghcr.io/defenseunicorns/packages/uds

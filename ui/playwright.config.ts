@@ -17,7 +17,7 @@ const configs: Record<string, PlaywrightTestConfig> = {
   default: {
     name: 'default',
     webServer: {
-      command: '../build/uds-runtime',
+      command: '../build/uds-portal',
       url: `${protocol}://${host}:${port}`,
       reuseExistingServer: !process.env.CI,
       env: { LOCAL_AUTH_ENABLED: 'false' },
@@ -36,7 +36,7 @@ const configs: Record<string, PlaywrightTestConfig> = {
   connections: {
     name: 'connections',
     webServer: {
-      command: '../build/uds-runtime',
+      command: '../build/uds-portal',
       url: `${protocol}://${host}:${port}`,
       reuseExistingServer: !process.env.CI,
       env: { LOCAL_AUTH_ENABLED: 'false' },

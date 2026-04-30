@@ -12,8 +12,6 @@ repos:
       - id: detect-aws-credentials
         args:
           - "--allow-missing-credentials"
-      - id: detect-private-key
-        exclude: "hack/certs/key.pem"
       - id: end-of-file-fixer
         exclude_types:
           - json
@@ -35,22 +33,12 @@ repos:
     hooks:
       - id: golangci-lint-full
         args: [--timeout=5m]
-  - repo: local
-    hooks:
-      - id: check-docs-and-schema
-        name: Check for outdated schema
-        entry: ./hack/test-generate-schema.sh
-        files: "src/types/types.go"
-        types: [go]
-        language: script
-        description: "Checks for schema changes"
-
   ### Typescript ###
   - repo: local
     hooks:
       - id: prettier-format
         name: prettier format
-        entry: sh -c 'cd ui && npm run format'
+        entry: sh -c 'cd ui && pnpm run format'
         language: system
         files: \.(js|ts|svelte|css|postcss|scss|json|md)$
 

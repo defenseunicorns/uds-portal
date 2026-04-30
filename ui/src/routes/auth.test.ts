@@ -25,35 +25,22 @@ describe('load function', () => {
   const fetchMock = vi.fn()
   global.fetch = fetchMock
 
-  let mockUrl: URL
-
   beforeEach(() => {
     vi.clearAllMocks()
-
-    // Reset URL mock
-    mockUrl = new URL('https://example.com')
-    Object.defineProperty(window, 'location', {
-      value: { href: mockUrl.href },
-      writable: true,
-    })
+    ;(window as Window & { __APP__?: { CLASSIFICATION_BANNER?: { enabled: boolean; text: string; footer: boolean } } }).__APP__ = {
+      CLASSIFICATION_BANNER: {
+        enabled: false,
+        text: '',
+        footer: false,
+      },
+    }
   })
 
   test('successful local authentication with token in URL', async () => {
-    // Set up URL with token
-    mockUrl.searchParams.set('token', 'valid-token')
-    Object.defineProperty(window, 'location', {
-      value: { href: mockUrl.href },
-      writable: true,
-    })
-
     const mockUserData = {
-      name: '',
-      'preferred-username': '',
-      group: '',
-      'in-cluster-auth': false,
+      name: 'First Last',
+      username: 'local',
     }
-
-    // Mock successful fetch response
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: () => mockUserData,
@@ -62,7 +49,7 @@ describe('load function', () => {
     const result = await load()
 
     // Verify fetch was called correctly
-    expect(fetchMock).toHaveBeenCalledWith('/api/v1/auth?token=valid-token', {
+    expect(fetchMock).toHaveBeenNthCalledWith(1, '/api/v1/auth', {
       method: 'GET',
       headers: new Headers({
         'Content-Type': 'application/json',
@@ -70,17 +57,13 @@ describe('load function', () => {
     })
 
     // Verify store operations
-    expect(result.namespaces.start).toHaveBeenCalled()
     expect(authenticated.set).toHaveBeenCalledWith(true)
 
     // Verify return value
     expect(result).toEqual({
-      namespaces: expect.any(Object),
       userData: {
-        name: '',
-        preferredUsername: '',
-        group: '',
-        inClusterAuth: false,
+        name: 'First Last',
+        username: 'local',
       },
     })
   })
@@ -88,12 +71,8 @@ describe('load function', () => {
   test('successful in-cluster authentication (without token in URL)', async () => {
     const mockUserData = {
       name: 'Doug Unicorn',
-      'preferred-username': 'doug@defenseunicorns.com',
-      group: 'admin',
-      'in-cluster-auth': true,
+      username: 'doug@defenseunicorns.com',
     }
-
-    // Mock successful fetch response
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: () => mockUserData,
@@ -102,25 +81,21 @@ describe('load function', () => {
     const result = await load()
 
     // Verify fetch was called with empty token
-    expect(fetchMock).toHaveBeenCalledWith('/api/v1/auth', {
+    expect(fetchMock).toHaveBeenNthCalledWith(1, '/api/v1/auth', {
       method: 'GET',
       headers: new Headers({
         'Content-Type': 'application/json',
       }),
     })
 
-    // Verify namespaces was called
-    expect(result.namespaces.start).toHaveBeenCalled()
+    // Verify authenticated state was set to true
     expect(authenticated.set).toHaveBeenCalledWith(true)
 
     // Verify return value
     expect(result).toEqual({
-      namespaces: expect.any(Object),
       userData: {
         name: 'Doug Unicorn',
-        preferredUsername: 'doug@defenseunicorns.com',
-        group: 'admin',
-        inClusterAuth: true,
+        username: 'doug@defenseunicorns.com',
       },
     })
   })
@@ -134,18 +109,14 @@ describe('load function', () => {
 
     const result = await load()
 
-    // Verify namespaces wasn't started and authenticated state was set to false
-    expect(result.namespaces.start).not.toHaveBeenCalled()
+    // Verify authenticated state was set to false
     expect(authenticated.set).toHaveBeenCalledWith(false)
 
     // Verify return value
     expect(result).toEqual({
-      namespaces: expect.any(Object),
       userData: {
         name: '',
-        preferredUsername: '',
-        group: '',
-        inClusterAuth: false,
+        username: '',
       },
     })
   })
@@ -161,18 +132,14 @@ describe('load function', () => {
     // Verify error was logged
     expect(consoleSpy).toHaveBeenCalledWith('Load error:', expect.any(Error))
 
-    // Verify namespaces wasn't started authenticated state was set to false
-    expect(result.namespaces.start).not.toHaveBeenCalled()
+    // Verify authenticated state was set to false
     expect(authenticated.set).toHaveBeenCalledWith(false)
 
     // Verify return value
     expect(result).toEqual({
-      namespaces: expect.any(Object),
       userData: {
         name: '',
-        preferredUsername: '',
-        group: '',
-        inClusterAuth: false,
+        username: '',
       },
     })
 
@@ -192,12 +159,9 @@ describe('load function', () => {
 
     // Verify return value
     expect(result).toEqual({
-      namespaces: expect.any(Object),
       userData: {
         name: '',
-        preferredUsername: '',
-        group: '',
-        inClusterAuth: false,
+        username: '',
       },
     })
   })

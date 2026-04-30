@@ -9,19 +9,14 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/defenseunicorns/uds-app-portal/src/pkg/api/apps"
-	"github.com/defenseunicorns/uds-app-portal/src/pkg/api/auth"
-	"github.com/defenseunicorns/uds-app-portal/src/pkg/config"
-	"github.com/defenseunicorns/uds-runtime/src/pkg/k8s/session"
+	"github.com/defenseunicorns/uds-portal/src/pkg/api/apps"
+	"github.com/defenseunicorns/uds-portal/src/pkg/api/auth"
+	"github.com/defenseunicorns/uds-portal/src/pkg/api/k8s/session"
 )
-
-func checkClusterConnection(k8sSession *session.K8sSession) http.HandlerFunc {
-	return k8sSession.ServeConnStatus()
-}
 
 func getUDSPackages(k8sSession *session.K8sSession) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		apps.GetUDSPackages(k8sSession.Clients, w, r)
+		apps.GetUDSPackages(k8sSession.Config, w, r)
 	}
 }
 
@@ -29,15 +24,11 @@ func authHandler(w http.ResponseWriter, r *http.Request) {
 	auth.RequestHandler(w, r)
 }
 
-func getClassBannerCfg() func(w http.ResponseWriter, r *http.Request) {
-	return config.ServeClassBannerCfg()
-}
-
 func healthz(w http.ResponseWriter, _ *http.Request) {
 	slog.Debug("Health check called")
 
 	response := map[string]interface{}{
-		"status":    "UP",
+		"status":    "ok",
 		"timestamp": time.Now().UTC().Format(time.RFC3339),
 	}
 

@@ -22,7 +22,7 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # # Playwright/ Vitest
-/ui/test-results
+ui/test-results
 screenshot.png
 page-load-failure-*.png
 
@@ -35,9 +35,7 @@ state.json
 *.db
 grype-scan.json
 *.pem
-.github/test-infra/**/.terraform*
 artifacts/
-
-# Allow certs in hack/certs
-!hack/certs/cert.pem
-!hack/certs/key.pem
+ui/node_modules/**/*
+ui/.svelte-kit/**/*
+ui/build/**/*

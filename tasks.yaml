@@ -2,11 +2,10 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
+  - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.5/tasks/setup.yaml
   - test: tasks/test.yaml
   - lint: tasks/lint.yaml
-  - setup: tasks/setup.yaml
   - build: tasks/build.yaml
-  - swagger: tasks/swagger.yaml
 
 variables:
   - name: REF
@@ -14,9 +13,6 @@ variables:
     # x-release-please-start-version
     default: 0.1.0
     # x-release-please-end
-  - name: DIR
-    description: "directory of the zarf.yaml"
-    default: .
 
 tasks:
   - name: dev-server
@@ -28,7 +24,7 @@ tasks:
   - name: dev-ui
     description: "run the ui in dev mode"
     actions:
-      - cmd: npm ci && npm run dev
+      - cmd: pnpm install --frozen-lockfile && pnpm run dev
         dir: ui
 
   - name: compile

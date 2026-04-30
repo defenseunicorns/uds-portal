@@ -37,11 +37,12 @@ async function globalSetup(config: FullConfig) {
       break
     } catch (error) {
       attempt++
-      console.log(`Page load attempt ${attempt} failed: ${error.message}`)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.log(`Page load attempt ${attempt} failed: ${errorMessage}`)
       await page.screenshot({ path: `page-load-failure-${attempt}.png` })
 
       if (attempt === maxRetries) {
-        throw new Error(`Failed to load page after ${maxRetries} attempts`)
+        throw new Error(`Failed to load page after ${maxRetries} attempts`, { cause: error })
       }
 
       // Wait before retrying

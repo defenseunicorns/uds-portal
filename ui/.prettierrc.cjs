@@ -21,7 +21,7 @@ module.exports = {
     '',
     '^[./]',
   ],
-  plugins: ['prettier-plugin-svelte', '@ianvs/prettier-plugin-sort-imports'],
+  plugins: ['prettier-plugin-svelte', '@ianvs/prettier-plugin-sort-imports', 'prettier-plugin-tailwindcss'],
   overrides: [
     {
       files: '*.svelte',

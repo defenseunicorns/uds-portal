@@ -10,6 +10,14 @@ import type { ClassBannerCfg } from '$lib/types'
 export const ssr = false
 export const _bannerCfg: Writable<ClassBannerCfg> = writable({ enabled: false, text: '', footer: false })
 
+type AppBootstrapConfig = {
+  CLASSIFICATION_BANNER?: ClassBannerCfg
+}
+
+type BrowserWindowWithAppConfig = Window & {
+  __APP__?: AppBootstrapConfig
+}
+
 interface AuthResponse {
   authenticated: boolean
   userData: UserData
@@ -34,9 +42,7 @@ async function auth(): Promise<AuthResponse> {
         authenticated: response.ok,
         userData: {
           name: json['name'],
-          preferredUsername: json['preferred-username'],
-          group: json['group'],
-          inClusterAuth: json['in-cluster-auth'],
+          username: json['username'],
         },
       }
     } else {
@@ -44,9 +50,7 @@ async function auth(): Promise<AuthResponse> {
         authenticated: false,
         userData: {
           name: '',
-          preferredUsername: '',
-          group: '',
-          inClusterAuth: false,
+          username: '',
         },
       }
     }
@@ -60,9 +64,7 @@ async function auth(): Promise<AuthResponse> {
 export const load = async () => {
   let userData: UserData = {
     name: '',
-    preferredUsername: '',
-    group: '',
-    inClusterAuth: false,
+    username: '',
   }
 
   try {
@@ -72,11 +74,9 @@ export const load = async () => {
       authenticated.set(true)
       userData = authResult.userData
 
-      try {
-        const classCfg = await fetch('/class-banners')
-        _bannerCfg.set(await classCfg.json())
-      } catch (e) {
-        console.error(e)
+      const appConfig = (window as BrowserWindowWithAppConfig).__APP__
+      if (appConfig?.CLASSIFICATION_BANNER) {
+        _bannerCfg.set(appConfig.CLASSIFICATION_BANNER)
       }
     } else {
       authenticated.set(false)

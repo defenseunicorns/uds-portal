@@ -3,8 +3,8 @@
 
 kind: ZarfPackageConfig
 metadata:
-  name: uds-app-portal
-  description: UDS App Portal is the home page for UDS
+  name: uds-portal
+  description: UDS Portal is the home page for UDS
   # x-release-please-start-version
   version: 0.1.0
   # x-release-please-end
@@ -13,30 +13,17 @@ variables:
   - name: DOMAIN
     default: "uds.dev"
 
-  - name: ADMIN_DOMAIN
-
 components:
-  - name: uds-app-portal
+  - name: uds-portal
     required: true
-    only:
-      flavor: unicorn
-    import:
-      path: hack/flavors/common
+    charts:
+      - name: uds-portal
+        localPath: chart
+        namespace: uds-portal
+        version: 0.1.0
+        valuesFiles:
+          - chart/values.yaml
     # x-release-please-start-version
     images:
-      - ghcr.io/defenseunicorns/uds-app-portal:0.1.0
+      - ghcr.io/defenseunicorns/uds-portal:0.1.0
     # x-release-please-end
-  - name: uds-app-portal
-    required: true
-    only:
-      flavor: registry1
-      cluster:
-        architecture: amd64
-    import:
-      path: hack/flavors/common
-    images:
-      - registry1.dso.mil/ironbank/opensource/defenseunicorns/uds/app-portal:v0.1.0
-    charts:
-      - name: uds-app-portal
-        valuesFiles:
-          - hack/flavors/values/registry1-values.yaml

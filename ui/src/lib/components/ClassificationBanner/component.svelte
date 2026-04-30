@@ -20,11 +20,11 @@
   this={element}
   data-testid="classification-{element}"
   tabindex="-1"
-  class="flex justify-between w-full h-6 z-50"
+  class="z-50 flex h-6 w-full justify-between"
   class:hidden={!enabled}
   style="background-color: {classColorMap[classification][0]};"
 >
-  <div class="flex items-center mx-auto">
+  <div class="mx-auto flex items-center">
     <p class="flex items-center text-base font-semibold" style="color: {classColorMap[classification][1]}">
       {classification}
     </p>

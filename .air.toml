@@ -7,8 +7,8 @@ tmp_dir = "build"
 
 [build]
   args_bin = []
-  bin = "./build/uds-app-portal"
-  cmd = "go build -o ./build/uds-app-portal main.go"
+  bin = "./build/uds-portal"
+  cmd = "go build -o ./build/uds-portal main.go"
   delay = 2000
   exclude_dir = ["assets", "build", "vendor", "testdata", "ui", "docs", "hack", "tasks"]
   exclude_file = []

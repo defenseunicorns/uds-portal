@@ -12,9 +12,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+type expectedContext struct {
+	Groups            []string
+	PreferredUsername string
+	Name              string
+}
+
 func TestValidateJWT(t *testing.T) {
 	// Helper function to create a JWT token without signing
-	createToken := func(groups []string) string {
+	createToken := func(groups []interface{}) string {
 		claims := jwt.MapClaims{
 			"groups":             groups,
 			"preferred_username": "testuser",
@@ -29,29 +35,44 @@ func TestValidateJWT(t *testing.T) {
 		name            string
 		token           string
 		expectedStatus  int
-		expectedContext map[contextKey]string
+		expectedContext *expectedContext
 	}{
 		{
-			name:            "Valid token with allowed group",
-			token:           createToken([]string{"/UDS Core/Admin"}),
+			name:            "Valid token with single group",
+			token:           createToken([]interface{}{"/UDS Core/Admin"}),
 			expectedStatus:  http.StatusOK,
-			expectedContext: map[contextKey]string{GroupKey: "/UDS Core/Admin", PreferredUserNameKey: "testuser", NameKey: "Test User"},
+			expectedContext: &expectedContext{Groups: []string{"/UDS Core/Admin"}, PreferredUsername: "testuser", Name: "Test User"},
 		},
 		{
-			name:            "Valid token with another allowed group",
-			token:           createToken([]string{"/UDS Core/Auditor"}),
+			name:            "Valid token with multiple groups",
+			token:           createToken([]interface{}{"/UDS Core/Admin", "/Unicorn-Squad"}),
 			expectedStatus:  http.StatusOK,
-			expectedContext: map[contextKey]string{GroupKey: "/UDS Core/Auditor", PreferredUserNameKey: "testuser", NameKey: "Test User"},
+			expectedContext: &expectedContext{Groups: []string{"/UDS Core/Admin", "/Unicorn-Squad"}, PreferredUsername: "testuser", Name: "Test User"},
 		},
 		{
-			name:           "Valid token without allowed group",
-			token:          createToken([]string{"guest"}),
-			expectedStatus: http.StatusForbidden,
+			name:            "Valid token with empty groups",
+			token:           createToken([]interface{}{}),
+			expectedStatus:  http.StatusOK,
+			expectedContext: &expectedContext{Groups: []string{}, PreferredUsername: "testuser", Name: "Test User"},
 		},
 		{
-			name:           "Valid token with empty group",
-			token:          createToken([]string{}),
-			expectedStatus: http.StatusForbidden,
+			name:           "Invalid token with non-string group",
+			token:          createToken([]interface{}{"/UDS Core/Admin", 42}),
+			expectedStatus: http.StatusUnauthorized,
+		},
+		{
+			name: "Valid token with no groups claim",
+			token: func() string {
+				claims := jwt.MapClaims{
+					"preferred_username": "testuser",
+					"name":               "Test User",
+				}
+				token := jwt.NewWithClaims(jwt.SigningMethodNone, claims)
+				tokenString, _ := token.SignedString(jwt.UnsafeAllowNoneSignatureType)
+				return tokenString
+			}(),
+			expectedStatus:  http.StatusOK,
+			expectedContext: &expectedContext{Groups: []string{}, PreferredUsername: "testuser", Name: "Test User"},
 		},
 		{
 			name:           "Invalid token",
@@ -78,10 +99,10 @@ func TestValidateJWT(t *testing.T) {
 
 			// Call the function directly
 			request, result := ValidateJWT(rr, req)
-			if len(tt.expectedContext) > 0 {
-				require.Equal(t, request.Context().Value(GroupKey), tt.expectedContext[GroupKey], "group and user not set together")
-				require.Equal(t, request.Context().Value(PreferredUserNameKey), tt.expectedContext[PreferredUserNameKey], "group and user not set together")
-				require.Equal(t, request.Context().Value(NameKey), tt.expectedContext[NameKey], "group and user not set together")
+			if tt.expectedContext != nil {
+				require.Equal(t, tt.expectedContext.Groups, request.Context().Value(GroupKey), "group and user not set together")
+				require.Equal(t, tt.expectedContext.PreferredUsername, request.Context().Value(PreferredUserNameKey), "group and user not set together")
+				require.Equal(t, tt.expectedContext.Name, request.Context().Value(NameKey), "group and user not set together")
 			}
 
 			// Check the status code
