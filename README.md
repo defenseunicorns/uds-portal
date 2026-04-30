@@ -1,6 +1,6 @@
 # UDS Portal
 
-The UDS Portal shows applications UDS Core users have access to.
+The UDS Portal shows applications UDS users have access to.
 
 ## Contributing
 
