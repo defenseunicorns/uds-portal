@@ -23,7 +23,7 @@ tasks:
   - name: e2e
     description: "run end-to-end tests (assumes api server is running on port 8080)"
     actions:
-      # - cmd: ./uds zarf dev deploy --no-yolo
+      - cmd: ./uds zarf dev deploy --no-yolo
       - cmd: |
           docker run --rm --ipc=host --net=host \
             -e CI=true \
