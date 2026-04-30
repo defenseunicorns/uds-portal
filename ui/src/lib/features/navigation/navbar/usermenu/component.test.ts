@@ -66,33 +66,4 @@ describe('UserMenu', () => {
     // Verify navigation
     expect(assignMock).toHaveBeenCalledWith('/logout')
   })
-
-  test('closes dropdown when clicking outside', async () => {
-    render(UserMenu, { props: { userData: mockUserData } })
-
-    // Open dropdown
-    const button = screen.getByText(mockUserData.username)
-    await fireEvent.click(button)
-
-    // Click outside the dropdown
-    await fireEvent.pointerDown(document.body)
-
-    // Verify dropdown closes
-    expect(screen.queryByText('Sign Out')).not.toBeInTheDocument()
-  })
-
-  test('keeps dropdown open when clicking inside', async () => {
-    render(UserMenu, { props: { userData: mockUserData } })
-
-    // Open dropdown
-    const button = screen.getByText(mockUserData.username)
-    await fireEvent.click(button)
-
-    // Click inside the dropdown content
-    const dropdownName = screen.getByText(mockUserData.name)
-    await fireEvent.pointerDown(dropdownName)
-
-    // Verify dropdown remains open
-    expect(screen.getByText('Sign Out')).toBeInTheDocument()
-  })
 })

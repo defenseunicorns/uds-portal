@@ -7,11 +7,6 @@ import { beforeEach, describe, expect, vi } from 'vitest'
 import { load } from './+layout'
 
 // Mock stores
-vi.mock('$features/k8s/namespaces/store', () => ({
-  createStore: vi.fn(() => ({
-    start: vi.fn(),
-  })),
-}))
 vi.mock('$features/auth/store', () => ({
   authenticated: {
     set: vi.fn(),
