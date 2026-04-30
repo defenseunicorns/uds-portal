@@ -20,11 +20,7 @@ spec:
       clientId: podinfo
       attributes:
         access.token.lifespan: '120'
-        client.session.idle.timeout: '3600'
       redirectUris:
         - 'https://podinfo.uds.dev/auth'
       enableAuthserviceSelector:
         app.kubernetes.io/name: podinfo
-      groups:
-        anyOf:
-          - /SHOC-N

@@ -53,7 +53,7 @@ async function globalSetup(config: FullConfig) {
   // perform login
   await page.getByLabel('username').fill('doug')
   await page.getByLabel('password').fill('unicorn123!@#UN')
-  await page.getByText('Log In').click()
+  await page.getByRole('button', { name: 'Sign in' }).click()
 
   // ensure we are logged in and the home page's user menu is visible
   await expect(page.getByText('doug')).toBeVisible()

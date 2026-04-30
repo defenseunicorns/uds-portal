@@ -4,59 +4,37 @@
 includes:
   - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.5/tasks/setup.yaml
   - build: ./build.yaml
-  - core-utils: https://raw.githubusercontent.com/defenseunicorns/uds-core/refs/tags/v1.2.0/tasks/utils.yaml
 
 tasks:
-  - name: deploy-app-portal-cluster
+  - name: e2e-setup
     description: deploy cluster specifically for testing UDS Portal
     actions:
+      - task: build:container
       - task: setup:k3d-test-cluster
-      - task: deploy-load
+      - task: setup:create-doug-user
+      - task: deploy-test-package
 
-  - name: local-auth
-    description: "run end-to-end tests (assumes api server is running on port 8080)"
+  - name: deploy-test-package
+    description: "deploy a Zarf package to test against"
     actions:
-      - task: build:ui
-      - cmd: pnpm run test:install # install playwright
-        dir: ui
-      - task: build:api
-      - task: setup:k3d-test-cluster
-      - task: deploy-load
-      - cmd: pnpm run test:local-auth
-        dir: ui
-
-  - name: deploy-load
-    description: "deploy some Zarf packages to test against"
-    actions:
-      - cmd: uds zarf dev deploy
+      - cmd: ./uds zarf dev deploy --no-yolo
         dir: ui/tests/packages/podinfo
-
-  - name: deploy-podinfo
-    description: "deploy podinfo to the cluster"
-    actions:
-      - cmd: uds zarf package create --confirm
-        dir: ui/tests/packages/podinfo
-      - cmd: uds zarf package deploy zarf-package-podinfo-test-$UDS_ARCH-0.0.1.tar.zst --confirm
-        dir: ui/tests/packages/podinfo
-      - description: Validate podinfo pod
-        wait:
-          cluster:
-            kind: Pod
-            name: app.kubernetes.io/name=podinfo
-            condition: Ready
-            namespace: podinfo
-        maxTotalSeconds: 240
 
   - name: e2e
     description: "run end-to-end tests (assumes api server is running on port 8080)"
     actions:
-      - task: build:ui
-      - cmd: pnpm run test:install # install playwright
-        dir: ui
-      - task: build:api
-      - task: deploy-app-portal-cluster
-      - cmd: pnpm run test:e2e
-        dir: ui
+      # - cmd: ./uds zarf dev deploy --no-yolo
+      - cmd: |
+          docker run --rm --ipc=host --net=host \
+            -e CI=true \
+            --mount type=bind,source="$(pwd)/ui",target=/app \
+            mcr.microsoft.com/playwright:v1.59.1-jammy \
+            sh -c "
+              cd /app &&
+              npm install -g pnpm --ignore-scripts &&
+              pnpm install --frozen-lockfile &&
+              TEST_CFG=default npx playwright test
+            "
 
   - name: go-unit
     description: "run api server unit tests"

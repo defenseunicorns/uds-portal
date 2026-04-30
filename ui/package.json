@@ -19,10 +19,8 @@
     "check": "pnpm run svcheck",
     "check:watch": "pnpm run svcheck:watch",
     "format": "pnpm run lint:fix",
-    "test:local-auth": "TEST_CFG=localAuth playwright test",
-    "test:connections": "TEST_CFG=connections playwright test",
     "test:e2e": "TEST_CFG=default playwright test",
-    "test:e2e-in-cluster": "TEST_CFG=inCluster playwright test",
+    "test:e2e-local": "TEST_CFG=local playwright test",
     "test:install": "playwright install",
     "test:watch": "vitest",
     "test:unit": "vitest --run"

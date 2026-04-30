@@ -38,4 +38,5 @@ grype-scan.json
 artifacts/
 ui/node_modules/**/*
 ui/.svelte-kit/**/*
+ui/.pnpm-store/**/*
 ui/build/**/*

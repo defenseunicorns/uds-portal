@@ -31,6 +31,7 @@
 
 <div class="relative inline-block text-left" bind:this={dropdownContainer}>
   <button
+    data-testid="user-menu-button"
     on:click={toggleMenu}
     class="inline-flex items-center justify-center rounded-md bg-gray-900 px-4 py-2 text-sm font-medium transition-colors duration-200 ease-in-out focus:outline-none dark:text-gray-300 dark:hover:bg-gray-700 dark:hover:text-gray-100 dark:focus:text-gray-100"
   >
