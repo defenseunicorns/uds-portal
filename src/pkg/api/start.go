@@ -36,13 +36,16 @@ func Setup(assets *embed.FS) (*chi.Mux, bool, error) {
 	// Add middleware
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
-	r.Use(udsMiddleware.Auth)
 
-	// add routes
+	// Health check is unauthenticated
 	r.Get("/healthz", healthz)
-	r.Route("/api/v1", func(r chi.Router) {
-		r.Get("/auth", authHandler)
-		r.Get("/apps", getUDSPackages(k8sSession))
+
+	r.Group(func(r chi.Router) {
+		r.Use(udsMiddleware.Auth)
+		r.Route("/api/v1", func(r chi.Router) {
+			r.Get("/auth", authHandler)
+			r.Get("/apps", getUDSPackages(k8sSession))
+		})
 	})
 
 	// launch app in local mode

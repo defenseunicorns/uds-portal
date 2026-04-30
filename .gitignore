@@ -42,3 +42,4 @@ ui/.pnpm-store/**/*
 ui/build/**/*
 !ui/build/
 !ui/build/.gitkeep
+uds-checkpoint.tar
