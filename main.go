@@ -11,7 +11,7 @@ import (
 	"github.com/defenseunicorns/uds-portal/src/pkg/api"
 )
 
-//go:embed ui/build/*
+//go:embed all:ui/build
 var assets embed.FS
 
 func main() {

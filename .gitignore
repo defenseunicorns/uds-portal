@@ -40,3 +40,5 @@ ui/node_modules/**/*
 ui/.svelte-kit/**/*
 ui/.pnpm-store/**/*
 ui/build/**/*
+!ui/build/
+!ui/build/.gitkeep

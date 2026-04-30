@@ -6,6 +6,7 @@ hk = "1.44.2"
 "aqua:defenseunicorns/uds-cli" = "0.30.2"
 "aqua:google/addlicense" = "1.2.0"
 golangci-lint = "2.11.4"
+pnpm = "10.33.0"
 pkl = "0.31.1"
 uv = "0.11.7"                             # required to install yamllint
 yamllint = "1.38.0"
