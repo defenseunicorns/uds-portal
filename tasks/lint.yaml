@@ -27,7 +27,7 @@ tasks:
   - name: ui
     description: "Run ui lint and type check"
     actions:
-      - cmd: pnpm run lint
+      - cmd: pnpm install --frozen-lockfile && pnpm run lint
         dir: ui
       - cmd: pnpm run check
         dir: ui
