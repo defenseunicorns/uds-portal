@@ -16,12 +16,14 @@ import (
 
 func getUDSPackages(k8sSession *session.K8sSession) func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
-		apps.GetUDSPackages(k8sSession.Config, w, r)
+		apps.GetUDSPackages(k8sSession.Config, k8sSession.InCluster, w, r)
 	}
 }
 
-func authHandler(w http.ResponseWriter, r *http.Request) {
-	auth.RequestHandler(w, r)
+func authHandler(inCluster bool) func(http.ResponseWriter, *http.Request) {
+	return func(w http.ResponseWriter, r *http.Request) {
+		auth.RequestHandler(w, r, inCluster)
+	}
 }
 
 func healthz(w http.ResponseWriter, _ *http.Request) {

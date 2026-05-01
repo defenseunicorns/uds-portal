@@ -13,8 +13,7 @@ USER 65532:65532
 # copy binary from local and expose port
 COPY --chown=65532:65532 build/uds-portal-linux-${TARGETARCH} /app/uds-portal
 ENV PORT=8080
-ENV LOCAL_MODE=false
 EXPOSE 8080
 
 # run binary
-CMD ["./app/uds-portal"]
+ENTRYPOINT ["/app/uds-portal"]

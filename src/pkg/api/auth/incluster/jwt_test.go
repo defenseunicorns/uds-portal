@@ -20,11 +20,13 @@ type expectedContext struct {
 
 func TestValidateJWT(t *testing.T) {
 	// Helper function to create a JWT token without signing
-	createToken := func(groups []interface{}) string {
+	createToken := func(groups []any) string {
 		claims := jwt.MapClaims{
-			"groups":             groups,
 			"preferred_username": "testuser",
 			"name":               "Test User",
+		}
+		if groups != nil {
+			claims["groups"] = groups
 		}
 		token := jwt.NewWithClaims(jwt.SigningMethodNone, claims)
 		tokenString, _ := token.SignedString(jwt.UnsafeAllowNoneSignatureType)
@@ -39,38 +41,30 @@ func TestValidateJWT(t *testing.T) {
 	}{
 		{
 			name:            "Valid token with single group",
-			token:           createToken([]interface{}{"/UDS Core/Admin"}),
+			token:           createToken([]any{"/UDS Core/Admin"}),
 			expectedStatus:  http.StatusOK,
 			expectedContext: &expectedContext{Groups: []string{"/UDS Core/Admin"}, PreferredUsername: "testuser", Name: "Test User"},
 		},
 		{
 			name:            "Valid token with multiple groups",
-			token:           createToken([]interface{}{"/UDS Core/Admin", "/Unicorn-Squad"}),
+			token:           createToken([]any{"/UDS Core/Admin", "/Unicorn-Squad"}),
 			expectedStatus:  http.StatusOK,
 			expectedContext: &expectedContext{Groups: []string{"/UDS Core/Admin", "/Unicorn-Squad"}, PreferredUsername: "testuser", Name: "Test User"},
 		},
 		{
 			name:            "Valid token with empty groups",
-			token:           createToken([]interface{}{}),
+			token:           createToken([]any{}),
 			expectedStatus:  http.StatusOK,
 			expectedContext: &expectedContext{Groups: []string{}, PreferredUsername: "testuser", Name: "Test User"},
 		},
 		{
 			name:           "Invalid token with non-string group",
-			token:          createToken([]interface{}{"/UDS Core/Admin", 42}),
+			token:          createToken([]any{"/UDS Core/Admin", 42}),
 			expectedStatus: http.StatusUnauthorized,
 		},
 		{
-			name: "Valid token with no groups claim",
-			token: func() string {
-				claims := jwt.MapClaims{
-					"preferred_username": "testuser",
-					"name":               "Test User",
-				}
-				token := jwt.NewWithClaims(jwt.SigningMethodNone, claims)
-				tokenString, _ := token.SignedString(jwt.UnsafeAllowNoneSignatureType)
-				return tokenString
-			}(),
+			name:            "Valid token with no groups claim",
+			token:           createToken(nil),
 			expectedStatus:  http.StatusOK,
 			expectedContext: &expectedContext{Groups: []string{}, PreferredUsername: "testuser", Name: "Test User"},
 		},

@@ -9,6 +9,3 @@ rules:
   - apiGroups: ["uds.dev"]
     resources: ["packages"]
     verbs: ["get", "list", "watch"]
-  - apiGroups: [""]
-    resources: ["secrets"]
-    verbs: ["get", "list", "watch"]

@@ -1,99 +1,64 @@
 # Contributing to UDS Portal
 
-Welcome :unicorn: to the UDS Portal repo! If you'd like to contribute, please reach out to one of the [CODEOWNERS](CODEOWNERS) and we'll be happy to get you started!
+Welcome :unicorn: to UDS Portal!
 
-Below are some notes on our core software design philosophies that should help guide contributors.
+To report a bug, request a feature, or ask a question, review [open issues](/issues) or open a [new issue](/issues/new/choose).
 
-## Table of Contents
+## Submissions
 
-1. [Code Quality and Standards](#code-quality-and-standards)
-1. [How to Contribute](#how-to-contribute)
-   - [Building the app](#building-the-app)
-1. [Local Development](#local-development)
-   - [Pre-Commit Hooks and Linting](#pre-commit-hooks-and-linting)
-   - [Testing](#testing)
+Track your work in Linear. Reference the Linear issue (e.g. `CORE-123`) in your PR description.
 
-## Code Quality and Standards
+Recommended workflow:
 
-Below are some general guidelines for code quality and standards that make UDS Portal :sparkles:
+1. Clone the repo
+2. Create a feature branch from `main`
+3. Set up your environment (see [Prerequisites](#prerequisites))
+4. Make your changes (add tests and docs as appropriate)
+5. Open a PR against `main`
 
-- **Write tests that give confidence**: Unless there is a technical blocker, every new feature and bug fix should be tested in the project's automated test suite.
+## Prerequisites
 
-- **Prefer readability over being clever**: We have a strong preference for code readability in UDS Portal. Specifically, this means things like: naming variables appropriately, keeping functions to a reasonable size and avoiding complicated solutions when simple ones exist.
+Install [mise](https://mise.jdx.dev/getting-started.html) to manage development dependencies. Recommended: enable [shell activation](https://mise.jdx.dev/getting-started.html#activate-mise).
 
-- **Design Decision**: We use [Architectural Decision Records](https://adr.github.io/) to document the design decisions that we make. These records live in the `adr` directory. We highly recommend reading through the existing ADRs to understand the context and decisions that have been made in the past, and to inform current development.
+## Setup
 
-### Continuous Delivery
+```sh
+# install pinned tools (mise.toml)
+mise install
 
-Continuous Delivery is core to our development philosophy. Check out [https://minimumcd.org](https://minimumcd.org/) for a good baseline agreement on what that means.
+# install pre-commit hook (hk.pkl)
+hk install
+```
 
-Specifically:
+## Tasks
 
-- We do trunk-based development (`main`) with short-lived feature branches that originate from the trunk, get merged into the trunk, and are deleted after the merge
-- We don't merge code into `main` that isn't releasable
-- We perform automated testing on all changes before they get merged to `main`
-- We create immutable release artifacts
+```sh
+# run all linters (matches CI)
+uds run lint:check
 
-## How to Contribute
+# auto-fix where possible
+uds run lint:fix
+```
 
-Please ensure there is a Github issue for your proposed change, this helps the UDS Portal team to understand the context of the change and to track the progress of the work. If there isn't an issue for your change, please create one before starting work. The recommended workflow for contributing is as follows:
+## Technical Standards
 
-\*Before starting development, we highly recommend reading through the UDS Portal [documentation](https://uds.defenseunicorns.com/) and our [ADRs](./adr).
-
-1. **Fork this repo** and clone it locally
-1. **Create a branch** for your changes
-1. **Create, [test](#testing)** your changes
-1. **Add docs** where appropriate
-1. **Push your branch** to your fork
-1. **Open a PR** against the `main` branch of this repo
-
-## Local Development
-
-Most of the actions needed for running and testing UDS Portal are contained in tasks ran by UDS CLI's `run` feature (ie. vendored [Maru](https://github.com/defenseunicorns/maru-runner)). While the actions can be performed manually without running tasks, we recommend installing the [`uds` binary](https://uds.defenseunicorns.com/cli/quickstart-and-usage/) and using tasks as much as possible.
-
-> !NOTE
-> Tasks are used in CI. See the [pull request workflow](.github/workflows/pr-tests.yaml) for an example.
-
-To view a complete list of all runnable tasks, run `uds run --list-all`.
-
-Local API authentication is enabled by default. To disable it, you can set the `LOCAL_AUTH_ENABLED` environment variable to false when running the backend. When running the backend and frontend locally with API auth enabled, when you start the backend, it will print a URL to the console with the api token query parameter as well as launch the app in your browser. If you are also running the frontend locally (via `pnpm run dev`), you will want to grab the token and update the url in your browser to use port `:5173` which is used by default. Example: `http://localhost:5173/auth?token=your-token-here`. More information on API authentication can be found in the [API Auth docs](./docs/api-auth.md).
+- **Testing**: All features and bug fixes require automated tests unless blocked by a technical issue.
+- **Readability**: Meaningful names, reasonable function sizes, simple solutions.
+- **Design Documentation**: Use [Architectural Decision Records](https://adr.github.io/) for significant design decisions.
 
 ### Pre-Commit Hooks and Linting
 
-In this repo you can optionally use [pre-commit](https://pre-commit.com/) hooks for automated validation and linting, but if not CI will run these checks for you
+This project uses [hk](https://hk.jdx.dev/) for pre-commit hooks to automate validation and linting. Follow [hk's Getting Started guide](https://hk.jdx.dev/getting_started.html) to install the git hook.
 
-### Testing
+CI runs the same checks via `uds run lint:check`, so passing hk locally means passing CI lint.
 
-We strive to test all changes made to UDS Portal. If you're adding a new feature or fixing a bug, please add tests to cover the new functionality. Unit tests and E2E tests are both welcome, but we leave it up to the contributor to decide which is most appropriate for the change. Below are some guidelines for testing:
+### Continuous Delivery
 
-#### Unit Tests
+Continuous Delivery is core to our development philosophy. See [https://continuousdelivery.com/principles/](https://continuousdelivery.com/principles/).
 
-Unit tests reside alongside the source code in a `*_test.go` file or `*.test.ts` file. These tests should be used to test individual functions or components, or (in a more integration style not E2E) small flows of coupled functions / components.
+Specifically:
 
-For running unit tests:
-
-- run all -- `uds run test:unit`
-- run backend only -- `uds run test:go`
-- run frontend only -- `uds run test:ui-unit`
-
-#### E2E Tests
-
-E2E tests reside in the `ui/tests/` directory and can be named `*.test.ts` or `*.spec.ts`. Run E2E tests via `uds run test:e2e`. This task will:
-
-1. build the ui
-1. build the api server
-1. setup and seed a k3d cluster
-1. run the e2e script, which starts the api server (serves ui) to test against.
-
-When using locators for Playwright, these are the recommended built-in locators.
-
-- **`page.getByRole()`** to _locate by explicit and implicit accessibility attributes_.
-- **`page.getByText()`** to _locate by text content_.
-- **`page.getByLabel()`** to _locate a form control by associated label's text_.
-- **`page.getByPlaceholder()`** to _locate an input by placeholder_.
-- **`page.getByAltText()`** to _locate an element, usually image, by its text alternative_.
-- **`page.getByTitle()`** to _locate an element by its title attribute_.
-- **`page.getByTestId()`** to _locate an element based on its data-testid attribute (other attributes can be configured)_.
-
-Before using `page.locator()` to use either the html structure or some complicated locator, please use the `page.getByTestID` locator to target an element. Naming conventions can be found in this [Test ID's ADR](https://github.com/defenseunicorns/uds-portal/blob/main/adr/0002-testing-with-data-testids.md#decision) as well as the reasoning behind this decision
-
+- Trunk-based development on `main` with short-lived feature branches that merge and delete after merge
+- Do not merge code into `main` that isn't releasable
+- Automated testing on all changes before merge
+- Immutable release artifacts

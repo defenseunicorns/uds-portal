@@ -41,15 +41,15 @@ func Setup(assets *embed.FS) (*chi.Mux, bool, error) {
 	r.Get("/healthz", healthz)
 
 	r.Group(func(r chi.Router) {
-		r.Use(udsMiddleware.Auth)
+		r.Use(udsMiddleware.Auth(inCluster))
 		r.Route("/api/v1", func(r chi.Router) {
-			r.Get("/auth", authHandler)
+			r.Get("/auth", authHandler(inCluster))
 			r.Get("/apps", getUDSPackages(k8sSession))
 		})
 	})
 
 	// launch app in local mode
-	if config.LocalMode {
+	if !inCluster {
 		port := "8080"
 		host := "127.0.0.1"
 		colorYellow := "\033[33m"

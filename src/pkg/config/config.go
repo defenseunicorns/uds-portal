@@ -17,21 +17,13 @@ type ClassificationBanners struct {
 	Footer  bool   `json:"footer"`
 }
 
-var (
-	LocalMode      = true
-	ClassBannerCfg = ClassificationBanners{Enabled: false, Text: "", Footer: false}
-)
+var ClassBannerCfg = ClassificationBanners{Enabled: false, Text: "", Footer: false}
 
 const (
 	bootstrapConfigNamespace = "window.__APP__"
 )
 
 func init() {
-	// configure auth settings
-	if os.Getenv("LOCAL_MODE") == "false" {
-		LocalMode = false
-	}
-
 	// Class Banner ENV vars must match the names in chart/templates/deployment.yaml
 	bannersEnabled := os.Getenv("CLASSIFICATION_BANNER_ENABLED")
 	bannerText := os.Getenv("CLASSIFICATION_BANNER_TEXT")

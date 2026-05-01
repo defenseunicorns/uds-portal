@@ -6,59 +6,10 @@ package apps
 import (
 	"context"
 	"net/http"
-	"reflect"
 	"testing"
 
 	"github.com/defenseunicorns/uds-portal/src/pkg/api/auth/incluster"
-	"github.com/defenseunicorns/uds-portal/src/pkg/config"
 )
-
-func TestEndpointsForExposedHostsMatchesAndDedupes(t *testing.T) {
-	got := dedupeEndpoints([]string{
-		"keycloak.admin.uds.dev",
-		"keycloak.admin.uds.dev",
-		"keycloak.uds.dev",
-		"grafana.admin.uds.dev",
-	})
-	want := []string{"keycloak.admin.uds.dev", "keycloak.uds.dev", "grafana.admin.uds.dev"}
-
-	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("expected %v, got %v", want, got)
-	}
-}
-
-func TestToAPIAppsReturnsEmptySlice(t *testing.T) {
-	got := toAPIApps(nil, nil)
-	if got == nil {
-		t.Fatal("expected empty slice, got nil")
-	}
-	if len(got) != 1 {
-		t.Fatalf("expected one app (My Account), got %d", len(got))
-	}
-	if got[0].URL != myAccountURL {
-		t.Fatalf("expected %q first, got %q", myAccountURL, got[0].URL)
-	}
-}
-
-func TestDedupeEndpointsEmptyInput(t *testing.T) {
-	got := dedupeEndpoints(nil)
-	if got != nil {
-		t.Fatalf("expected nil, got %v", got)
-	}
-}
-
-func TestDedupeEndpointsReturnsUniqueInOrder(t *testing.T) {
-	got := dedupeEndpoints([]string{
-		"grafana.admin.uds.dev",
-		"grafana.admin.uds.dev",
-		"grafana.uds.dev",
-	})
-	want := []string{"grafana.admin.uds.dev", "grafana.uds.dev"}
-
-	if !reflect.DeepEqual(got, want) {
-		t.Fatalf("expected %v, got %v", want, got)
-	}
-}
 
 func TestDisplayNameForApp(t *testing.T) {
 	tests := []struct {
@@ -97,97 +48,120 @@ func TestDisplayNameForApp(t *testing.T) {
 	}
 }
 
-func TestToAPIAppsPrependsMyAccount(t *testing.T) {
-	pkg := Package{
-		Metadata: Metadata{Name: "grafana"},
-		Status:   Status{Endpoints: []string{"grafana.uds.dev"}},
-	}
-
-	got := toAPIApps(nil, []Package{pkg})
-
-	if len(got) != 2 {
-		t.Fatalf("expected 2 apps, got %d", len(got))
-	}
-	if got[0].URL != myAccountURL {
-		t.Fatalf("expected %q first, got %q", myAccountURL, got[0].URL)
-	}
-}
-
-func TestFilterByUserGroupRequiresSSOSection(t *testing.T) {
-	originalLocalMode := config.LocalMode
-	config.LocalMode = false
-	t.Cleanup(func() { config.LocalMode = originalLocalMode })
-
-	req, err := http.NewRequest("GET", "/", nil)
-	if err != nil {
-		t.Fatalf("failed creating request: %v", err)
-	}
-	req = req.WithContext(context.WithValue(req.Context(), incluster.GroupKey, []string{"/UDS Core/Admin"}))
-
-	pkgs := []Package{
+func TestToAPIApps(t *testing.T) {
+	tests := []struct {
+		name    string
+		pkgs    []Package
+		wantLen int
+	}{
 		{
-			Metadata: Metadata{Name: "no-sso"},
-			Status:   Status{Endpoints: []string{"no-sso.uds.dev"}},
-			Spec:     Spec{SSO: nil},
+			name:    "returns My Account when no packages",
+			pkgs:    nil,
+			wantLen: 1,
+		},
+		{
+			name: "prepends My Account when packages exist",
+			pkgs: []Package{
+				{
+					Metadata: Metadata{Name: "grafana"},
+					Status:   Status{Endpoints: []string{"grafana.uds.dev"}},
+				},
+			},
+			wantLen: 2,
 		},
 	}
 
-	got := filterByUserGroup(req, pkgs)
-	if len(got) != 0 {
-		t.Fatalf("expected package without SSO to be excluded, got %d", len(got))
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := toAPIApps(nil, tt.pkgs)
+			if got == nil {
+				t.Fatal("expected empty slice, got nil")
+			}
+			if len(got) != tt.wantLen {
+				t.Fatalf("expected %d apps, got %d", tt.wantLen, len(got))
+			}
+			if got[0].URL != myAccountURL {
+				t.Fatalf("expected %q first, got %q", myAccountURL, got[0].URL)
+			}
+		})
 	}
 }
 
-func TestFilterByUserGroupAllowsWhenGroupsNotSpecified(t *testing.T) {
-	originalLocalMode := config.LocalMode
-	config.LocalMode = false
-	t.Cleanup(func() { config.LocalMode = originalLocalMode })
-
-	req, err := http.NewRequest("GET", "/", nil)
-	if err != nil {
-		t.Fatalf("failed creating request: %v", err)
-	}
-	req = req.WithContext(context.WithValue(req.Context(), incluster.GroupKey, []string{"/UDS Core/Auditor"}))
-
-	pkgs := []Package{
+func TestFilterByUserGroup(t *testing.T) {
+	tests := []struct {
+		name       string
+		userGroups []string
+		pkgs       []Package
+		wantLen    int
+	}{
 		{
-			Metadata: Metadata{Name: "sso-without-groups"},
-			Status:   Status{Endpoints: []string{"auditor.uds.dev"}},
-			Spec: Spec{SSO: []SSO{
-				{Groups: Groups{AnyOf: nil}},
-			}},
+			name:       "requires SSO section",
+			userGroups: []string{"/UDS Core/Admin"},
+			pkgs: []Package{
+				{
+					Metadata: Metadata{Name: "no-sso"},
+					Status:   Status{Endpoints: []string{"no-sso.uds.dev"}},
+					Spec:     Spec{SSO: nil},
+				},
+			},
+			wantLen: 0,
+		},
+		{
+			name:       "allows when groups not specified",
+			userGroups: []string{"/UDS Core/Auditor"},
+			pkgs: []Package{
+				{
+					Metadata: Metadata{Name: "sso-without-groups"},
+					Status:   Status{Endpoints: []string{"auditor.uds.dev"}},
+					Spec: Spec{SSO: []SSO{
+						{Groups: Groups{AnyOf: nil}},
+					}},
+				},
+			},
+			wantLen: 1,
+		},
+		{
+			name:       "allows matching group",
+			userGroups: []string{"/UDS Core/Auditor", "/UDS Core/Admin"},
+			pkgs: []Package{
+				{
+					Metadata: Metadata{Name: "group-matched"},
+					Status:   Status{Endpoints: []string{"group-matched.uds.dev"}},
+					Spec: Spec{SSO: []SSO{
+						{Groups: Groups{AnyOf: []string{"/UDS Core/Developer", "/UDS Core/Admin"}}},
+					}},
+				},
+			},
+			wantLen: 1,
+		},
+		{
+			name:       "disallows non-matching group",
+			userGroups: []string{"/UDS Core/Auditor"},
+			pkgs: []Package{
+				{
+					Metadata: Metadata{Name: "group-mismatched"},
+					Status:   Status{Endpoints: []string{"group-mismatched.uds.dev"}},
+					Spec: Spec{SSO: []SSO{
+						{Groups: Groups{AnyOf: []string{"/UDS Core/Developer", "/UDS Core/Admin"}}},
+					}},
+				},
+			},
+			wantLen: 0,
 		},
 	}
 
-	got := filterByUserGroup(req, pkgs)
-	if len(got) != 1 {
-		t.Fatalf("expected package with SSO but no group constraints to be included, got %d", len(got))
-	}
-}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req, err := http.NewRequest("GET", "/", nil)
+			if err != nil {
+				t.Fatalf("failed creating request: %v", err)
+			}
+			req = req.WithContext(context.WithValue(req.Context(), incluster.GroupKey, tt.userGroups))
 
-func TestFilterByUserGroupAllowsMatchingGroup(t *testing.T) {
-	originalLocalMode := config.LocalMode
-	config.LocalMode = false
-	t.Cleanup(func() { config.LocalMode = originalLocalMode })
-
-	req, err := http.NewRequest("GET", "/", nil)
-	if err != nil {
-		t.Fatalf("failed creating request: %v", err)
-	}
-	req = req.WithContext(context.WithValue(req.Context(), incluster.GroupKey, []string{"/UDS Core/Auditor", "/UDS Core/Admin"}))
-
-	pkgs := []Package{
-		{
-			Metadata: Metadata{Name: "group-matched"},
-			Status:   Status{Endpoints: []string{"group-matched.uds.dev"}},
-			Spec: Spec{SSO: []SSO{
-				{Groups: Groups{AnyOf: []string{"/UDS Core/Developer", "/UDS Core/Admin"}}},
-			}},
-		},
-	}
-
-	got := filterByUserGroup(req, pkgs)
-	if len(got) != 1 {
-		t.Fatalf("expected package with matching group to be included, got %d", len(got))
+			got := filterByUserGroup(req, tt.pkgs, true)
+			if len(got) != tt.wantLen {
+				t.Fatalf("expected %d packages, got %d", tt.wantLen, len(got))
+			}
+		})
 	}
 }

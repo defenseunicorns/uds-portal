@@ -1,4 +1,4 @@
-# Copyright 2024 Defense Unicorns
+# Copyright 2026 Defense Unicorns
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
@@ -13,6 +13,7 @@ tasks:
       - task: setup:k3d-test-cluster
       - task: setup:create-doug-user
       - task: deploy-test-package
+      - cmd: ./uds zarf dev deploy --no-yolo
 
   - name: deploy-test-package
     description: "deploy a Zarf package to test against"
@@ -23,7 +24,6 @@ tasks:
   - name: e2e
     description: "run end-to-end tests (assumes api server is running on port 8080)"
     actions:
-      - cmd: ./uds zarf dev deploy --no-yolo
       - cmd: |
           docker run --rm --ipc=host --net=host \
             -e CI=true \

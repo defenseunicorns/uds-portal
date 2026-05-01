@@ -5,7 +5,7 @@
 UDS Portal is a lightweight end-user portal for UDS Core clusters. It discovers installed apps from Kubernetes `UDS Package` custom resources and only presents apps/endpoints the current user is allowed to access.
 
 Core product behavior:
-- Backend reads `uds.dev/v1alpha1` `packages` resources from the cluster.
+- Backend reads `uds.dev/v1alpha1` `packages` and `secrets` resources from the cluster.
 - Backend filters apps by endpoint presence, auth context, and SSO group membership.
 - Frontend shows a searchable app grid and links users to the permitted app endpoints.
 
@@ -22,9 +22,9 @@ Core product behavior:
   - Uses auth middleware (`src/pkg/api/middleware/auth.go`).
 - App discovery/filter logic: `src/pkg/api/apps/apps.go`
   - Queries Kubernetes dynamic client for UDS Package CRs.
-  - Filters to packages with endpoints and excludes `uds-portal`.
+  - Queries Zarf secrets for application icons.
+  - Filters to packages with endpoints and excludes itself.
   - Applies user-group filtering using auth context (`incluster.GroupKey`).
-  - Removes `.admin.` endpoints for non-admin users.
 - Frontend: `ui/` (SvelteKit + Vite + Tailwind)
   - Main page fetches `GET /api/v1/apps` and renders app tiles.
 
