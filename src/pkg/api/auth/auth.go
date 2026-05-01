@@ -42,7 +42,6 @@ func RequestHandler(w http.ResponseWriter, r *http.Request, inCluster bool) {
 	}
 
 	// write response
-	w.WriteHeader(http.StatusOK)
 	bodyBytes, err := json.Marshal(resp)
 	if err != nil {
 		slog.Debug("failed to marshal response", "error", err)
@@ -55,4 +54,5 @@ func RequestHandler(w http.ResponseWriter, r *http.Request, inCluster bool) {
 		http.Error(w, "failed to write response", http.StatusInternalServerError)
 		return
 	}
+	w.WriteHeader(http.StatusOK)
 }

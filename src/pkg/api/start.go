@@ -131,22 +131,25 @@ func fileServer(r chi.Router, root http.FileSystem) error {
 }
 
 func Serve(r *chi.Mux, inCluster bool) error {
-	if inCluster {
-		slog.Info("Starting server in in-cluster mode on 0.0.0.0:8080")
-		//nolint:gosec,govet
-		if err := http.ListenAndServe("0.0.0.0:8080", r); err != nil {
-			slog.Warn("server failed to start", "error", err)
-			return err
-		}
-		return nil
-	}
-	slog.Info("Starting server in local mode on 127.0.0.1:8080")
-
 	server := &http.Server{
 		Addr:              "127.0.0.1:8080",
 		Handler:           r,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
+
+	if inCluster {
+		slog.Info("Starting server in in-cluster mode on 0.0.0.0:8080")
+
+		server.Addr = "0.0.0.0:8080"
+		if err := server.ListenAndServe(); err != nil {
+			slog.Warn("server failed to start", "error", err)
+			return err
+		}
+
+		return nil
+	}
+
+	slog.Info("Starting server in local mode on 127.0.0.1:8080")
 
 	if err := server.ListenAndServe(); err != nil {
 		slog.Warn("server failed to start", "err", err)

@@ -4,7 +4,6 @@
 package session
 
 import (
-	"context"
 	"fmt"
 	"log/slog"
 	"os"
@@ -18,7 +17,6 @@ type K8sSession struct {
 	CurrentCtx     string
 	CurrentCluster string
 	InCluster      bool
-	Cancel         context.CancelFunc
 }
 
 // CreateK8sSession creates a new k8s session
@@ -30,14 +28,11 @@ func CreateK8sSession() (*K8sSession, error) {
 		return nil, fmt.Errorf("failed to create k8s config: %w", err)
 	}
 
-	_, cancel := context.WithCancel(context.Background())
-
 	var currentCtx, currentCluster string
 	if !inCluster { // get the current context and cluster
 		currentCtx, currentCluster, err = currentContext()
 		slog.Info("Current context", "context", currentCtx, "cluster", currentCluster)
 		if err != nil {
-			cancel()
 			return nil, fmt.Errorf("failed to get current context: %w", err)
 		}
 	}
@@ -47,7 +42,6 @@ func CreateK8sSession() (*K8sSession, error) {
 		CurrentCtx:     currentCtx,
 		CurrentCluster: currentCluster,
 		InCluster:      inCluster,
-		Cancel:         cancel,
 	}
 
 	return k8sSession, nil
