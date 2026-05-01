@@ -2,7 +2,6 @@
   "packages": {
     ".": {
       "release-type": "simple",
-      "bump-minor-pre-major": true,
       "draft": false,
       "changelog-path": "CHANGELOG.md",
       "changelog-sections": [
@@ -11,6 +10,7 @@
         { "type": "chore", "section": "Miscellaneous", "hidden": false },
         { "type": "docs", "section": "Documentation", "hidden": false }
       ],
+      "bump-minor-pre-major": true,
       "extra-files": [
         "zarf.yaml",
         "tasks.yaml",
