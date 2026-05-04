@@ -11,6 +11,7 @@ import (
 	"github.com/defenseunicorns/uds-portal/src/pkg/api"
 )
 
+//nolint:typecheck // ui/build is generated on demand by build:ui before packaging
 //go:embed all:ui/build
 var assets embed.FS
 
