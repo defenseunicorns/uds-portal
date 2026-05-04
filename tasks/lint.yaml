@@ -16,7 +16,7 @@ tasks:
   - name: golangci
     description: "Run golang linters"
     actions:
-      - cmd: mkdir -p ui/build
+      - cmd: mkdir -p ui/build && touch ui/build/.ignore-empty
       - cmd: |
           golangci-lint run ./...
 
