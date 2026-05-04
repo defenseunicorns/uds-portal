@@ -5,7 +5,7 @@
   export let enabled = false
   export let element: 'header' | 'footer' = 'header'
 
-  let classification: Classification = Classification.Unknown
+  let classification: Classification
 
   $: classification = enabled ? getClassification(text) : Classification.Unknown
 </script>
