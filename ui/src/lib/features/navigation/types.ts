@@ -24,7 +24,7 @@ export interface RouteChild {
   path: string
 }
 
-// UserData is the shape of the user data returned from /user
+// UserData is the shape of the user data returned from /api/v1/auth
 export interface UserData {
   name: string
   username: string

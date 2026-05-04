@@ -14,7 +14,7 @@ export default defineConfig(({ mode }) => ({
         target: 'http://127.0.0.1:8080',
         changeOrigin: true,
       },
-      '/health': {
+      '/healthz': {
         target: 'http://127.0.0.1:8080',
         changeOrigin: true,
       },

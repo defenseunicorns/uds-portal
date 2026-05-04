@@ -19,7 +19,7 @@ To deploy the UDS Portal in your UDS cluster, run:
 uds run test:e2e-setup
 ```
 
-After a successful deployment, you can access the UDS Portal at https://apps.uds.dev
+After a successful deployment, you can access the UDS Portal at https://portal.uds.dev
 
 ### Pre-requisites
 

@@ -58,6 +58,10 @@ func Setup(assets *embed.FS) (*chi.Mux, bool, error) {
 		log.Printf("%sConnect to UDS Portal: %s%s", colorYellow, url, colorReset)
 		err := exec.LaunchURL(url)
 		if err != nil {
+			// if the browser fails to open we intentionally fail the start command
+			// local mode is intended for local development where a browser is available
+			// deploying outside of kubernetes for production has security implications
+			// and should be avoided
 			return nil, inCluster, fmt.Errorf("failed to launch URL: %w", err)
 		}
 	}

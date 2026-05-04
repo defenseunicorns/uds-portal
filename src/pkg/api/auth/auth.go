@@ -5,6 +5,7 @@ package auth
 
 import (
 	"encoding/json"
+	"fmt"
 	"log/slog"
 	"net/http"
 
@@ -41,18 +42,8 @@ func RequestHandler(w http.ResponseWriter, r *http.Request, inCluster bool) {
 		}
 	}
 
-	// write response
-	bodyBytes, err := json.Marshal(resp)
-	if err != nil {
-		slog.Debug("failed to marshal response", "error", err)
-		http.Error(w, "Failed to marshal response", http.StatusInternalServerError)
-		return
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(resp); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to encode response: %v", err), http.StatusInternalServerError)
 	}
-	_, err = w.Write(bodyBytes)
-	if err != nil {
-		slog.Debug("failed to write response", "error", err)
-		http.Error(w, "failed to write response", http.StatusInternalServerError)
-		return
-	}
-	w.WriteHeader(http.StatusOK)
 }

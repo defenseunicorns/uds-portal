@@ -118,6 +118,10 @@ func listPackages(store *appInformerStore) ([]Package, error) {
 }
 
 func iconForPackage(store *appInformerStore, pkg Package) string {
+	if store == nil {
+		return ""
+	}
+
 	packageLabel := strings.TrimSpace(pkg.Metadata.Labels[cluster.PackageLabel])
 	if packageLabel == "" {
 		return ""

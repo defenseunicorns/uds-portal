@@ -17,13 +17,18 @@ type ClassificationBanners struct {
 	Footer  bool   `json:"footer"`
 }
 
-var ClassBannerCfg = ClassificationBanners{Enabled: false, Text: "", Footer: false}
+var (
+	UDSDomain      = ""
+	ClassBannerCfg = ClassificationBanners{Enabled: false, Text: "", Footer: false}
+)
 
 const (
 	bootstrapConfigNamespace = "window.__APP__"
 )
 
 func init() {
+	UDSDomain = strings.TrimSpace(os.Getenv("UDS_DOMAIN"))
+
 	// Class Banner ENV vars must match the names in chart/templates/deployment.yaml
 	bannersEnabled := os.Getenv("CLASSIFICATION_BANNER_ENABLED")
 	bannerText := os.Getenv("CLASSIFICATION_BANNER_TEXT")

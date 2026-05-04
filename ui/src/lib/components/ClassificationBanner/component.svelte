@@ -1,6 +1,4 @@
 <script lang="ts">
-  import { onMount } from 'svelte'
-
   import { classColorMap, Classification, getClassification } from './helpers'
 
   export let text = ''
@@ -9,11 +7,7 @@
 
   let classification: Classification = Classification.Unknown
 
-  onMount(() => {
-    if (enabled) {
-      classification = getClassification(text)
-    }
-  })
+  $: classification = enabled ? getClassification(text) : Classification.Unknown
 </script>
 
 <svelte:element

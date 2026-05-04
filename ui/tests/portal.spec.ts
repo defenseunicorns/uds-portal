@@ -3,12 +3,12 @@
 
 import { expect, test } from '@playwright/test'
 
-test.describe('portal', async () => {
+test.describe('portal', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('/')
   })
 
-  test.describe('home page', async () => {
+  test.describe('home page', () => {
     test('user menu expands and collapses when clicked', async ({ page }) => {
       const userMenuButton = page.getByTestId('user-menu-button')
       await userMenuButton.click()
@@ -25,7 +25,7 @@ test.describe('portal', async () => {
     })
   })
 
-  test.describe('app grid', async () => {
+  test.describe('app grid', () => {
     test('page loads with app grid heading', async ({ page }) => {
       await expect(page.getByText('Your Apps')).toBeVisible()
     })

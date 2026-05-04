@@ -21,6 +21,13 @@ spec:
         selector:
           app: uds-portal
         remoteGenerated: KubeAPI
+      - direction: Egress
+        selector:
+          app: uds-portal
+        remoteSelector:
+          app: tenant-ingressgateway
+        remoteNamespace: istio-tenant-gateway
+        description: "SSO Provider"
   {{- if .Values.sso.enabled }}
   sso:
     - name: uds-portal

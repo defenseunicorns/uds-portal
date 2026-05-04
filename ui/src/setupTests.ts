@@ -32,19 +32,3 @@ if (!Element.prototype.animate) {
       updatePlaybackRate: () => {},
     }) as unknown as Animation
 }
-
-const mockComponent = () => ({
-  $$: {
-    on_mount: [],
-    on_destroy: [],
-    before_update: [],
-    after_update: [],
-  },
-})
-
-// Mock the entire component
-vi.mock('$components', () => {
-  return {
-    Link: vi.fn().mockImplementation(mockComponent),
-  }
-})

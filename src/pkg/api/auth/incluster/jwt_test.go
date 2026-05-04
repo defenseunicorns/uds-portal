@@ -4,6 +4,7 @@
 package incluster
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -19,6 +20,20 @@ type expectedContext struct {
 }
 
 func TestValidateJWT(t *testing.T) {
+	parseClaims := func(tokenString string) (jwt.MapClaims, error) {
+		token, _, err := jwt.NewParser(jwt.WithoutClaimsValidation()).ParseUnverified(tokenString, jwt.MapClaims{})
+		if err != nil {
+			return nil, err
+		}
+
+		claims, ok := token.Claims.(jwt.MapClaims)
+		if !ok {
+			return nil, jwt.ErrTokenInvalidClaims
+		}
+
+		return claims, nil
+	}
+
 	// Helper function to create a JWT token without signing
 	createToken := func(groups []any) string {
 		claims := jwt.MapClaims{
@@ -36,41 +51,61 @@ func TestValidateJWT(t *testing.T) {
 	tests := []struct {
 		name            string
 		token           string
+		authorization   string
 		expectedStatus  int
 		expectedContext *expectedContext
 	}{
 		{
 			name:            "Valid token with single group",
 			token:           createToken([]any{"/UDS Core/Admin"}),
+			authorization:   "Bearer %s",
 			expectedStatus:  http.StatusOK,
 			expectedContext: &expectedContext{Groups: []string{"/UDS Core/Admin"}, PreferredUsername: "testuser", Name: "Test User"},
 		},
 		{
 			name:            "Valid token with multiple groups",
 			token:           createToken([]any{"/UDS Core/Admin", "/Unicorn-Squad"}),
+			authorization:   "Bearer %s",
 			expectedStatus:  http.StatusOK,
 			expectedContext: &expectedContext{Groups: []string{"/UDS Core/Admin", "/Unicorn-Squad"}, PreferredUsername: "testuser", Name: "Test User"},
 		},
 		{
 			name:            "Valid token with empty groups",
 			token:           createToken([]any{}),
+			authorization:   "Bearer %s",
 			expectedStatus:  http.StatusOK,
 			expectedContext: &expectedContext{Groups: []string{}, PreferredUsername: "testuser", Name: "Test User"},
 		},
 		{
 			name:           "Invalid token with non-string group",
 			token:          createToken([]any{"/UDS Core/Admin", 42}),
+			authorization:  "Bearer %s",
 			expectedStatus: http.StatusUnauthorized,
 		},
 		{
 			name:            "Valid token with no groups claim",
 			token:           createToken(nil),
+			authorization:   "Bearer %s",
 			expectedStatus:  http.StatusOK,
 			expectedContext: &expectedContext{Groups: []string{}, PreferredUsername: "testuser", Name: "Test User"},
 		},
 		{
+			name:            "Valid token with lowercase bearer scheme",
+			token:           createToken([]any{"/UDS Core/Admin"}),
+			authorization:   "bearer   %s",
+			expectedStatus:  http.StatusOK,
+			expectedContext: &expectedContext{Groups: []string{"/UDS Core/Admin"}, PreferredUsername: "testuser", Name: "Test User"},
+		},
+		{
 			name:           "Invalid token",
 			token:          "invalid.token.string",
+			authorization:  "Bearer %s",
+			expectedStatus: http.StatusUnauthorized,
+		},
+		{
+			name:           "Invalid authorization header format",
+			token:          createToken([]any{"/UDS Core/Admin"}),
+			authorization:  "Token %s",
 			expectedStatus: http.StatusUnauthorized,
 		},
 		{
@@ -85,14 +120,18 @@ func TestValidateJWT(t *testing.T) {
 			// Create a request to pass to our handler
 			req, _ := http.NewRequest("GET", "/", nil)
 			if tt.token != "" {
-				req.Header.Set("Authorization", "Bearer "+tt.token)
+				authorizationHeader := "Bearer %s"
+				if tt.authorization != "" {
+					authorizationHeader = tt.authorization
+				}
+				req.Header.Set("Authorization", fmt.Sprintf(authorizationHeader, tt.token))
 			}
 
 			// Create a ResponseRecorder to record the response
 			rr := httptest.NewRecorder()
 
 			// Call the function directly
-			request, result := ValidateJWT(rr, req)
+			request, result := validateJWT(rr, req, parseClaims)
 			if tt.expectedContext != nil {
 				require.Equal(t, tt.expectedContext.Groups, request.Context().Value(GroupKey), "group and user not set together")
 				require.Equal(t, tt.expectedContext.PreferredUsername, request.Context().Value(PreferredUserNameKey), "group and user not set together")

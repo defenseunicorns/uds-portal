@@ -47,6 +47,8 @@ spec:
             initialDelaySeconds: 5
             periodSeconds: 10
           env:
+            - name: UDS_DOMAIN
+              value: {{ .Values.package.domain | quote }}
             - name: CLASSIFICATION_BANNER_ENABLED
               value: {{ .Values.classificationBanner.enabled | quote }}
             - name: CLASSIFICATION_BANNER_TEXT

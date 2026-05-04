@@ -37,7 +37,7 @@ describe('ClassificationBanner', () => {
     expect(text).toHaveStyle(`color: ${classColorMap[c.Unclassified][1]}`)
   })
 
-  it('renders uknown if classification not derived from text', () => {
+  it('renders unknown if classification not derived from text', () => {
     render(ClassificationBanner, { props: { enabled: true, text: 'unclass' } })
     const header = screen.getByTestId('classification-header')
     expect(header).toHaveStyle(`background-color: ${classColorMap[c.Unknown][0]}`)

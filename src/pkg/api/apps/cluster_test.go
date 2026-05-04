@@ -105,9 +105,16 @@ func TestIconForPackage(t *testing.T) {
 	tests := []struct {
 		name       string
 		pkg        Package
+		nilStore   bool
 		getObjects map[string]runtime.Object
 		want       string
 	}{
+		{
+			name:     "returns empty when store is nil",
+			pkg:      pkgWithLabel,
+			nilStore: true,
+			want:     "",
+		},
 		{
 			name: "returns empty when package label missing",
 			pkg:  pkgWithoutLabel,
@@ -138,12 +145,15 @@ func TestIconForPackage(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			store := &appInformerStore{
-				secretLister: fakeGenericLister{
-					namespaceLister: fakeNamespaceLister{
-						getObjects: tt.getObjects,
+			var store *appInformerStore
+			if !tt.nilStore {
+				store = &appInformerStore{
+					secretLister: fakeGenericLister{
+						namespaceLister: fakeNamespaceLister{
+							getObjects: tt.getObjects,
+						},
 					},
-				},
+				}
 			}
 
 			got := iconForPackage(store, tt.pkg)

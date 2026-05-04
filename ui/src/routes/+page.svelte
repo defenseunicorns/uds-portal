@@ -33,7 +33,7 @@
                 <svelte:component this={Cube} class="h-8 w-8 text-blue-400" />
               {/if}
             </div>
-            <span class="text-md mt-2 w-full truncate text-center text-gray-100">
+            <span class="text-base mt-2 w-full truncate text-center text-gray-100">
               {app.name}
             </span>
           </a>
