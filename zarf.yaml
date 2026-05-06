@@ -1,0 +1,29 @@
+# Copyright 2025 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: ZarfPackageConfig
+metadata:
+  name: uds-portal
+  description: UDS Portal is the home page for UDS
+  # x-release-please-start-version
+  version: 0.1.0
+  # x-release-please-end
+
+variables:
+  - name: DOMAIN
+    default: "uds.dev"
+
+components:
+  - name: uds-portal
+    required: true
+    charts:
+      - name: uds-portal
+        localPath: chart
+        namespace: uds-portal
+        version: 0.1.0
+        valuesFiles:
+          - chart/values.yaml
+    # x-release-please-start-version
+    images:
+      - ghcr.io/defenseunicorns/uds-portal:0.1.0
+    # x-release-please-end

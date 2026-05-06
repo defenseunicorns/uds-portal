@@ -1,10 +1,10 @@
-# Go
-/bin/
-/build/
-*.test
-*.out
-coverage.out
-coverage.txt
+node_modules
+
+# Output
+.output
+.vercel
+/ui/.svelte-kit
+**/build/
 
 # OS
 .DS_Store
@@ -13,18 +13,33 @@ Thumbs.db
 # Env
 .env
 .env.*
+.env*
 !.env.example
 !.env.test
 
-# Editor
-.vscode/
-.idea/
-*.swp
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# # Playwright/ Vitest
+ui/test-results
+screenshot.png
+page-load-failure-*.png
 
 # Dev
+zarf-sbom
 tmp/
-artifacts/
+*.tar.zst
+.vscode/
+state.json
+*.db
+grype-scan.json
 *.pem
-
-# Node
-node_modules/
+artifacts/
+ui/node_modules/**/*
+ui/.svelte-kit/**/*
+ui/.pnpm-store/**/*
+ui/build/**/*
+!ui/build/
+!ui/build/.gitkeep
+uds-checkpoint.tar

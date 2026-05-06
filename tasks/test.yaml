@@ -1,0 +1,56 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+includes:
+  - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.5/tasks/setup.yaml
+  - build: ./build.yaml
+
+tasks:
+  - name: e2e-setup
+    description: deploy cluster specifically for testing UDS Portal
+    actions:
+      - task: build:container
+      - task: setup:k3d-test-cluster
+      - task: setup:create-doug-user
+      - task: deploy-test-package
+      - cmd: ./uds zarf dev deploy --no-yolo
+
+  - name: deploy-test-package
+    description: "deploy a Zarf package to test against"
+    actions:
+      - cmd: ./uds zarf dev deploy --no-yolo
+        dir: ui/tests/packages/podinfo
+
+  - name: e2e
+    description: "run end-to-end tests (assumes api server is running on port 8080)"
+    actions:
+      - cmd: |
+          docker run --rm --ipc=host --net=host \
+            -e CI=true \
+            --mount type=bind,source="$(pwd)/ui",target=/app \
+            mcr.microsoft.com/playwright:v1.59.1-jammy \
+            sh -c "
+              cd /app &&
+              npm install -g pnpm --ignore-scripts &&
+              pnpm install --frozen-lockfile &&
+              TEST_CFG=default npx playwright test
+            "
+
+  - name: go-unit
+    description: "run api server unit tests"
+    actions:
+      - cmd: go test -failfast -v -timeout 30m ./src/pkg/...
+
+  - name: ui-unit
+    description: "run frontend unit tests"
+    actions:
+      - cmd: pnpm install --frozen-lockfile && pnpm run test:unit
+        dir: ui
+
+  - name: unit
+    description: "run all unit tests (backend and frontend)"
+    actions:
+      - task: build:ui
+        description: "build ui since embedded in main.go"
+      - task: go-unit
+      - task: ui-unit

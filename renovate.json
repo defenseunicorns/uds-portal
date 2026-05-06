@@ -18,6 +18,23 @@
       ],
       "groupName": "support-deps",
       "commitMessageTopic": "support dependencies"
+    },
+    {
+      "matchCategories": [
+        "golang"
+      ],
+      "postUpdateOptions": [
+        "gomodTidy"
+      ],
+      "groupName": "go-dependencies",
+      "commitMessageTopic": "go dependencies"
+    },
+    {
+      "matchCategories": [
+        "js"
+      ],
+      "groupName": "js-dependencies",
+      "commitMessageTopic": "js dependencies"
     }
   ]
 }

@@ -1,0 +1,57 @@
+# Copyright 2025 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: uds-portal
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: uds-portal
+  template:
+    metadata:
+      labels:
+        app: uds-portal
+    spec:
+      serviceAccountName: uds-portal-sa
+      securityContext:
+          {{- .Values.podSecurityContext | toYaml | nindent 8 }}
+      containers:
+        - name: uds-portal
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          securityContext:
+            {{- .Values.containerSecurityContext | toYaml | nindent 12 }}
+          ports:
+            - containerPort: 8080
+          resources:
+            requests:
+              memory: {{ .Values.resources.requests.memory | quote }}
+              cpu: {{ .Values.resources.requests.cpu | quote }}
+            limits:
+              memory: {{ .Values.resources.limits.memory | quote }}
+              cpu: {{ .Values.resources.limits.cpu | quote }}
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          env:
+            - name: UDS_DOMAIN
+              value: {{ .Values.package.domain | quote }}
+            - name: CLASSIFICATION_BANNER_ENABLED
+              value: {{ .Values.classificationBanner.enabled | quote }}
+            - name: CLASSIFICATION_BANNER_TEXT
+              value: {{ .Values.classificationBanner.text | quote }}
+            - name: CLASSIFICATION_BANNER_FOOTER
+              value: {{ .Values.classificationBanner.addFooter | quote }}

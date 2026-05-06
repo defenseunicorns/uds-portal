@@ -11,7 +11,13 @@
         { "type": "docs", "section": "Documentation", "hidden": false }
       ],
       "bump-minor-pre-major": true,
-      "extra-files": []
+      "extra-files": [
+        "zarf.yaml",
+        "tasks.yaml",
+        "tasks/build.yaml",
+        "tasks/test.yaml",
+        "chart/values.yaml"
+      ]
     }
   }
 }

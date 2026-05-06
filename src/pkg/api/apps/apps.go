@@ -1,0 +1,167 @@
+// Copyright 2025 Defense Unicorns
+// SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+// Package apps retrieves, filters, and returns UDS packages from the Kubernetes cluster.
+package apps
+
+import (
+	_ "embed"
+	"encoding/base64"
+	"encoding/json"
+	"fmt"
+	"log/slog"
+	"net/http"
+	"strings"
+
+	"github.com/defenseunicorns/pkg/helpers/v2"
+	"github.com/defenseunicorns/uds-portal/src/pkg/api/auth/incluster"
+	"k8s.io/client-go/rest"
+)
+
+const (
+	udsPortalPkgName = "uds-portal"
+	myAccountURL     = "sso.uds.dev"
+	myAccountName    = "My Account"
+)
+
+//go:embed icons/my-account.svg
+var myAccountIconSVG []byte
+var myAccountIcon = "data:image/svg+xml;base64," + base64.StdEncoding.EncodeToString(myAccountIconSVG)
+
+// GetUDSPackages retrieves UDS packages from the cluster and filters them based on user group membership.
+func GetUDSPackages(config *rest.Config, inCluster bool, w http.ResponseWriter, r *http.Request) {
+	store, err := ensureInformerStore(config)
+	if err != nil {
+		http.Error(w, "cluster error", http.StatusInternalServerError)
+		slog.Error("informer init error", "error", err)
+		return
+	}
+
+	packages, err := listPackages(store)
+	if err != nil {
+		http.Error(w, "cluster error", http.StatusInternalServerError)
+		slog.Error("package list error", "error", err)
+		return
+	}
+
+	// filter packages and transform into API response shape
+	filteredByEndpoint := filterPackagesWithEndpoints(packages)
+	filteredByGroup := filterByUserGroup(r, filteredByEndpoint, inCluster)
+	responseApps := toAPIApps(store, filteredByGroup)
+
+	// return the filtered packages
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(responseApps); err != nil {
+		http.Error(w, fmt.Sprintf("Failed to encode response: %v", err), http.StatusInternalServerError)
+	}
+}
+
+func filterPackagesWithEndpoints(sourcePackages []Package) []Package {
+	packages := make([]Package, 0)
+	for _, pkg := range sourcePackages {
+		// ensure package has valid endpoints and is not the UDS portal
+		if len(pkg.Status.Endpoints) > 0 && pkg.Metadata.Name != udsPortalPkgName {
+			packages = append(packages, pkg)
+		}
+	}
+	return packages
+}
+
+func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Package {
+	userGroups, _ := r.Context().Value(incluster.GroupKey).([]string)
+
+	if !inCluster {
+		return packages
+	}
+
+	var filteredByGroup []Package
+	for _, pkg := range packages {
+		filteredPkg := Package{Metadata: pkg.Metadata, Spec: pkg.Spec, Status: pkg.Status}
+		// filter out apps that don't match the user group
+		if len(filteredPkg.Status.Endpoints) > 0 {
+			if len(pkg.Spec.SSO) == 0 {
+				continue
+			}
+
+			allowed := false
+		ssoLoop:
+			for _, sso := range pkg.Spec.SSO {
+				if len(sso.Groups.AnyOf) == 0 {
+					allowed = true
+					break ssoLoop
+				}
+
+				for _, appGroup := range sso.Groups.AnyOf {
+					for _, userGroup := range userGroups {
+						if appGroup == userGroup {
+							allowed = true
+							break ssoLoop
+						}
+					}
+				}
+			}
+
+			if allowed {
+				filteredByGroup = append(filteredByGroup, filteredPkg)
+			}
+		}
+	}
+	return filteredByGroup
+}
+
+func toAPIApps(store *appInformerStore, packages []Package) []APIApp {
+	apiApps := make([]APIApp, 0)
+
+	// initialize with the "My Account" URL to avoid duplicates
+	seen := map[string]struct{}{myAccountURL: {}}
+
+	for _, pkg := range packages {
+		icon := iconForPackage(store, pkg)
+		for _, url := range helpers.Unique(pkg.Status.Endpoints) {
+			if _, exists := seen[url]; exists {
+				continue
+			}
+			seen[url] = struct{}{}
+			apiApps = append(apiApps, APIApp{
+				Name: displayNameForApp(pkg.Metadata.Name, url),
+				Icon: icon,
+				URL:  url,
+			})
+		}
+	}
+
+	// add "My Account" as the first app in the list
+	myAccount := APIApp{
+		Name: myAccountName,
+		Icon: myAccountIcon,
+		URL:  myAccountURL,
+	}
+	apiApps = append([]APIApp{myAccount}, apiApps...)
+
+	return apiApps
+}
+
+func displayNameForApp(packageName, url string) string {
+	// TODO: (@wstarr) - this is a temporary function to normalize Package names until a better solution is designed
+	if url == myAccountURL {
+		return myAccountName
+	}
+
+	normalized := strings.ReplaceAll(strings.TrimSpace(packageName), "-", " ")
+	words := strings.Fields(normalized)
+	for i, word := range words {
+		lower := strings.ToLower(word)
+		if lower == "uds" {
+			words[i] = "UDS"
+			continue
+		}
+
+		if lower == "" {
+			continue
+		}
+
+		words[i] = strings.ToUpper(lower[:1]) + lower[1:]
+	}
+
+	return strings.Join(words, " ")
+}

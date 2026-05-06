@@ -1,0 +1,76 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+name: Test
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches: [main]
+    types: [milestoned, opened, synchronize]
+    paths-ignore:
+      - "**.md"
+      - "**.png"
+      - "**.jpg"
+      - "**.svg"
+      - "**.gif"
+      - "CODEOWNERS"
+      - "LICENSE*"
+
+concurrency:
+  group: test-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version-file: "go.mod"
+
+      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+        with:
+          # renovate: datasource=github-releases depName=jdx/mise versioning=semver
+          version: 2026.4.16
+          install: true
+          cache: true
+
+      - name: Run unit tests
+        run: uds run test:unit
+
+  e2e:
+    runs-on: uds-ubuntu-big-boy-4-core
+    timeout-minutes: 60
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Install Go
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
+        with:
+          go-version-file: "go.mod"
+
+      - uses: jdx/mise-action@1648a7812b9aeae629881980618f079932869151 # v4.0.1
+        with:
+          # renovate: datasource=github-releases depName=jdx/mise versioning=semver
+          version: 2026.4.16
+          install: true
+          cache: true
+
+      - name: Setup e2e environment
+        run: uds run test:e2e-setup
+
+      - name: Run e2e tests
+        run: uds run test:e2e
