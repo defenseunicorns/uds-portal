@@ -40,5 +40,9 @@ jobs:
           install: true
           cache: true
 
+      - name: Install UI dependencies
+        working-directory: ui
+        run: pnpm install --frozen-lockfile
+
       - name: Lint
-        run: uds run lint:all
+        run: uds run lint:check

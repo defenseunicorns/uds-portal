@@ -10,7 +10,7 @@ UDS Portal is the landing page for all UDS users, it serves as a single point of
 
 ## Quickstart Deploy
 
-> [!NOTE]  
+> [!NOTE]
 > UDS Portal is in early alpha, follow the instructions below to deploy a prototype of the app.
 
 To deploy the UDS Portal in your UDS cluster, run:
