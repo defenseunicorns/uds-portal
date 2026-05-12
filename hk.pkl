@@ -20,6 +20,24 @@ local linters = new Mapping<String, Step> {
         check = "yamllint {{files}} -c .yamllint"
         glob = List("**/*.yml", "**/*.yaml")
     }
+    ["golangci-lint"] {
+        check = "mkdir -p ui/build && touch ui/build/.ignore-empty && golangci-lint run ./..."
+        glob = List("**/*.go", "go.mod", "go.sum")
+    }
+    ["eslint"] {
+        check = "pnpm --dir ui exec eslint ."
+        fix = "pnpm --dir ui exec eslint . --fix"
+        glob = List("ui/**/*.js", "ui/**/*.jsx", "ui/**/*.ts", "ui/**/*.tsx", "ui/**/*.svelte", "ui/**/*.mjs", "ui/**/*.cjs")
+    }
+    ["prettier"] {
+        check = "pnpm --dir ui exec prettier --check ."
+        fix = "pnpm --dir ui exec prettier --write ."
+        glob = List("ui/**/*.js", "ui/**/*.jsx", "ui/**/*.ts", "ui/**/*.tsx", "ui/**/*.svelte", "ui/**/*.html", "ui/**/*.css", "ui/**/*.md", "ui/**/*.json", "ui/**/*.yaml", "ui/**/*.yml")
+    }
+    ["svelte-check"] {
+        check = "pnpm --dir ui run svcheck"
+        glob = List("ui/**/*.svelte", "ui/**/*.ts", "ui/**/*.js")
+    }
     ["license-check"] {
         check = "uds run lint:license"
         fix = "uds run lint:fix-license"

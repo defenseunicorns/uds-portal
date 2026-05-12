@@ -5,36 +5,22 @@ includes:
   - common: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.5/tasks/lint.yaml
 
 tasks:
-  - name: all
-    description: "Run all linters"
+  - name: check
+    description: "Run all lint checks via hk against the full tree"
     actions:
-      - task: yaml
-      - task: golangci
-      - task: ui
+      - cmd: hk check --all
+
+  - name: fix
+    description: "Apply lint fixes via hk against the full tree"
+    actions:
+      - cmd: hk fix --all
+
+  - name: license
+    description: "Check SPDX license headers"
+    actions:
       - task: common:license
 
-  - name: golangci
-    description: "Run golang linters"
+  - name: fix-license
+    description: "Add SPDX license headers to source files"
     actions:
-      - cmd: mkdir -p ui/build && touch ui/build/.ignore-empty
-      - cmd: |
-          golangci-lint run ./...
-
-  - name: yaml
-    description: "Run yaml linters"
-    actions:
-      - task: common:yaml
-
-  - name: ui
-    description: "Run ui lint and type check"
-    actions:
-      - cmd: pnpm install --frozen-lockfile && pnpm run lint
-        dir: ui
-      - cmd: pnpm run check
-        dir: ui
-
-  - name: format-ui
-    description: "Format ui code"
-    actions:
-      - cmd: pnpm install --frozen-lockfile && pnpm run format
-        dir: ui
+      - task: common:fix-license
