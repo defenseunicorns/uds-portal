@@ -3,7 +3,7 @@
 
 module github.com/defenseunicorns/uds-portal
 
-go 1.25.8
+go 1.26.3
 
 require (
 	github.com/coreos/go-oidc/v3 v3.17.0

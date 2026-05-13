@@ -1,4 +1,4 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 package apps
@@ -15,32 +15,23 @@ func TestDisplayNameForApp(t *testing.T) {
 	tests := []struct {
 		name        string
 		packageName string
-		url         string
 		want        string
 	}{
 		{
 			name:        "formats dashed name and title case",
 			packageName: "mission-control",
-			url:         "mission.uds.dev",
 			want:        "Mission Control",
 		},
 		{
 			name:        "normalizes uds acronym",
 			packageName: "uds-registry",
-			url:         "registry.uds.dev",
 			want:        "UDS Registry",
-		},
-		{
-			name:        "my account special case",
-			packageName: "anything",
-			url:         myAccountURL,
-			want:        myAccountName,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := displayNameForApp(tt.packageName, tt.url)
+			got := displayNameForApp(tt.packageName)
 			if got != tt.want {
 				t.Fatalf("expected %q, got %q", tt.want, got)
 			}
@@ -50,14 +41,18 @@ func TestDisplayNameForApp(t *testing.T) {
 
 func TestToAPIApps(t *testing.T) {
 	tests := []struct {
-		name    string
-		pkgs    []Package
-		wantLen int
+		name         string
+		pkgs         []Package
+		accountURL   string
+		wantLen      int
+		wantFirstURL string // empty means "no My Account entry expected"
 	}{
 		{
-			name:    "returns My Account when no packages",
-			pkgs:    nil,
-			wantLen: 1,
+			name:         "returns My Account when no packages",
+			pkgs:         nil,
+			accountURL:   "sso.uds.dev",
+			wantLen:      1,
+			wantFirstURL: "sso.uds.dev",
 		},
 		{
 			name: "prepends My Account when packages exist",
@@ -67,21 +62,62 @@ func TestToAPIApps(t *testing.T) {
 					Status:   Status{Endpoints: []string{"grafana.uds.dev"}},
 				},
 			},
-			wantLen: 2,
+			accountURL:   "sso.uds.dev",
+			wantLen:      2,
+			wantFirstURL: "sso.uds.dev",
+		},
+		{
+			name: "uses custom My Account URL",
+			pkgs: []Package{
+				{
+					Metadata: Metadata{Name: "grafana"},
+					Status:   Status{Endpoints: []string{"grafana.example.com"}},
+				},
+			},
+			accountURL:   "sso.example.com",
+			wantLen:      2,
+			wantFirstURL: "sso.example.com",
+		},
+		{
+			name: "omits My Account when URL is empty",
+			pkgs: []Package{
+				{
+					Metadata: Metadata{Name: "grafana"},
+					Status:   Status{Endpoints: []string{"grafana.uds.dev"}},
+				},
+			},
+			accountURL:   "",
+			wantLen:      1,
+			wantFirstURL: "",
+		},
+		{
+			name:         "omits My Account when URL is empty and no packages",
+			pkgs:         nil,
+			accountURL:   "",
+			wantLen:      0,
+			wantFirstURL: "",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := toAPIApps(nil, tt.pkgs)
+			got := toAPIApps(nil, tt.pkgs, tt.accountURL)
 			if got == nil {
-				t.Fatal("expected empty slice, got nil")
+				t.Fatal("expected non-nil slice, got nil")
 			}
 			if len(got) != tt.wantLen {
 				t.Fatalf("expected %d apps, got %d", tt.wantLen, len(got))
 			}
-			if got[0].URL != myAccountURL {
-				t.Fatalf("expected %q first, got %q", myAccountURL, got[0].URL)
+			if tt.wantFirstURL == "" {
+				for _, app := range got {
+					if app.Name == myAccountName {
+						t.Fatalf("did not expect My Account entry, got %+v", app)
+					}
+				}
+				return
+			}
+			if got[0].URL != tt.wantFirstURL {
+				t.Fatalf("expected first URL %q, got %q", tt.wantFirstURL, got[0].URL)
 			}
 		})
 	}
