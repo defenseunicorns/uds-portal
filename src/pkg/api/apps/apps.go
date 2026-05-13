@@ -1,4 +1,4 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 // Package apps retrieves, filters, and returns UDS packages from the Kubernetes cluster.
@@ -15,12 +15,12 @@ import (
 
 	"github.com/defenseunicorns/pkg/helpers/v2"
 	"github.com/defenseunicorns/uds-portal/src/pkg/api/auth/incluster"
+	"github.com/defenseunicorns/uds-portal/src/pkg/config"
 	"k8s.io/client-go/rest"
 )
 
 const (
 	udsPortalPkgName = "uds-portal"
-	myAccountURL     = "sso.uds.dev"
 	myAccountName    = "My Account"
 )
 
@@ -29,8 +29,8 @@ var myAccountIconSVG []byte
 var myAccountIcon = "data:image/svg+xml;base64," + base64.StdEncoding.EncodeToString(myAccountIconSVG)
 
 // GetUDSPackages retrieves UDS packages from the cluster and filters them based on user group membership.
-func GetUDSPackages(config *rest.Config, inCluster bool, w http.ResponseWriter, r *http.Request) {
-	store, err := ensureInformerStore(config)
+func GetUDSPackages(restConfig *rest.Config, inCluster bool, w http.ResponseWriter, r *http.Request) {
+	store, err := ensureInformerStore(restConfig)
 	if err != nil {
 		http.Error(w, "cluster error", http.StatusInternalServerError)
 		slog.Error("informer init error", "error", err)
@@ -47,7 +47,11 @@ func GetUDSPackages(config *rest.Config, inCluster bool, w http.ResponseWriter, 
 	// filter packages and transform into API response shape
 	filteredByEndpoint := filterPackagesWithEndpoints(packages)
 	filteredByGroup := filterByUserGroup(r, filteredByEndpoint, inCluster)
-	responseApps := toAPIApps(store, filteredByGroup)
+	myAccountURL := ""
+	if config.UDSDomain != "" {
+		myAccountURL = "sso." + config.UDSDomain
+	}
+	responseApps := toAPIApps(store, filteredByGroup, myAccountURL)
 
 	// return the filtered packages
 	w.Header().Set("Content-Type", "application/json")
@@ -109,11 +113,19 @@ func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Pa
 	return filteredByGroup
 }
 
-func toAPIApps(store *appInformerStore, packages []Package) []APIApp {
+func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string) []APIApp {
 	apiApps := make([]APIApp, 0)
+	seen := map[string]struct{}{}
 
-	// initialize with the "My Account" URL to avoid duplicates
-	seen := map[string]struct{}{myAccountURL: {}}
+	if myAccountURL != "" {
+		apiApps = append(apiApps, APIApp{
+			Name: myAccountName,
+			Icon: myAccountIcon,
+			URL:  myAccountURL,
+		})
+		// pre-seed seen so a package endpoint matching the SSO host isn't listed twice
+		seen[myAccountURL] = struct{}{}
+	}
 
 	for _, pkg := range packages {
 		icon := iconForPackage(store, pkg)
@@ -123,30 +135,18 @@ func toAPIApps(store *appInformerStore, packages []Package) []APIApp {
 			}
 			seen[url] = struct{}{}
 			apiApps = append(apiApps, APIApp{
-				Name: displayNameForApp(pkg.Metadata.Name, url),
+				Name: displayNameForApp(pkg.Metadata.Name),
 				Icon: icon,
 				URL:  url,
 			})
 		}
 	}
 
-	// add "My Account" as the first app in the list
-	myAccount := APIApp{
-		Name: myAccountName,
-		Icon: myAccountIcon,
-		URL:  myAccountURL,
-	}
-	apiApps = append([]APIApp{myAccount}, apiApps...)
-
 	return apiApps
 }
 
-func displayNameForApp(packageName, url string) string {
+func displayNameForApp(packageName string) string {
 	// TODO: (@wstarr) - this is a temporary function to normalize Package names until a better solution is designed
-	if url == myAccountURL {
-		return myAccountName
-	}
-
 	normalized := strings.ReplaceAll(strings.TrimSpace(packageName), "-", " ")
 	words := strings.Fields(normalized)
 	for i, word := range words {
