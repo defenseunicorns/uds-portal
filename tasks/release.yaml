@@ -1,0 +1,25 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+includes:
+  - build: ./build.yaml
+
+variables:
+  - name: REF
+    description: "reference for the portal image and zarf package"
+    # x-release-please-start-version
+    default: 0.1.0
+    # x-release-please-end
+
+tasks:
+  - name: publish
+    description: "build and publish image and zarf packages (multi-arch) to GHCR"
+    actions:
+      - task: build:container
+        with:
+          push: "true"
+      - task: build:zarf-package
+        with:
+          dev: "false"
+      - cmd: uds zarf package publish build/zarf-package-uds-portal-amd64-${REF}.tar.zst oci://ghcr.io/defenseunicorns/packages/private/uds
+      - cmd: uds zarf package publish build/zarf-package-uds-portal-arm64-${REF}.tar.zst oci://ghcr.io/defenseunicorns/packages/private/uds

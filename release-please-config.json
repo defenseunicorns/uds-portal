@@ -16,7 +16,9 @@
         "tasks.yaml",
         "tasks/build.yaml",
         "tasks/test.yaml",
-        "chart/values.yaml"
+        "tasks/release.yaml",
+        "chart/values.yaml",
+        "chart/Chart.yaml"
       ]
     }
   }
