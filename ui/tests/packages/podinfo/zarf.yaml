@@ -30,4 +30,4 @@ components:
         valuesFiles:
           - values.yaml
     images:
-      - ghcr.io/stefanprodan/podinfo:6.7.1
+      - ghcr.io/stefanprodan/podinfo:6.11.2
