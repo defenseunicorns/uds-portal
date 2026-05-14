@@ -84,9 +84,3 @@ Add `Release-As: x.y.z` to any commit body landing on `main`:
 ```sh
 git commit --allow-empty -m "chore: release 0.2.0" -m "Release-As: 0.2.0"
 ```
-
-**Test publish locally** (requires GHCR write access and Docker Buildx):
-
-```sh
-uds run release:publish --set REF=<version>
-```
