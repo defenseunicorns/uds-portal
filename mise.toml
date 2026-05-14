@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 [tools]
-hk = "1.44.2"
+hk = "1.45.0"
 "aqua:defenseunicorns/uds-cli" = "0.30.2"
 "aqua:google/addlicense" = "1.2.0"
 "aqua:k3d-io/k3d" = "5.8.3"
