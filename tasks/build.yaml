@@ -1,4 +1,4 @@
-# Copyright 2024 Defense Unicorns
+# Copyright 2024-2026 Defense Unicorns
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 variables:
@@ -56,16 +56,34 @@ tasks:
         dir: ui
 
   - name: container
-    description: "build container and push to GHCR (multi-arch)"
+    description: "build container image (multi-arch push to GHCR when push=true, local single-arch otherwise)"
+    inputs:
+      push:
+        default: "false"
+        description: "push multi-arch image to GHCR"
     actions:
       - cmd: go mod tidy
       - task: ui
       - task: api-linux-amd64
       - task: api-linux-arm64
       - cmd: |
-          docker buildx build --platform linux/${UDS_ARCH} -t ghcr.io/defenseunicorns/uds-portal:${REF} .
+          if [ "${{ .inputs.push }}" = "true" ]; then
+            docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/defenseunicorns/uds-portal:${REF} --push .
+          else
+            docker buildx build --platform linux/${UDS_ARCH} -t ghcr.io/defenseunicorns/uds-portal:${REF} --load .
+          fi
 
   - name: zarf-package
-    description: "build the uds portal zarf package for the current platform"
+    description: "build the uds portal zarf package (both arches when dev=false, local arch when dev=true)"
+    inputs:
+      dev:
+        default: "false"
+        description: "build for local arch only (faster local iteration)"
     actions:
-      - cmd: ./uds zarf p create -a ${UDS_ARCH} -o build --confirm
+      - cmd: |
+          if [ "${{ .inputs.dev }}" = "true" ]; then
+            uds zarf p create -a ${UDS_ARCH} -o build --confirm
+          else
+            uds zarf p create -a amd64 -o build --confirm
+            uds zarf p create -a arm64 -o build --confirm
+          fi

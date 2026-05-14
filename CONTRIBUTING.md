@@ -62,3 +62,25 @@ Specifically:
 - Do not merge code into `main` that isn't releasable
 - Automated testing on all changes before merge
 - Immutable release artifacts
+
+### Release Process
+
+Releases are automated via [release-please](https://github.com/googleapis/release-please). Merge conventional commits to `main`; release-please opens a release PR with an updated `CHANGELOG.md` and bumped versions. Merging that PR creates the tag and triggers the publish workflow.
+
+**What gets published on release:**
+
+| Artifact | Destination |
+|---|---|
+| Docker image (linux/amd64 + linux/arm64) | `ghcr.io/defenseunicorns/uds-portal:<version>` |
+| Zarf package amd64 | `oci://ghcr.io/defenseunicorns/packages/uds` |
+| Zarf package arm64 | `oci://ghcr.io/defenseunicorns/packages/uds` |
+
+**Version files:** release-please bumps versions in lockstep across `zarf.yaml`, `chart/Chart.yaml`, `chart/values.yaml`, `tasks.yaml`, `tasks/build.yaml`, and `tasks/release.yaml`.
+
+**Override version for a release:**
+
+Add `Release-As: x.y.z` to any commit body landing on `main`:
+
+```sh
+git commit --allow-empty -m "chore: release 0.2.0" -m "Release-As: 0.2.0"
+```
