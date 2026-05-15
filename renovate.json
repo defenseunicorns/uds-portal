@@ -5,36 +5,60 @@
     ":semanticCommits",
     ":semanticCommitTypeAll(chore)"
   ],
-  "ignorePresets": [":ignoreModulesAndTests"],
+  "ignorePresets": [
+    ":ignoreModulesAndTests"
+  ],
   "branchConcurrentLimit": 0,
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
+  "separateMajorMinor": false,
   "packageRules": [
     {
-      "matchFileNames": [
-        ".github/**",
-        "tasks.yaml",
-        "tasks/*.yaml"
+      "matchCategories": [
+        "golang",
+        "js"
+      ],
+      "groupName": "application-deps",
+      "commitMessageTopic": "application dependencies",
+      "postUpdateOptions": [
+        "gomodTidy"
+      ]
+    },
+    {
+      "matchManagers": [
+        "mise",
+        "github-actions"
       ],
       "groupName": "support-deps",
       "commitMessageTopic": "support dependencies"
     },
     {
-      "matchCategories": [
-        "golang"
+      "matchFileNames": [
+        ".github/**",
+        "tasks.yaml",
+        "tasks/*.yaml",
+        "ui/tests/**"
       ],
-      "postUpdateOptions": [
-        "gomodTidy"
-      ],
-      "groupName": "go-dependencies",
-      "commitMessageTopic": "go dependencies"
+      "groupName": "support-deps",
+      "commitMessageTopic": "support dependencies"
     },
     {
-      "matchCategories": [
-        "js"
+      "matchDepNames": [
+        "go",
+        "node"
       ],
-      "groupName": "js-dependencies",
-      "commitMessageTopic": "js dependencies"
+      "groupName": "application-deps",
+      "commitMessageTopic": "application dependencies"
+    },
+    {
+      "matchDepNames": [
+        "pnpm",
+        "prettier",
+        "@playwright/test",
+        "mcr.microsoft.com/playwright"
+      ],
+      "groupName": "support-deps",
+      "commitMessageTopic": "support dependencies"
     }
   ]
 }
