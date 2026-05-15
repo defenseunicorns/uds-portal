@@ -45,7 +45,6 @@
     {
       "matchDepNames": [
         "go",
-        "pnpm",
         "node"
       ],
       "groupName": "application-deps",
@@ -53,6 +52,7 @@
     },
     {
       "matchDepNames": [
+        "pnpm",
         "prettier",
         "@playwright/test",
         "mcr.microsoft.com/playwright"
