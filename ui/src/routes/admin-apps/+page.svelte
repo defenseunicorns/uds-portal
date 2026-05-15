@@ -13,12 +13,12 @@
 
 {#if !data.adminAppsEnabled}
   <div class="flex w-full flex-col items-center space-y-8">
-    <span class="text-2xl font-medium text-gray-100">Admin Apps</span>
+    <h1 class="text-2xl font-medium text-gray-100">Admin Apps</h1>
     <p class="text-base text-gray-400">Admin Apps is disabled in this deployment.</p>
   </div>
 {:else if adminApps.length > 0}
   <div class="flex w-full flex-col items-center space-y-8">
-    <span class="text-2xl font-medium text-gray-100">Admin Apps</span>
+    <h1 class="text-2xl font-medium text-gray-100">Admin Apps</h1>
     <div
       data-testid="admin-access-banner"
       class="w-full max-w-6xl rounded-md border border-yellow-700/40 bg-yellow-900/20 px-4 py-3 text-sm text-yellow-200"

@@ -32,13 +32,13 @@ tasks:
       - task: lint:fix
 
   - name: dev-setup
-    description: "create a full UDS Core dev cluster and deploy seed bundles"
+    description: "deploy UDS Core dev cluster and deploy seed bundles"
     inputs:
       gitlab:
         description: "deploy the GitLab seed bundle"
         default: "false"
     actions:
-      - task: setup:k3d-full-cluster
+      - task: setup:k3d-test-cluster
       - task: setup:create-doug-user
         with:
           keycloak_group: /UDS Core/Admin
@@ -153,6 +153,7 @@ tasks:
         with:
           dev: "true"
       - cmd: ./uds zarf package deploy build/zarf-package-uds-portal-*-${VERSION}.tar.zst --confirm
+        # The below commands are needed to ensure the latest image is pulled since the tag doesn't change for dev builds.
       - cmd: ./uds zarf tools kubectl -n uds-portal patch deployment/uds-portal --type=json -p='[{"op":"replace","path":"/spec/template/spec/containers/0/imagePullPolicy","value":"Always"}]'
       - cmd: ./uds zarf tools kubectl -n uds-portal rollout restart deployment/uds-portal
       - cmd: ./uds zarf tools kubectl -n uds-portal rollout status deployment/uds-portal --timeout=120s

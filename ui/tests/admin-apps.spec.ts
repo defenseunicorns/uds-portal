@@ -13,11 +13,11 @@ test.describe('Admin Apps view', () => {
     await page.goto('/admin-apps')
     await expect(page.getByTestId('admin-access-banner')).toContainText('additional network access')
     await expect(page.getByText('Admin Apps').first()).toBeVisible()
-    await expect(page.getByRole('link', { name: 'Grafana' })).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Podinfo Admin' })).toBeVisible()
   })
 
   test('/ does not show the admin gateway app', async ({ page }) => {
     await page.goto('/')
-    await expect(page.getByRole('link', { name: 'Grafana' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Podinfo Admin' })).toHaveCount(0)
   })
 })

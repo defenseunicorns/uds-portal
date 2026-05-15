@@ -1,0 +1,26 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+apiVersion: uds.dev/v1alpha1
+kind: Package
+metadata:
+  name: podinfo-admin
+  namespace: podinfo-admin
+spec:
+  network:
+    expose:
+      - service: podinfo-admin
+        selector:
+          app.kubernetes.io/name: podinfo-admin
+        gateway: admin
+        host: podinfo-admin
+        port: 9898
+  sso:
+    - name: podinfo-admin
+      clientId: podinfo-admin
+      attributes:
+        access.token.lifespan: '120'
+      redirectUris:
+        - 'https://podinfo-admin.admin.uds.dev/auth'
+      enableAuthserviceSelector:
+        app.kubernetes.io/name: podinfo-admin

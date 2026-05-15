@@ -39,7 +39,33 @@ func TestDisplayNameForApp(t *testing.T) {
 	}
 }
 
+func TestEndpointURL(t *testing.T) {
+	tests := []struct {
+		name    string
+		host    string
+		gateway string
+		domain  string
+		want    string
+	}{
+		{"tenant gateway", "podinfo", "tenant", "uds.dev", "podinfo.uds.dev"},
+		{"admin gateway", "grafana", "admin", "uds.dev", "grafana.admin.uds.dev"},
+		{"empty gateway treated as tenant", "app", "", "uds.dev", "app.uds.dev"},
+		{"custom gateway", "app", "custom", "uds.dev", "app.custom.uds.dev"},
+		{"empty domain returns host only", "app", "tenant", "", "app"},
+		{"empty domain with admin returns host only", "app", "admin", "", "app"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := endpointURL(tt.host, tt.gateway, tt.domain)
+			if got != tt.want {
+				t.Fatalf("expected %q, got %q", tt.want, got)
+			}
+		})
+	}
+}
+
 func TestToAPIApps(t *testing.T) {
+	const domain = "uds.dev"
 	tests := []struct {
 		name         string
 		pkgs         []Package
@@ -59,7 +85,9 @@ func TestToAPIApps(t *testing.T) {
 			pkgs: []Package{
 				{
 					Metadata: Metadata{Name: "grafana"},
-					Status:   Status{Endpoints: []string{"grafana.uds.dev"}},
+					Spec: Spec{Network: Network{Expose: []Expose{
+						{Host: "grafana", Gateway: "tenant"},
+					}}},
 				},
 			},
 			accountURL:   "sso.uds.dev",
@@ -71,7 +99,9 @@ func TestToAPIApps(t *testing.T) {
 			pkgs: []Package{
 				{
 					Metadata: Metadata{Name: "grafana"},
-					Status:   Status{Endpoints: []string{"grafana.example.com"}},
+					Spec: Spec{Network: Network{Expose: []Expose{
+						{Host: "grafana", Gateway: "tenant"},
+					}}},
 				},
 			},
 			accountURL:   "sso.example.com",
@@ -83,7 +113,9 @@ func TestToAPIApps(t *testing.T) {
 			pkgs: []Package{
 				{
 					Metadata: Metadata{Name: "grafana"},
-					Status:   Status{Endpoints: []string{"grafana.uds.dev"}},
+					Spec: Spec{Network: Network{Expose: []Expose{
+						{Host: "grafana", Gateway: "tenant"},
+					}}},
 				},
 			},
 			accountURL:   "",
@@ -101,7 +133,7 @@ func TestToAPIApps(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := toAPIApps(nil, tt.pkgs, tt.accountURL)
+			got := toAPIApps(nil, tt.pkgs, tt.accountURL, domain)
 			if got == nil {
 				t.Fatal("expected non-nil slice, got nil")
 			}
@@ -136,8 +168,10 @@ func TestFilterByUserGroup(t *testing.T) {
 			pkgs: []Package{
 				{
 					Metadata: Metadata{Name: "no-sso"},
-					Status:   Status{Endpoints: []string{"no-sso.uds.dev"}},
-					Spec:     Spec{SSO: nil},
+					Spec: Spec{
+						Network: Network{Expose: []Expose{{Host: "no-sso", Gateway: "tenant"}}},
+						SSO:     nil,
+					},
 				},
 			},
 			wantLen: 0,
@@ -148,10 +182,10 @@ func TestFilterByUserGroup(t *testing.T) {
 			pkgs: []Package{
 				{
 					Metadata: Metadata{Name: "sso-without-groups"},
-					Status:   Status{Endpoints: []string{"auditor.uds.dev"}},
-					Spec: Spec{SSO: []SSO{
-						{Groups: Groups{AnyOf: nil}},
-					}},
+					Spec: Spec{
+						Network: Network{Expose: []Expose{{Host: "auditor", Gateway: "tenant"}}},
+						SSO:     []SSO{{Groups: Groups{AnyOf: nil}}},
+					},
 				},
 			},
 			wantLen: 1,
@@ -162,10 +196,10 @@ func TestFilterByUserGroup(t *testing.T) {
 			pkgs: []Package{
 				{
 					Metadata: Metadata{Name: "group-matched"},
-					Status:   Status{Endpoints: []string{"group-matched.uds.dev"}},
-					Spec: Spec{SSO: []SSO{
-						{Groups: Groups{AnyOf: []string{"/UDS Core/Developer", "/UDS Core/Admin"}}},
-					}},
+					Spec: Spec{
+						Network: Network{Expose: []Expose{{Host: "group-matched", Gateway: "tenant"}}},
+						SSO:     []SSO{{Groups: Groups{AnyOf: []string{"/UDS Core/Developer", "/UDS Core/Admin"}}}},
+					},
 				},
 			},
 			wantLen: 1,
@@ -176,10 +210,10 @@ func TestFilterByUserGroup(t *testing.T) {
 			pkgs: []Package{
 				{
 					Metadata: Metadata{Name: "group-mismatched"},
-					Status:   Status{Endpoints: []string{"group-mismatched.uds.dev"}},
-					Spec: Spec{SSO: []SSO{
-						{Groups: Groups{AnyOf: []string{"/UDS Core/Developer", "/UDS Core/Admin"}}},
-					}},
+					Spec: Spec{
+						Network: Network{Expose: []Expose{{Host: "group-mismatched", Gateway: "tenant"}}},
+						SSO:     []SSO{{Groups: Groups{AnyOf: []string{"/UDS Core/Developer", "/UDS Core/Admin"}}}},
+					},
 				},
 			},
 			wantLen: 0,
@@ -202,90 +236,8 @@ func TestFilterByUserGroup(t *testing.T) {
 	}
 }
 
-func TestGatewayForEndpoint(t *testing.T) {
-	pkg := Package{
-		Spec: Spec{Network: Network{Expose: []Expose{
-			{Host: "grafana", Gateway: "admin"},
-			{Host: "podinfo", Gateway: "tenant"},
-		}}},
-	}
-	tests := []struct {
-		name     string
-		endpoint string
-		want     string
-	}{
-		{"exact host match", "grafana", "admin"},
-		{"prefix host match with domain", "grafana.uds.dev", "admin"},
-		{"tenant match", "podinfo.uds.dev", "tenant"},
-		{"unknown endpoint", "unknown.uds.dev", ""},
-		{"empty endpoint", "", ""},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got := gatewayForEndpoint(pkg, tt.endpoint)
-			if got != tt.want {
-				t.Fatalf("expected %q, got %q", tt.want, got)
-			}
-		})
-	}
-}
-
-func TestGatewayForEndpoint_NoExpose(t *testing.T) {
-	pkg := Package{}
-	if got := gatewayForEndpoint(pkg, "anything.uds.dev"); got != "" {
-		t.Fatalf("expected empty, got %q", got)
-	}
-}
-
-func TestGatewayForEndpoint_EmptyHostSkipped(t *testing.T) {
-	pkg := Package{
-		Spec: Spec{Network: Network{Expose: []Expose{
-			{Host: "", Gateway: "admin"},
-			{Host: "real", Gateway: "tenant"},
-		}}},
-	}
-	if got := gatewayForEndpoint(pkg, "real.uds.dev"); got != "tenant" {
-		t.Fatalf("expected tenant, got %q", got)
-	}
-}
-
-func TestGatewayForEndpoint_PrefersMostSpecificHost(t *testing.T) {
-	pkg := Package{
-		Spec: Spec{Network: Network{Expose: []Expose{
-			{Host: "app", Gateway: "tenant"},
-			{Host: "app.admin", Gateway: "admin"},
-		}}},
-	}
-	if got := gatewayForEndpoint(pkg, "app.admin.uds.dev"); got != "admin" {
-		t.Fatalf("expected admin, got %q", got)
-	}
-}
-
-func TestGatewayForEndpoint_UsesGatewaySegmentForSharedHost(t *testing.T) {
-	pkg := Package{
-		Spec: Spec{Network: Network{Expose: []Expose{
-			{Host: "grafana", Gateway: "tenant"},
-			{Host: "grafana", Gateway: "admin"},
-		}}},
-	}
-	if got := gatewayForEndpoint(pkg, "grafana.admin.uds.dev"); got != "admin" {
-		t.Fatalf("expected admin, got %q", got)
-	}
-}
-
-func TestGatewayForEndpoint_PrefersTenantForSharedHostWithoutGatewaySegment(t *testing.T) {
-	pkg := Package{
-		Spec: Spec{Network: Network{Expose: []Expose{
-			{Host: "grafana", Gateway: "admin"},
-			{Host: "grafana", Gateway: "tenant"},
-		}}},
-	}
-	if got := gatewayForEndpoint(pkg, "grafana.uds.dev"); got != "tenant" {
-		t.Fatalf("expected tenant, got %q", got)
-	}
-}
-
 func TestToAPIApps_GatewayTagging(t *testing.T) {
+	const domain = "uds.dev"
 	tests := []struct {
 		name     string
 		pkgs     []Package
@@ -295,9 +247,8 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 			name: "admin gateway tagged",
 			pkgs: []Package{{
 				Metadata: Metadata{Name: "grafana"},
-				Status:   Status{Endpoints: []string{"grafana.admin.uds.dev"}},
 				Spec: Spec{Network: Network{Expose: []Expose{
-					{Host: "grafana.admin", Gateway: "admin"},
+					{Host: "grafana", Gateway: "admin"},
 				}}},
 			}},
 			wantApps: []APIApp{{Name: "Grafana", URL: "grafana.admin.uds.dev", Gateway: "admin"}},
@@ -306,7 +257,6 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 			name: "tenant gateway tagged",
 			pkgs: []Package{{
 				Metadata: Metadata{Name: "podinfo"},
-				Status:   Status{Endpoints: []string{"podinfo.uds.dev"}},
 				Spec: Spec{Network: Network{Expose: []Expose{
 					{Host: "podinfo", Gateway: "tenant"},
 				}}},
@@ -314,13 +264,12 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 			wantApps: []APIApp{{Name: "Podinfo", URL: "podinfo.uds.dev", Gateway: "tenant"}},
 		},
 		{
-			name: "mixed expose yields per-endpoint placement",
+			name: "mixed expose yields one tile per expose entry",
 			pkgs: []Package{{
 				Metadata: Metadata{Name: "mixed"},
-				Status:   Status{Endpoints: []string{"front.uds.dev", "back.admin.uds.dev"}},
 				Spec: Spec{Network: Network{Expose: []Expose{
 					{Host: "front", Gateway: "tenant"},
-					{Host: "back.admin", Gateway: "admin"},
+					{Host: "back", Gateway: "admin"},
 				}}},
 			}},
 			wantApps: []APIApp{
@@ -329,29 +278,30 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 			},
 		},
 		{
-			name: "missing expose defaults to empty gateway",
+			name: "custom gateway",
 			pkgs: []Package{{
-				Metadata: Metadata{Name: "legacy"},
-				Status:   Status{Endpoints: []string{"legacy.uds.dev"}},
-			}},
-			wantApps: []APIApp{{Name: "Legacy", URL: "legacy.uds.dev"}},
-		},
-		{
-			name: "unmatched host defaults to empty gateway",
-			pkgs: []Package{{
-				Metadata: Metadata{Name: "drift"},
-				Status:   Status{Endpoints: []string{"drift.uds.dev"}},
+				Metadata: Metadata{Name: "custom-app"},
 				Spec: Spec{Network: Network{Expose: []Expose{
-					{Host: "other", Gateway: "admin"},
+					{Host: "app", Gateway: "custom"},
 				}}},
 			}},
-			wantApps: []APIApp{{Name: "Drift", URL: "drift.uds.dev"}},
+			wantApps: []APIApp{{Name: "Custom App", URL: "app.custom.uds.dev", Gateway: "custom"}},
+		},
+		{
+			name: "empty gateway treated as tenant",
+			pkgs: []Package{{
+				Metadata: Metadata{Name: "legacy"},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "legacy", Gateway: ""},
+				}}},
+			}},
+			wantApps: []APIApp{{Name: "Legacy", URL: "legacy.uds.dev", Gateway: ""}},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := toAPIApps(nil, tt.pkgs, "")
+			got := toAPIApps(nil, tt.pkgs, "", domain)
 			if len(got) != len(tt.wantApps) {
 				t.Fatalf("expected %d apps, got %d: %+v", len(tt.wantApps), len(got), got)
 			}
@@ -365,7 +315,7 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 }
 
 func TestToAPIApps_MyAccountHasNoGateway(t *testing.T) {
-	got := toAPIApps(nil, nil, "sso.uds.dev")
+	got := toAPIApps(nil, nil, "sso.uds.dev", "uds.dev")
 	if len(got) != 1 {
 		t.Fatalf("expected 1 app, got %d", len(got))
 	}

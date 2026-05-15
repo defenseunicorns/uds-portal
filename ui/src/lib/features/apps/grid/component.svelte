@@ -2,9 +2,8 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial -->
 
 <script lang="ts">
+  import type { ApiApp } from '$lib/types'
   import { Cube } from 'carbon-icons-svelte'
-
-  import type { ApiApp } from '../../../../routes/types'
 
   export let apps: ApiApp[]
 </script>

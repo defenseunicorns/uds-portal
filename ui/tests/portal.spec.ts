@@ -20,7 +20,7 @@ test.describe('portal', () => {
     test('user menu closes when clicking away', async ({ page }) => {
       await page.getByTestId('user-menu-button').click()
       await expect(page.getByText('Sign Out')).toBeVisible()
-      await page.getByText('Your Apps').click()
+      await page.getByRole('heading', { name: 'Your Apps' }).click()
       await expect(page.getByText('Sign Out')).not.toBeVisible()
     })
   })

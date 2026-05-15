@@ -48,9 +48,13 @@ func init() {
 
 	// ADMIN_APPS_ENABLED env var must match the name in chart/templates/deployment.yaml
 	// Only set to false when the env var is explicitly "false"; missing/empty keeps default true.
-	if os.Getenv("ADMIN_APPS_ENABLED") == "false" {
-		AdminAppsEnabled = false
-	}
+	AdminAppsEnabled = parseAdminAppsEnabled(os.Getenv("ADMIN_APPS_ENABLED"))
+}
+
+// parseAdminAppsEnabled returns true for any value except the literal string "false".
+// This means missing, empty, or any other value keeps the default of true.
+func parseAdminAppsEnabled(envValue string) bool {
+	return envValue != "false"
 }
 
 func GenerateBootstrapConfigScript() string {

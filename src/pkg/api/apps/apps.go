@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/defenseunicorns/pkg/helpers/v2"
 	"github.com/defenseunicorns/uds-portal/src/pkg/api/auth/incluster"
 	"github.com/defenseunicorns/uds-portal/src/pkg/config"
 	"k8s.io/client-go/rest"
@@ -45,13 +44,13 @@ func GetUDSPackages(restConfig *rest.Config, inCluster bool, w http.ResponseWrit
 	}
 
 	// filter packages and transform into API response shape
-	filteredByEndpoint := filterPackagesWithEndpoints(packages)
-	filteredByGroup := filterByUserGroup(r, filteredByEndpoint, inCluster)
+	filteredExposed := filterExposedPackages(packages)
+	filteredByGroup := filterByUserGroup(r, filteredExposed, inCluster)
 	myAccountURL := ""
 	if config.UDSDomain != "" {
 		myAccountURL = "sso." + config.UDSDomain
 	}
-	responseApps := toAPIApps(store, filteredByGroup, myAccountURL)
+	responseApps := toAPIApps(store, filteredByGroup, myAccountURL, config.UDSDomain)
 
 	// return the filtered packages
 	w.Header().Set("Content-Type", "application/json")
@@ -60,11 +59,10 @@ func GetUDSPackages(restConfig *rest.Config, inCluster bool, w http.ResponseWrit
 	}
 }
 
-func filterPackagesWithEndpoints(sourcePackages []Package) []Package {
+func filterExposedPackages(sourcePackages []Package) []Package {
 	packages := make([]Package, 0)
 	for _, pkg := range sourcePackages {
-		// ensure package has valid endpoints and is not the UDS portal
-		if len(pkg.Status.Endpoints) > 0 && pkg.Metadata.Name != udsPortalPkgName {
+		if len(pkg.Spec.Network.Expose) > 0 && pkg.Metadata.Name != udsPortalPkgName {
 			packages = append(packages, pkg)
 		}
 	}
@@ -82,7 +80,7 @@ func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Pa
 	for _, pkg := range packages {
 		filteredPkg := Package{Metadata: pkg.Metadata, Spec: pkg.Spec, Status: pkg.Status}
 		// filter out apps that don't match the user group
-		if len(filteredPkg.Status.Endpoints) > 0 {
+		if len(filteredPkg.Spec.Network.Expose) > 0 {
 			if len(pkg.Spec.SSO) == 0 {
 				continue
 			}
@@ -113,47 +111,20 @@ func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Pa
 	return filteredByGroup
 }
 
-func gatewayForEndpoint(pkg Package, endpoint string) string {
-	bestGateway := ""
-	bestScore := -1
-	for _, e := range pkg.Spec.Network.Expose {
-		if e.Host == "" {
-			continue
-		}
-		if score := endpointHostMatchScore(endpoint, e); score > bestScore {
-			bestScore = score
-			bestGateway = e.Gateway
-		}
+// endpointURL builds the tile URL from an expose entry's host, gateway, and domain.
+// A tenant gateway (or empty gateway) produces host.domain; any other gateway name
+// produces host.<gateway>.domain. If domain is empty, just the host is returned.
+func endpointURL(host, gateway, domain string) string {
+	if domain == "" {
+		return host
 	}
-	return bestGateway
+	if gateway == "" || gateway == "tenant" {
+		return host + "." + domain
+	}
+	return host + "." + gateway + "." + domain
 }
 
-func endpointHostMatchScore(endpoint string, expose Expose) int {
-	if endpoint != expose.Host && !strings.HasPrefix(endpoint, expose.Host+".") {
-		return -1
-	}
-
-	// Host length dominates so a more specific host always beats a shorter one,
-	// regardless of gateway tiebreakers.
-	score := len(expose.Host) * 10000
-	if endpoint == expose.Host {
-		return score + 1000
-	}
-
-	suffix := strings.TrimPrefix(endpoint, expose.Host+".")
-	gateway := strings.ToLower(expose.Gateway)
-	lowerSuffix := strings.ToLower(suffix)
-	if gateway != "" && (lowerSuffix == gateway || strings.HasPrefix(lowerSuffix, gateway+".")) {
-		return score + 500
-	}
-	if gateway == "tenant" {
-		score += 100
-	}
-
-	return score
-}
-
-func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string) []APIApp {
+func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string, domain string) []APIApp {
 	apiApps := make([]APIApp, 0)
 	seen := map[string]struct{}{}
 
@@ -169,7 +140,11 @@ func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string)
 
 	for _, pkg := range packages {
 		icon := iconForPackage(store, pkg)
-		for _, url := range helpers.Unique(pkg.Status.Endpoints) {
+		for _, e := range pkg.Spec.Network.Expose {
+			if e.Host == "" {
+				continue
+			}
+			url := endpointURL(e.Host, e.Gateway, domain)
 			if _, exists := seen[url]; exists {
 				continue
 			}
@@ -178,7 +153,7 @@ func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string)
 				Name:    displayNameForApp(pkg.Metadata.Name),
 				Icon:    icon,
 				URL:     url,
-				Gateway: gatewayForEndpoint(pkg, url),
+				Gateway: e.Gateway,
 			})
 		}
 	}

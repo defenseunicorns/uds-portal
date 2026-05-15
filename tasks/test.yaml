@@ -25,6 +25,8 @@ tasks:
     actions:
       - cmd: ./uds zarf dev deploy --no-yolo
         dir: ui/tests/packages/podinfo
+      - cmd: ./uds zarf dev deploy --no-yolo
+        dir: ui/tests/packages/podinfo-admin
 
   - name: e2e
     description: "run end-to-end tests (assumes api server is running on port 8080)"

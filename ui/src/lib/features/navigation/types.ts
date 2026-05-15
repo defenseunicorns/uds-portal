@@ -3,7 +3,7 @@
 
 import type { Component } from 'svelte'
 
-import type { ApiApp } from '../../../routes/types'
+import type { ApiApp } from '$lib/types'
 
 export type RouteVisibility = (apps: ApiApp[]) => boolean
 

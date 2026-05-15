@@ -12,6 +12,6 @@
 </script>
 
 <div class="flex w-full flex-col items-center space-y-8">
-  <span class="text-2xl font-medium text-gray-100">Your Apps</span>
+  <h1 class="text-2xl font-medium text-gray-100">Your Apps</h1>
   <AppGrid apps={tenantApps} />
 </div>

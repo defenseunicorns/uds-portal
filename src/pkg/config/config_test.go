@@ -8,6 +8,28 @@ import (
 	"testing"
 )
 
+func TestParseAdminAppsEnabled(t *testing.T) {
+	tests := []struct {
+		input string
+		want  bool
+	}{
+		{"", true},
+		{"true", true},
+		{"false", false},
+		{"False", true},
+		{"no", true},
+		{"random garbage", true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.input, func(t *testing.T) {
+			got := parseAdminAppsEnabled(tt.input)
+			if got != tt.want {
+				t.Errorf("parseAdminAppsEnabled(%q) = %v, want %v", tt.input, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestGenerateBootstrapConfigScript_AdminAppsEnabled_True(t *testing.T) {
 	AdminAppsEnabled = true
 	script := GenerateBootstrapConfigScript()

@@ -50,7 +50,7 @@ uds run dev-setup
 
 This task:
 
-- Deploys the full UDS Core k3d dev bundle via `setup:k3d-full-cluster`.
+- Deploys the UDS Core k3d slim-dev bundle via `setup:k3d-test-cluster`.
 - Creates the standard local Keycloak test user via `setup:create-doug-user`.
 - Creates and deploys seed bundles from `seed/bundles/`.
 - Deploys shared dependencies first, then app bundles in parallel.

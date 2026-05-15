@@ -11,11 +11,3 @@ packages:
   - name: ui
     repository: ghcr.io/defenseunicorns/packages/private/uds/uds-ui
     ref: 0.23.8-unicorn
-    overrides:
-      uds-ui:
-        uds-ui:
-          values:
-            - path: package.gateway
-              value: tenant
-            - path: package.host
-              value: demo

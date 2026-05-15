@@ -4,8 +4,8 @@
 <script lang="ts">
   import { resolve } from '$app/paths'
   import { page } from '$app/stores'
+  import type { ApiApp } from '$lib/types'
 
-  import type { ApiApp } from '../../../../routes/types'
   import { routes } from '../routes'
   import type { Route } from '../types'
 
@@ -21,12 +21,13 @@
 </script>
 
 {#if visibleRoutes.length > 1}
-  <aside data-testid="sidebar" class="flex w-44 flex-col gap-1 py-4 pl-4">
+  <nav aria-label="Primary" data-testid="sidebar" class="flex w-44 flex-col gap-1 py-4 pl-4">
     {#each visibleRoutes as route (route.path)}
       {@const active = activePath === route.path}
       <a
         href={resolve(route.path as Parameters<typeof resolve>[0])}
         data-testid="sidebar-link"
+        aria-current={active ? 'page' : undefined}
         class="flex items-center gap-2 rounded px-2 py-2 text-sm transition-colors duration-150"
         class:text-blue-400={active}
         class:text-gray-200={!active}
@@ -38,5 +39,5 @@
         <span>{route.name}</span>
       </a>
     {/each}
-  </aside>
+  </nav>
 {/if}
