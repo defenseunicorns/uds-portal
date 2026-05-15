@@ -1,0 +1,40 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: UDSBundle
+metadata:
+  name: uds-portal-seed-minio
+  description: Shared MinIO dependency for UDS Portal seed bundles.
+  version: dev
+
+packages:
+  - name: minio-operator
+    repository: ghcr.io/uds-packages/minio-operator
+    ref: 7.1.1-uds.8-upstream
+    overrides:
+      minio-operator:
+        uds-minio-config:
+          values:
+            - path: apps
+              value:
+                - name: gitlab
+                  namespace: gitlab
+                  bucketNames:
+                    - uds-gitlab-artifacts
+                    - uds-gitlab-backups
+                    - uds-gitlab-ci-secure-files
+                    - uds-gitlab-dependency-proxy
+                    - uds-gitlab-lfs
+                    - uds-gitlab-mr-diffs
+                    - uds-gitlab-packages
+                    - uds-gitlab-pages
+                    - uds-gitlab-terraform-state
+                    - uds-gitlab-uploads
+                    - uds-gitlab-registry
+                    - uds-gitlab-tmp
+                  policy: ""
+                  copyPassword:
+                    enabled: true
+                    secretName: "gitlab-minio"
+                    secretIDKey: "access_key"
+                    secretPasswordKey: "secret_key"

@@ -2,18 +2,16 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.5/tasks/setup.yaml
+  - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.10/tasks/setup.yaml
   - test: tasks/test.yaml
   - lint: tasks/lint.yaml
   - build: tasks/build.yaml
   - release: tasks/release.yaml
 
 variables:
-  - name: REF
+  - name: VERSION
     description: "reference for the app portal image and zarf package"
-    # x-release-please-start-version
-    default: 0.1.0
-    # x-release-please-end
+    default: 0.0.0-dev
 
 tasks:
   - name: dev-server
@@ -27,6 +25,134 @@ tasks:
     actions:
       - cmd: pnpm install --frozen-lockfile && pnpm run dev
         dir: ui
+
+  - name: lint
+    description: "run all linters"
+    actions:
+      - task: lint:fix
+
+  - name: dev-setup
+    description: "create a full UDS Core dev cluster and deploy seed bundles"
+    inputs:
+      gitlab:
+        description: "deploy the GitLab seed bundle"
+        default: "false"
+    actions:
+      - task: setup:k3d-full-cluster
+      - task: setup:create-doug-user
+        with:
+          keycloak_group: /UDS Core/Admin
+      - task: deploy-seed-bundles
+        with:
+          gitlab: ${{ .inputs.gitlab }}
+
+  - name: deploy-seed-bundles
+    description: "deploy shared dev dependencies, then app seed bundles in parallel"
+    inputs:
+      gitlab:
+        description: "deploy the GitLab seed bundle"
+        default: "false"
+    actions:
+      - cmd: mkdir -p build/seed-bundles
+      - cmd: |
+          set -e
+
+          create_bundle() {
+            bundle="$1"
+            bundle_name="$(./uds zarf tools yq '.metadata.name' "${bundle}/uds-bundle.yaml")"
+            output_dir="build/seed-bundles/${bundle_name}"
+            cache_dir="build/seed-bundles/.uds-cache/${bundle_name}"
+
+            echo "Creating ${bundle}" >&2
+            rm -rf "${output_dir}"
+            mkdir -p "${output_dir}" "${cache_dir}"
+            ./uds --uds-cache "${cache_dir}" create "${bundle}" --confirm --no-progress --output "${output_dir}" >&2
+
+            bundle_file="$(find "${output_dir}" -maxdepth 1 -type f -name 'uds-bundle-*.tar.zst' -print | sort | tail -n 1)"
+            if [ -z "${bundle_file}" ]; then
+              echo "No bundle tarball was created for ${bundle} in ${output_dir}" >&2
+              return 1
+            fi
+
+            printf '%s\n' "${bundle_file}"
+          }
+
+          deploy_bundle_file() {
+            bundle_file="$1"
+            bundle_name="$(basename "$(dirname "${bundle_file}")")"
+            cache_dir="build/seed-bundles/.uds-cache/${bundle_name}"
+
+            echo "Deploying ${bundle_file}"
+            mkdir -p "${cache_dir}"
+            ./uds --uds-cache "${cache_dir}" deploy "${bundle_file}" --confirm --no-progress
+          }
+
+          create_then_deploy_parallel() {
+            failed=0
+            bundle_files_file="$(mktemp)"
+
+            for bundle in "$@"; do
+              (
+                create_bundle "${bundle}" >> "${bundle_files_file}"
+              ) &
+            done
+
+            for job in $(jobs -p); do
+              if ! wait "${job}"; then
+                failed=1
+              fi
+            done
+
+            if [ "${failed}" -ne 0 ]; then
+              rm -f "${bundle_files_file}"
+              return "${failed}"
+            fi
+
+            while IFS= read -r bundle_file; do
+              [ -n "${bundle_file}" ] || continue
+              deploy_bundle_file "${bundle_file}" &
+            done < "${bundle_files_file}"
+
+            rm -f "${bundle_files_file}"
+            failed=0
+
+            for job in $(jobs -p); do
+              if ! wait "${job}"; then
+                failed=1
+              fi
+            done
+
+            return "${failed}"
+          }
+          create_then_deploy_parallel \
+            seed/bundles/minio \
+            seed/bundles/postgres \
+            seed/bundles/valkey || exit 1
+
+          if [ "${{ .inputs.gitlab }}" = "true" ]; then
+            create_then_deploy_parallel \
+              seed/bundles/neuvector \
+              seed/bundles/gitea \
+              seed/bundles/gitlab \
+              seed/bundles/uds-ui \
+              seed/bundles/uds-registry || exit 1
+          else
+            echo "Skipping GitLab seed bundle. Run with --with gitlab=true to include it."
+            create_then_deploy_parallel \
+              seed/bundles/neuvector \
+              seed/bundles/gitea \
+              seed/bundles/uds-ui \
+              seed/bundles/uds-registry || exit 1
+          fi
+
+  - name: dev-deploy
+    description: "build the portal container, create a local Zarf package, and deploy it to the current cluster"
+    actions:
+      - task: build:container
+      - task: build:zarf-package
+        with:
+          dev: "true"
+      - cmd: ./uds zarf package deploy build/zarf-package-uds-portal-*-${VERSION}.tar.zst --set VERSION=${VERSION} --confirm
 
   - name: compile
     description: "compile the api server and ui outputting to build/"

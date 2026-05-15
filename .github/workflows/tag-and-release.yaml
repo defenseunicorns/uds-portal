@@ -63,4 +63,4 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish
-        run: uds run release:publish --set REF=${{ needs.tag-new-version.outputs.version }}
+        run: uds run release:publish --set VERSION=${{ needs.tag-new-version.outputs.version }}

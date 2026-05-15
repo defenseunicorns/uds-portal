@@ -1,0 +1,21 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: UDSBundle
+metadata:
+  name: uds-portal-seed-uds-ui
+  description: Seed bundle for deploying UDS UI into a UDS Portal dev cluster.
+  version: dev
+
+packages:
+  - name: ui
+    repository: ghcr.io/defenseunicorns/packages/private/uds/uds-ui
+    ref: 0.23.8-unicorn
+    overrides:
+      uds-ui:
+        uds-ui:
+          values:
+            - path: package.gateway
+              value: tenant
+            - path: package.host
+              value: demo

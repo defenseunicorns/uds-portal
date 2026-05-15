@@ -113,6 +113,18 @@ func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Pa
 	return filteredByGroup
 }
 
+func gatewayForEndpoint(pkg Package, endpoint string) string {
+	for _, e := range pkg.Spec.Network.Expose {
+		if e.Host == "" {
+			continue
+		}
+		if endpoint == e.Host || strings.HasPrefix(endpoint, e.Host+".") {
+			return e.Gateway
+		}
+	}
+	return ""
+}
+
 func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string) []APIApp {
 	apiApps := make([]APIApp, 0)
 	seen := map[string]struct{}{}
@@ -135,9 +147,10 @@ func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string)
 			}
 			seen[url] = struct{}{}
 			apiApps = append(apiApps, APIApp{
-				Name: displayNameForApp(pkg.Metadata.Name),
-				Icon: icon,
-				URL:  url,
+				Name:    displayNameForApp(pkg.Metadata.Name),
+				Icon:    icon,
+				URL:     url,
+				Gateway: gatewayForEndpoint(pkg, url),
 			})
 		}
 	}

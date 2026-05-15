@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 variables:
-  - name: REF
+  - name: VERSION
     description: "reference for the app portal image and zarf package"
     # x-release-please-start-version
     default: 0.1.0
@@ -68,9 +68,9 @@ tasks:
       - task: api-linux-arm64
       - cmd: |
           if [ "${{ .inputs.push }}" = "true" ]; then
-            docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/defenseunicorns/uds-portal:${REF} --push .
+            docker buildx build --platform linux/amd64,linux/arm64 -t ghcr.io/defenseunicorns/uds-portal:${VERSION} --push .
           else
-            docker buildx build --platform linux/${UDS_ARCH} -t ghcr.io/defenseunicorns/uds-portal:${REF} --load .
+            docker buildx build --platform linux/${UDS_ARCH} -t ghcr.io/defenseunicorns/uds-portal:${VERSION} --load .
           fi
 
   - name: zarf-package
@@ -82,8 +82,8 @@ tasks:
     actions:
       - cmd: |
           if [ "${{ .inputs.dev }}" = "true" ]; then
-            uds zarf p create -a ${UDS_ARCH} -o build --confirm
+            uds zarf p create -a ${UDS_ARCH} -o build --confirm --set VERSION=${VERSION}
           else
-            uds zarf p create -a amd64 -o build --confirm
-            uds zarf p create -a arm64 -o build --confirm
+            uds zarf p create -a amd64 -o build --confirm --set VERSION=${VERSION}
+            uds zarf p create -a arm64 -o build --confirm --set VERSION=${VERSION}
           fi

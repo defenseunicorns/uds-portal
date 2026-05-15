@@ -5,7 +5,7 @@ includes:
   - build: ./build.yaml
 
 variables:
-  - name: REF
+  - name: VERSION
     description: "reference for the portal image and zarf package"
     # x-release-please-start-version
     default: 0.1.0
@@ -21,5 +21,5 @@ tasks:
       - task: build:zarf-package
         with:
           dev: "false"
-      - cmd: uds zarf package publish build/zarf-package-uds-portal-amd64-${REF}.tar.zst oci://ghcr.io/defenseunicorns/packages/uds
-      - cmd: uds zarf package publish build/zarf-package-uds-portal-arm64-${REF}.tar.zst oci://ghcr.io/defenseunicorns/packages/uds
+      - cmd: uds zarf package publish build/zarf-package-uds-portal-amd64-${VERSION}.tar.zst oci://ghcr.io/defenseunicorns/packages/uds
+      - cmd: uds zarf package publish build/zarf-package-uds-portal-arm64-${VERSION}.tar.zst oci://ghcr.io/defenseunicorns/packages/uds

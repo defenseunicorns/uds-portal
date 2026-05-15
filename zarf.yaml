@@ -5,13 +5,16 @@ kind: ZarfPackageConfig
 metadata:
   name: uds-portal
   description: UDS Portal is the home page for UDS
-  # x-release-please-start-version
-  version: 0.1.0
-  # x-release-please-end
+  version: "###ZARF_PKG_TMPL_VERSION###"
 
 variables:
   - name: DOMAIN
     default: "uds.dev"
+
+constants:
+  - name: VERSION
+    description: "Portal Version"
+    value: "###ZARF_PKG_TMPL_VERSION###"
 
 components:
   - name: uds-portal
@@ -20,10 +23,12 @@ components:
       - name: uds-portal
         localPath: chart
         namespace: uds-portal
-        version: 0.1.0
+        version: "###ZARF_PKG_TMPL_VERSION###"
         valuesFiles:
           - chart/values.yaml
-    # x-release-please-start-version
+        variables:
+          - name: VERSION
+            description: "Portal Version, defaults to latest release"
+            path: image.tag
     images:
-      - ghcr.io/defenseunicorns/uds-portal:0.1.0
-    # x-release-please-end
+      - ghcr.io/defenseunicorns/uds-portal:###ZARF_PKG_TMPL_VERSION###

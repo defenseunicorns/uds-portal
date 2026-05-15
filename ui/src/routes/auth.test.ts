@@ -1,4 +1,4 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 import { authenticated } from '$features/auth/store'
@@ -42,6 +42,10 @@ describe('load function', () => {
       ok: true,
       json: () => mockUserData,
     })
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
 
     const result = await load()
 
@@ -62,6 +66,8 @@ describe('load function', () => {
         name: 'First Last',
         username: 'local',
       },
+      apps: [],
+      adminAppsEnabled: true,
     })
   })
 
@@ -73,6 +79,10 @@ describe('load function', () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: () => mockUserData,
+    })
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
     })
 
     const result = await load()
@@ -94,6 +104,8 @@ describe('load function', () => {
         name: 'Doug Unicorn',
         username: 'doug@defenseunicorns.com',
       },
+      apps: [],
+      adminAppsEnabled: true,
     })
   })
 
@@ -102,6 +114,10 @@ describe('load function', () => {
       ok: false,
       status: 401,
       statusText: 'Unauthorized',
+    })
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
     })
 
     const result = await load()
@@ -115,6 +131,8 @@ describe('load function', () => {
         name: '',
         username: '',
       },
+      apps: [],
+      adminAppsEnabled: true,
     })
   })
 
@@ -123,6 +141,10 @@ describe('load function', () => {
     const networkError = new Error('Network error')
 
     fetchMock.mockRejectedValueOnce(networkError)
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
+    })
 
     const result = await load()
 
@@ -138,6 +160,8 @@ describe('load function', () => {
         name: '',
         username: '',
       },
+      apps: [],
+      adminAppsEnabled: true,
     })
 
     consoleSpy.mockRestore()
@@ -147,6 +171,10 @@ describe('load function', () => {
     fetchMock.mockResolvedValueOnce({
       ok: true,
       json: () => Promise.reject(new Error('Invalid JSON')),
+    })
+    fetchMock.mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve([]),
     })
 
     const result = await load()
@@ -160,6 +188,8 @@ describe('load function', () => {
         name: '',
         username: '',
       },
+      apps: [],
+      adminAppsEnabled: true,
     })
   })
 })

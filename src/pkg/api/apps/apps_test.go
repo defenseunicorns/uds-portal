@@ -201,3 +201,139 @@ func TestFilterByUserGroup(t *testing.T) {
 		})
 	}
 }
+
+func TestGatewayForEndpoint(t *testing.T) {
+	pkg := Package{
+		Spec: Spec{Network: Network{Expose: []Expose{
+			{Host: "grafana", Gateway: "admin"},
+			{Host: "podinfo", Gateway: "tenant"},
+		}}},
+	}
+	tests := []struct {
+		name     string
+		endpoint string
+		want     string
+	}{
+		{"exact host match", "grafana", "admin"},
+		{"prefix host match with domain", "grafana.uds.dev", "admin"},
+		{"tenant match", "podinfo.uds.dev", "tenant"},
+		{"unknown endpoint", "unknown.uds.dev", ""},
+		{"empty endpoint", "", ""},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := gatewayForEndpoint(pkg, tt.endpoint)
+			if got != tt.want {
+				t.Fatalf("expected %q, got %q", tt.want, got)
+			}
+		})
+	}
+}
+
+func TestGatewayForEndpoint_NoExpose(t *testing.T) {
+	pkg := Package{}
+	if got := gatewayForEndpoint(pkg, "anything.uds.dev"); got != "" {
+		t.Fatalf("expected empty, got %q", got)
+	}
+}
+
+func TestGatewayForEndpoint_EmptyHostSkipped(t *testing.T) {
+	pkg := Package{
+		Spec: Spec{Network: Network{Expose: []Expose{
+			{Host: "", Gateway: "admin"},
+			{Host: "real", Gateway: "tenant"},
+		}}},
+	}
+	if got := gatewayForEndpoint(pkg, "real.uds.dev"); got != "tenant" {
+		t.Fatalf("expected tenant, got %q", got)
+	}
+}
+
+func TestToAPIApps_GatewayTagging(t *testing.T) {
+	tests := []struct {
+		name     string
+		pkgs     []Package
+		wantApps []APIApp
+	}{
+		{
+			name: "admin gateway tagged",
+			pkgs: []Package{{
+				Metadata: Metadata{Name: "grafana"},
+				Status:   Status{Endpoints: []string{"grafana.admin.uds.dev"}},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "grafana.admin", Gateway: "admin"},
+				}}},
+			}},
+			wantApps: []APIApp{{Name: "Grafana", URL: "grafana.admin.uds.dev", Gateway: "admin"}},
+		},
+		{
+			name: "tenant gateway tagged",
+			pkgs: []Package{{
+				Metadata: Metadata{Name: "podinfo"},
+				Status:   Status{Endpoints: []string{"podinfo.uds.dev"}},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "podinfo", Gateway: "tenant"},
+				}}},
+			}},
+			wantApps: []APIApp{{Name: "Podinfo", URL: "podinfo.uds.dev", Gateway: "tenant"}},
+		},
+		{
+			name: "mixed expose yields per-endpoint placement",
+			pkgs: []Package{{
+				Metadata: Metadata{Name: "mixed"},
+				Status:   Status{Endpoints: []string{"front.uds.dev", "back.admin.uds.dev"}},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "front", Gateway: "tenant"},
+					{Host: "back.admin", Gateway: "admin"},
+				}}},
+			}},
+			wantApps: []APIApp{
+				{Name: "Mixed", URL: "front.uds.dev", Gateway: "tenant"},
+				{Name: "Mixed", URL: "back.admin.uds.dev", Gateway: "admin"},
+			},
+		},
+		{
+			name: "missing expose defaults to empty gateway",
+			pkgs: []Package{{
+				Metadata: Metadata{Name: "legacy"},
+				Status:   Status{Endpoints: []string{"legacy.uds.dev"}},
+			}},
+			wantApps: []APIApp{{Name: "Legacy", URL: "legacy.uds.dev"}},
+		},
+		{
+			name: "unmatched host defaults to empty gateway",
+			pkgs: []Package{{
+				Metadata: Metadata{Name: "drift"},
+				Status:   Status{Endpoints: []string{"drift.uds.dev"}},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "other", Gateway: "admin"},
+				}}},
+			}},
+			wantApps: []APIApp{{Name: "Drift", URL: "drift.uds.dev"}},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := toAPIApps(nil, tt.pkgs, "")
+			if len(got) != len(tt.wantApps) {
+				t.Fatalf("expected %d apps, got %d: %+v", len(tt.wantApps), len(got), got)
+			}
+			for i, want := range tt.wantApps {
+				if got[i].Name != want.Name || got[i].URL != want.URL || got[i].Gateway != want.Gateway {
+					t.Errorf("app %d: expected %+v, got %+v", i, want, got[i])
+				}
+			}
+		})
+	}
+}
+
+func TestToAPIApps_MyAccountHasNoGateway(t *testing.T) {
+	got := toAPIApps(nil, nil, "sso.uds.dev")
+	if len(got) != 1 {
+		t.Fatalf("expected 1 app, got %d", len(got))
+	}
+	if got[0].Gateway != "" {
+		t.Fatalf("expected empty gateway for My Account, got %q", got[0].Gateway)
+	}
+}
