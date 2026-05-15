@@ -5,7 +5,9 @@
     ":semanticCommits",
     ":semanticCommitTypeAll(chore)"
   ],
-  "ignorePresets": [":ignoreModulesAndTests"],
+  "ignorePresets": [
+    ":ignoreModulesAndTests"
+  ],
   "branchConcurrentLimit": 0,
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
@@ -39,8 +41,8 @@
       "commitMessageTopic": "js dependencies"
     },
     {
-      "matchDatasources": [
-        "github-tags"
+      "matchManagers": [
+        "github-actions"
       ],
       "groupName": "github actions"
     },
