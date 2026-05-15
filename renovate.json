@@ -52,6 +52,29 @@
       ],
       "groupName": "mise",
       "groupSlug": "mise"
+    },
+    {
+      "matchDepNames": [
+        "pnpm",
+        "prettier"
+      ],
+      "groupName": "mise",
+      "groupSlug": "mise"
+    },
+    {
+      "matchDepNames": [
+        "go"
+      ],
+      "groupName": "mise",
+      "groupSlug": "mise"
+    },
+    {
+      "matchDepNames": [
+        "mcr.microsoft.com/playwright",
+        "@playwright/test"
+      ],
+      "groupName": "playwright",
+      "groupSlug": "playwright"
     }
   ]
 }
