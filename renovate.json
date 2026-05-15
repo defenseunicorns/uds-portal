@@ -46,12 +46,19 @@
       "matchDepNames": [
         "go",
         "pnpm",
-        "node",
-        "prettier",
-        "mcr.microsoft.com/playwright"
+        "node"
       ],
       "groupName": "application-deps",
       "commitMessageTopic": "application dependencies"
+    },
+    {
+      "matchDepNames": [
+        "prettier",
+        "@playwright/test",
+        "mcr.microsoft.com/playwright"
+      ],
+      "groupName": "support-deps",
+      "commitMessageTopic": "support dependencies"
     }
   ]
 }
