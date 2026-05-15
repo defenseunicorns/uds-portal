@@ -3,7 +3,7 @@
 
 [tools]
 hk = "1.44.2"
-"aqua:defenseunicorns/uds-cli" = "0.30.2"
+"aqua:defenseunicorns/uds-cli" = "0.31.0"
 "aqua:google/addlicense" = "1.2.0"
 "aqua:k3d-io/k3d" = "5.8.3"
 go = "1.26.3"
