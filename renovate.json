@@ -14,6 +14,25 @@
   "separateMajorMinor": false,
   "packageRules": [
     {
+      "matchCategories": [
+        "golang",
+        "js"
+      ],
+      "groupName": "application-deps",
+      "commitMessageTopic": "application dependencies",
+      "postUpdateOptions": [
+        "gomodTidy"
+      ]
+    },
+    {
+      "matchManagers": [
+        "mise",
+        "github-actions"
+      ],
+      "groupName": "support-deps",
+      "commitMessageTopic": "support dependencies"
+    },
+    {
       "matchFileNames": [
         ".github/**",
         "tasks.yaml",
@@ -24,57 +43,15 @@
       "commitMessageTopic": "support dependencies"
     },
     {
-      "matchCategories": [
-        "golang"
-      ],
-      "postUpdateOptions": [
-        "gomodTidy"
-      ],
-      "groupName": "go-dependencies",
-      "commitMessageTopic": "go dependencies"
-    },
-    {
-      "matchCategories": [
-        "js"
-      ],
-      "groupName": "js-dependencies",
-      "commitMessageTopic": "js dependencies"
-    },
-    {
-      "matchManagers": [
-        "github-actions"
-      ],
-      "groupName": "github actions"
-    },
-    {
-      "matchManagers": [
-        "mise"
-      ],
-      "groupName": "mise",
-      "groupSlug": "mise"
-    },
-    {
       "matchDepNames": [
+        "go",
         "pnpm",
-        "prettier"
+        "node",
+        "prettier",
+        "mcr.microsoft.com/playwright"
       ],
-      "groupName": "mise",
-      "groupSlug": "mise"
-    },
-    {
-      "matchDepNames": [
-        "go"
-      ],
-      "groupName": "mise",
-      "groupSlug": "mise"
-    },
-    {
-      "matchDepNames": [
-        "mcr.microsoft.com/playwright",
-        "@playwright/test"
-      ],
-      "groupName": "playwright",
-      "groupSlug": "playwright"
+      "groupName": "application-deps",
+      "commitMessageTopic": "application dependencies"
     }
   ]
 }
