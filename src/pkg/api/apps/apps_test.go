@@ -249,6 +249,42 @@ func TestGatewayForEndpoint_EmptyHostSkipped(t *testing.T) {
 	}
 }
 
+func TestGatewayForEndpoint_PrefersMostSpecificHost(t *testing.T) {
+	pkg := Package{
+		Spec: Spec{Network: Network{Expose: []Expose{
+			{Host: "app", Gateway: "tenant"},
+			{Host: "app.admin", Gateway: "admin"},
+		}}},
+	}
+	if got := gatewayForEndpoint(pkg, "app.admin.uds.dev"); got != "admin" {
+		t.Fatalf("expected admin, got %q", got)
+	}
+}
+
+func TestGatewayForEndpoint_UsesGatewaySegmentForSharedHost(t *testing.T) {
+	pkg := Package{
+		Spec: Spec{Network: Network{Expose: []Expose{
+			{Host: "grafana", Gateway: "tenant"},
+			{Host: "grafana", Gateway: "admin"},
+		}}},
+	}
+	if got := gatewayForEndpoint(pkg, "grafana.admin.uds.dev"); got != "admin" {
+		t.Fatalf("expected admin, got %q", got)
+	}
+}
+
+func TestGatewayForEndpoint_PrefersTenantForSharedHostWithoutGatewaySegment(t *testing.T) {
+	pkg := Package{
+		Spec: Spec{Network: Network{Expose: []Expose{
+			{Host: "grafana", Gateway: "admin"},
+			{Host: "grafana", Gateway: "tenant"},
+		}}},
+	}
+	if got := gatewayForEndpoint(pkg, "grafana.uds.dev"); got != "tenant" {
+		t.Fatalf("expected tenant, got %q", got)
+	}
+}
+
 func TestToAPIApps_GatewayTagging(t *testing.T) {
 	tests := []struct {
 		name     string

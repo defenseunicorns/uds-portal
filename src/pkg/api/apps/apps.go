@@ -114,15 +114,43 @@ func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Pa
 }
 
 func gatewayForEndpoint(pkg Package, endpoint string) string {
+	bestGateway := ""
+	bestScore := -1
 	for _, e := range pkg.Spec.Network.Expose {
 		if e.Host == "" {
 			continue
 		}
-		if endpoint == e.Host || strings.HasPrefix(endpoint, e.Host+".") {
-			return e.Gateway
+		if score := endpointHostMatchScore(endpoint, e); score > bestScore {
+			bestScore = score
+			bestGateway = e.Gateway
 		}
 	}
-	return ""
+	return bestGateway
+}
+
+func endpointHostMatchScore(endpoint string, expose Expose) int {
+	if endpoint != expose.Host && !strings.HasPrefix(endpoint, expose.Host+".") {
+		return -1
+	}
+
+	// Host length dominates so a more specific host always beats a shorter one,
+	// regardless of gateway tiebreakers.
+	score := len(expose.Host) * 10000
+	if endpoint == expose.Host {
+		return score + 1000
+	}
+
+	suffix := strings.TrimPrefix(endpoint, expose.Host+".")
+	gateway := strings.ToLower(expose.Gateway)
+	lowerSuffix := strings.ToLower(suffix)
+	if gateway != "" && (lowerSuffix == gateway || strings.HasPrefix(lowerSuffix, gateway+".")) {
+		return score + 500
+	}
+	if gateway == "tenant" {
+		score += 100
+	}
+
+	return score
 }
 
 func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string) []APIApp {

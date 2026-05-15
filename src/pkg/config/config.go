@@ -18,8 +18,8 @@ type ClassificationBanners struct {
 }
 
 var (
-	UDSDomain         = ""
-	ClassBannerCfg    = ClassificationBanners{Enabled: false, Text: "", Footer: false}
+	UDSDomain        = ""
+	ClassBannerCfg   = ClassificationBanners{Enabled: false, Text: "", Footer: false}
 	AdminAppsEnabled = true
 )
 

@@ -27,10 +27,10 @@ packages:
               description: "Protocol to use. Valid values are 'openid_connect' and 'saml'. Default value is 'saml'"
               path: "sso.protocol"
             - name: GITLAB_ADMIN_GROUPS
-              description: "Array of group names that grant admin role gitlab when saml protocol is active."
+              description: "Array of group names that grant admin role GitLab when saml protocol is active."
               path: "sso.adminGroups"
             - name: GITLAB_REQUIRED_GROUPS
-              description: "Array of group names that are required for GitLab acess."
+              description: "Array of group names that are required for GitLab access."
               path: "sso.requiredGroups"
         gitlab:
           values:
@@ -56,31 +56,31 @@ packages:
               description: "Protocol to use. Valid values are 'openid_connect' and 'saml'. Default value is 'saml'"
               path: "global.appConfig.omniauth.autoSignInWithProvider"
             - name: MIGRATIONS_RESOURCES
-              description: "Gitlab Migrations Resources"
+              description: "GitLab Migrations Resources"
               path: "gitlab.migrations.resources"
             - name: WEBSERVICE_REPLICAS
-              description: "Gitlab Webservice Min Replicas"
+              description: "GitLab Webservice Min Replicas"
               path: "gitlab.webservice.minReplicas"
             - name: WEBSERVICE_RESOURCES
-              description: "Gitlab Webservice Resources"
+              description: "GitLab Webservice Resources"
               path: "gitlab.webservice.resources"
             - name: WORKHORSE_RESOURCES
-              description: "Gitlab Workhorse Resources"
+              description: "GitLab Workhorse Resources"
               path: "gitlab.webservice.workhorse.resources"
             - name: SIDEKIQ_REPLICAS
-              description: "Gitlab Sidekiq Min Replicas"
+              description: "GitLab Sidekiq Min Replicas"
               path: "gitlab.sidekiq.minReplicas"
             - name: SIDEKIQ_RESOURCES
-              description: "Gitlab Sidekiq Resources"
+              description: "GitLab Sidekiq Resources"
               path: "gitlab.sidekiq.resources"
             - name: PAGES_RESOURCES
               description: "GitLab Pages Resources"
               path: "gitlab.gitlab-pages.resources"
             - name: REGISTRY_REPLICAS
-              description: "Gitlab Registry Min Replicas"
+              description: "GitLab Registry Min Replicas"
               path: "registry.hpa.minReplicas"
             - name: SHELL_REPLICAS
-              description: "Gitlab Shell Min Replicas"
+              description: "GitLab Shell Min Replicas"
               path: "gitlab.gitlab-shell.minReplicas"
         uds-gitlab-settings:
           values:

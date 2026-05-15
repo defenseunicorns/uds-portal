@@ -118,7 +118,7 @@ Releases are automated via [release-please](https://github.com/googleapis/releas
 
 **Version files:** release-please bumps versions in lockstep across `chart/Chart.yaml`, `tasks/build.yaml`, and `tasks/release.yaml`.
 
-The container image tag and Zarf package version are driven by the `VERSION` task variable, matching the UDS Registry pattern. Local `dev-deploy` defaults `VERSION` to `0.0.0-dev` so it does not collide with a published release image. It builds the local container image, creates a local Zarf package with that image tag, then deploys the package tarball with `--set VERSION=${VERSION}`. Release publishes pass the release-please version as `VERSION`. The chart image tag uses `###ZARF_CONST_VERSION###`, which is backed by the package version constant in `zarf.yaml`.
+The container image tag and Zarf package version are driven by the `VERSION` task variable, matching the UDS Registry pattern. Local `dev-deploy` defaults `VERSION` to `0.0.0-dev` so it does not collide with a published release image. It builds the local container image, creates a local Zarf package with that image tag, then deploys the package tarball. Release publishes pass the release-please version as `VERSION`. The chart image tag uses `###ZARF_CONST_VERSION###`, which is backed by the package version constant in `zarf.yaml`.
 
 **Override version for a release:**
 

@@ -24,33 +24,37 @@ const customAdminApp: ApiApp = { name: 'Custom', url: 'c.uds.dev', gateway: 'cus
 describe('Sidebar', () => {
   afterEach(cleanup)
 
-  it('always renders Your Apps link', () => {
+  it('does not render sidebar when no apps exist', () => {
     render(Sidebar, { props: { apps: [], adminAppsEnabled: true } })
-    expect(screen.getByText('Your Apps')).toBeInTheDocument()
+    expect(screen.queryByTestId('sidebar')).toBeNull()
   })
 
-  it('hides Admin Apps when no admin gateway apps exist', () => {
+  it('does not render sidebar when only tenant apps exist', () => {
     render(Sidebar, { props: { apps: [tenantApp], adminAppsEnabled: true } })
-    expect(screen.queryByText('Admin Apps')).toBeNull()
+    expect(screen.queryByTestId('sidebar')).toBeNull()
   })
 
-  it('shows Admin Apps when an admin gateway app exists', () => {
+  it('renders sidebar with both links when an admin gateway app exists', () => {
     render(Sidebar, { props: { apps: [adminApp], adminAppsEnabled: true } })
+    expect(screen.getByTestId('sidebar')).toBeInTheDocument()
+    expect(screen.getByText('Your Apps')).toBeInTheDocument()
     expect(screen.getByText('Admin Apps')).toBeInTheDocument()
   })
 
-  it('shows Admin Apps for custom admin-named gateway', () => {
+  it('renders sidebar with both links for custom admin-named gateway', () => {
     render(Sidebar, { props: { apps: [customAdminApp], adminAppsEnabled: true } })
+    expect(screen.getByTestId('sidebar')).toBeInTheDocument()
+    expect(screen.getByText('Your Apps')).toBeInTheDocument()
     expect(screen.getByText('Admin Apps')).toBeInTheDocument()
   })
 
-  it('hides Admin Apps when adminAppsEnabled is false even if admin apps exist', () => {
+  it('does not render sidebar when adminAppsEnabled is false even if admin apps exist', () => {
     render(Sidebar, { props: { apps: [adminApp], adminAppsEnabled: false } })
-    expect(screen.queryByText('Admin Apps')).toBeNull()
+    expect(screen.queryByTestId('sidebar')).toBeNull()
   })
 
-  it('hides Admin Apps when adminAppsEnabled is false with custom admin gateway', () => {
+  it('does not render sidebar when adminAppsEnabled is false with custom admin gateway', () => {
     render(Sidebar, { props: { apps: [customAdminApp], adminAppsEnabled: false } })
-    expect(screen.queryByText('Admin Apps')).toBeNull()
+    expect(screen.queryByTestId('sidebar')).toBeNull()
   })
 })

@@ -5,6 +5,11 @@ includes:
   - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.5/tasks/setup.yaml
   - build: ./build.yaml
 
+variables:
+  - name: VERSION
+    description: "reference for the portal image and zarf package"
+    default: 0.0.0-dev
+
 tasks:
   - name: e2e-setup
     description: deploy cluster specifically for testing UDS Portal
@@ -13,7 +18,7 @@ tasks:
       - task: setup:k3d-test-cluster
       - task: setup:create-doug-user
       - task: deploy-test-package
-      - cmd: ./uds zarf dev deploy --no-yolo
+      - cmd: ./uds zarf dev deploy --no-yolo --create-set VERSION=${VERSION}
 
   - name: deploy-test-package
     description: "deploy a Zarf package to test against"

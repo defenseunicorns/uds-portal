@@ -26,9 +26,5 @@ components:
         version: "###ZARF_PKG_TMPL_VERSION###"
         valuesFiles:
           - chart/values.yaml
-        variables:
-          - name: VERSION
-            description: "Portal Version, defaults to latest release"
-            path: image.tag
     images:
       - ghcr.io/defenseunicorns/uds-portal:###ZARF_PKG_TMPL_VERSION###

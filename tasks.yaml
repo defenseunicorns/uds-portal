@@ -152,7 +152,10 @@ tasks:
       - task: build:zarf-package
         with:
           dev: "true"
-      - cmd: ./uds zarf package deploy build/zarf-package-uds-portal-*-${VERSION}.tar.zst --set VERSION=${VERSION} --confirm
+      - cmd: ./uds zarf package deploy build/zarf-package-uds-portal-*-${VERSION}.tar.zst --confirm
+      - cmd: ./uds zarf tools kubectl -n uds-portal patch deployment/uds-portal --type=json -p='[{"op":"replace","path":"/spec/template/spec/containers/0/imagePullPolicy","value":"Always"}]'
+      - cmd: ./uds zarf tools kubectl -n uds-portal rollout restart deployment/uds-portal
+      - cmd: ./uds zarf tools kubectl -n uds-portal rollout status deployment/uds-portal --timeout=120s
 
   - name: compile
     description: "compile the api server and ui outputting to build/"
