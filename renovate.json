@@ -9,12 +9,14 @@
   "branchConcurrentLimit": 0,
   "prConcurrentLimit": 0,
   "prHourlyLimit": 0,
+  "separateMajorMinor": false,
   "packageRules": [
     {
       "matchFileNames": [
         ".github/**",
         "tasks.yaml",
-        "tasks/*.yaml"
+        "tasks/*.yaml",
+        "ui/tests/**"
       ],
       "groupName": "support-deps",
       "commitMessageTopic": "support dependencies"
@@ -35,6 +37,19 @@
       ],
       "groupName": "js-dependencies",
       "commitMessageTopic": "js dependencies"
+    },
+    {
+      "matchDatasources": [
+        "github-tags"
+      ],
+      "groupName": "github actions"
+    },
+    {
+      "matchManagers": [
+        "mise"
+      ],
+      "groupName": "mise",
+      "groupSlug": "mise"
     }
   ]
 }
