@@ -27,7 +27,7 @@ test.describe('portal', () => {
 
   test.describe('app grid', () => {
     test('page loads with app grid heading', async ({ page }) => {
-      await expect(page.getByText('Your Apps')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Your Apps' })).toBeVisible()
     })
 
     test('My Account is the first app', async ({ page }) => {
