@@ -41,22 +41,31 @@ func TestDisplayNameForApp(t *testing.T) {
 
 func TestEndpointURL(t *testing.T) {
 	tests := []struct {
-		name    string
-		host    string
-		gateway string
-		domain  string
-		want    string
+		name         string
+		host         string
+		gateway      string
+		tenantDomain string
+		adminDomain  string
+		want         string
 	}{
-		{"tenant gateway", "podinfo", "tenant", "uds.dev", "podinfo.uds.dev"},
-		{"admin gateway", "grafana", "admin", "uds.dev", "grafana.admin.uds.dev"},
-		{"empty gateway treated as tenant", "app", "", "uds.dev", "app.uds.dev"},
-		{"custom gateway", "app", "custom", "uds.dev", "app.custom.uds.dev"},
-		{"empty domain returns host only", "app", "tenant", "", "app"},
-		{"empty domain with admin returns host only", "app", "admin", "", "app"},
+		// tenant / empty gateway
+		{"tenant gateway + tenant domain", "podinfo", "tenant", "uds.dev", "", "podinfo.uds.dev"},
+		{"empty gateway treated as tenant", "app", "", "uds.dev", "", "app.uds.dev"},
+		{"tenant + empty tenant domain returns empty", "app", "tenant", "", "", ""},
+		{"empty gateway + empty tenant domain returns empty", "app", "", "", "", ""},
+
+		// admin gateway
+		{"admin + explicit adminDomain", "grafana", "admin", "uds.dev", "admin.example.com", "grafana.admin.example.com"},
+		{"admin + empty adminDomain falls back to admin.tenantDomain", "grafana", "admin", "uds.dev", "", "grafana.admin.uds.dev"},
+		{"admin + both domains empty returns empty", "grafana", "admin", "", "", ""},
+
+		// custom gateway
+		{"custom gateway + tenant domain", "app", "passthrough", "uds.dev", "", "app.passthrough.uds.dev"},
+		{"custom gateway + empty tenant domain returns empty", "app", "passthrough", "", "", ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := endpointURL(tt.host, tt.gateway, tt.domain)
+			got := endpointURL(tt.host, tt.gateway, tt.tenantDomain, tt.adminDomain)
 			if got != tt.want {
 				t.Fatalf("expected %q, got %q", tt.want, got)
 			}
@@ -65,11 +74,14 @@ func TestEndpointURL(t *testing.T) {
 }
 
 func TestToAPIApps(t *testing.T) {
-	const domain = "uds.dev"
+	const tenantDomain = "uds.dev"
+	const adminDomain = ""
 	tests := []struct {
 		name         string
 		pkgs         []Package
 		accountURL   string
+		tenantDomain string
+		adminDomain  string
 		wantLen      int
 		wantFirstURL string // empty means "no My Account entry expected"
 	}{
@@ -77,6 +89,8 @@ func TestToAPIApps(t *testing.T) {
 			name:         "returns My Account when no packages",
 			pkgs:         nil,
 			accountURL:   "sso.uds.dev",
+			tenantDomain: tenantDomain,
+			adminDomain:  adminDomain,
 			wantLen:      1,
 			wantFirstURL: "sso.uds.dev",
 		},
@@ -91,6 +105,8 @@ func TestToAPIApps(t *testing.T) {
 				},
 			},
 			accountURL:   "sso.uds.dev",
+			tenantDomain: tenantDomain,
+			adminDomain:  adminDomain,
 			wantLen:      2,
 			wantFirstURL: "sso.uds.dev",
 		},
@@ -105,6 +121,8 @@ func TestToAPIApps(t *testing.T) {
 				},
 			},
 			accountURL:   "sso.example.com",
+			tenantDomain: tenantDomain,
+			adminDomain:  adminDomain,
 			wantLen:      2,
 			wantFirstURL: "sso.example.com",
 		},
@@ -119,6 +137,8 @@ func TestToAPIApps(t *testing.T) {
 				},
 			},
 			accountURL:   "",
+			tenantDomain: tenantDomain,
+			adminDomain:  adminDomain,
 			wantLen:      1,
 			wantFirstURL: "",
 		},
@@ -126,14 +146,48 @@ func TestToAPIApps(t *testing.T) {
 			name:         "omits My Account when URL is empty and no packages",
 			pkgs:         nil,
 			accountURL:   "",
+			tenantDomain: tenantDomain,
+			adminDomain:  adminDomain,
 			wantLen:      0,
+			wantFirstURL: "",
+		},
+		{
+			name: "skips tile when tenant domain empty",
+			pkgs: []Package{
+				{
+					Metadata: Metadata{Name: "grafana"},
+					Spec: Spec{Network: Network{Expose: []Expose{
+						{Host: "grafana", Gateway: "tenant"},
+					}}},
+				},
+			},
+			accountURL:   "",
+			tenantDomain: "",
+			adminDomain:  "",
+			wantLen:      0,
+			wantFirstURL: "",
+		},
+		{
+			name: "uses explicit adminDomain for admin gateway tile",
+			pkgs: []Package{
+				{
+					Metadata: Metadata{Name: "grafana"},
+					Spec: Spec{Network: Network{Expose: []Expose{
+						{Host: "grafana", Gateway: "admin"},
+					}}},
+				},
+			},
+			accountURL:   "",
+			tenantDomain: "uds.dev",
+			adminDomain:  "admin.example.com",
+			wantLen:      1,
 			wantFirstURL: "",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := toAPIApps(nil, tt.pkgs, tt.accountURL, domain)
+			got := toAPIApps(nil, tt.pkgs, tt.accountURL, tt.tenantDomain, tt.adminDomain)
 			if got == nil {
 				t.Fatal("expected non-nil slice, got nil")
 			}
@@ -144,6 +198,12 @@ func TestToAPIApps(t *testing.T) {
 				for _, app := range got {
 					if app.Name == myAccountName {
 						t.Fatalf("did not expect My Account entry, got %+v", app)
+					}
+				}
+				// For the "uses explicit adminDomain" case, verify the URL
+				if tt.name == "uses explicit adminDomain for admin gateway tile" {
+					if len(got) > 0 && got[0].URL != "grafana.admin.example.com" {
+						t.Fatalf("expected URL %q, got %q", "grafana.admin.example.com", got[0].URL)
 					}
 				}
 				return
@@ -237,21 +297,34 @@ func TestFilterByUserGroup(t *testing.T) {
 }
 
 func TestToAPIApps_GatewayTagging(t *testing.T) {
-	const domain = "uds.dev"
+	const tenantDomain = "uds.dev"
 	tests := []struct {
-		name     string
-		pkgs     []Package
-		wantApps []APIApp
+		name        string
+		pkgs        []Package
+		adminDomain string
+		wantApps    []APIApp
 	}{
 		{
-			name: "admin gateway tagged",
+			name: "admin gateway tagged (fallback to admin.tenantDomain)",
 			pkgs: []Package{{
 				Metadata: Metadata{Name: "grafana"},
 				Spec: Spec{Network: Network{Expose: []Expose{
 					{Host: "grafana", Gateway: "admin"},
 				}}},
 			}},
-			wantApps: []APIApp{{Name: "Grafana", URL: "grafana.admin.uds.dev", Gateway: "admin"}},
+			adminDomain: "",
+			wantApps:    []APIApp{{Name: "Grafana", URL: "grafana.admin.uds.dev", Gateway: "admin"}},
+		},
+		{
+			name: "admin gateway tagged with explicit adminDomain",
+			pkgs: []Package{{
+				Metadata: Metadata{Name: "grafana"},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "grafana", Gateway: "admin"},
+				}}},
+			}},
+			adminDomain: "admin.example.com",
+			wantApps:    []APIApp{{Name: "Grafana", URL: "grafana.admin.example.com", Gateway: "admin"}},
 		},
 		{
 			name: "tenant gateway tagged",
@@ -261,7 +334,8 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 					{Host: "podinfo", Gateway: "tenant"},
 				}}},
 			}},
-			wantApps: []APIApp{{Name: "Podinfo", URL: "podinfo.uds.dev", Gateway: "tenant"}},
+			adminDomain: "",
+			wantApps:    []APIApp{{Name: "Podinfo", URL: "podinfo.uds.dev", Gateway: "tenant"}},
 		},
 		{
 			name: "mixed expose yields one tile per expose entry",
@@ -272,6 +346,7 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 					{Host: "back", Gateway: "admin"},
 				}}},
 			}},
+			adminDomain: "",
 			wantApps: []APIApp{
 				{Name: "Mixed", URL: "front.uds.dev", Gateway: "tenant"},
 				{Name: "Mixed", URL: "back.admin.uds.dev", Gateway: "admin"},
@@ -285,7 +360,8 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 					{Host: "app", Gateway: "custom"},
 				}}},
 			}},
-			wantApps: []APIApp{{Name: "Custom App", URL: "app.custom.uds.dev", Gateway: "custom"}},
+			adminDomain: "",
+			wantApps:    []APIApp{{Name: "Custom App", URL: "app.custom.uds.dev", Gateway: "custom"}},
 		},
 		{
 			name: "empty gateway treated as tenant",
@@ -295,13 +371,14 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 					{Host: "legacy", Gateway: ""},
 				}}},
 			}},
-			wantApps: []APIApp{{Name: "Legacy", URL: "legacy.uds.dev", Gateway: ""}},
+			adminDomain: "",
+			wantApps:    []APIApp{{Name: "Legacy", URL: "legacy.uds.dev", Gateway: ""}},
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := toAPIApps(nil, tt.pkgs, "", domain)
+			got := toAPIApps(nil, tt.pkgs, "", tenantDomain, tt.adminDomain)
 			if len(got) != len(tt.wantApps) {
 				t.Fatalf("expected %d apps, got %d: %+v", len(tt.wantApps), len(got), got)
 			}
@@ -315,7 +392,7 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 }
 
 func TestToAPIApps_MyAccountHasNoGateway(t *testing.T) {
-	got := toAPIApps(nil, nil, "sso.uds.dev", "uds.dev")
+	got := toAPIApps(nil, nil, "sso.uds.dev", "uds.dev", "")
 	if len(got) != 1 {
 		t.Fatalf("expected 1 app, got %d", len(got))
 	}

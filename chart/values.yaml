@@ -1,4 +1,4 @@
-# Copyright 2025 Defense Unicorns
+# Copyright 2025-2026 Defense Unicorns
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 replicaCount: 1
@@ -12,6 +12,7 @@ package:
   gateway: tenant
   host: portal
   domain: "###ZARF_VAR_DOMAIN###"
+  adminDomain: "###ZARF_VAR_ADMIN_DOMAIN###"
 
 # Default requests and limits when running only uds-core (increase for production)
 resources:

@@ -19,6 +19,7 @@ type ClassificationBanners struct {
 
 var (
 	UDSDomain        = ""
+	UDSAdminDomain   = ""
 	ClassBannerCfg   = ClassificationBanners{Enabled: false, Text: "", Footer: false}
 	AdminAppsEnabled = true
 )
@@ -29,6 +30,7 @@ const (
 
 func init() {
 	UDSDomain = strings.TrimSpace(os.Getenv("UDS_DOMAIN"))
+	UDSAdminDomain = strings.TrimSpace(os.Getenv("UDS_ADMIN_DOMAIN"))
 
 	// Class Banner ENV vars must match the names in chart/templates/deployment.yaml
 	bannersEnabled := os.Getenv("CLASSIFICATION_BANNER_ENABLED")

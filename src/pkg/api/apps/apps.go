@@ -50,7 +50,7 @@ func GetUDSPackages(restConfig *rest.Config, inCluster bool, w http.ResponseWrit
 	if config.UDSDomain != "" {
 		myAccountURL = "sso." + config.UDSDomain
 	}
-	responseApps := toAPIApps(store, filteredByGroup, myAccountURL, config.UDSDomain)
+	responseApps := toAPIApps(store, filteredByGroup, myAccountURL, config.UDSDomain, config.UDSAdminDomain)
 
 	// return the filtered packages
 	w.Header().Set("Content-Type", "application/json")
@@ -111,20 +111,40 @@ func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Pa
 	return filteredByGroup
 }
 
-// endpointURL builds the tile URL from an expose entry's host, gateway, and domain.
-// A tenant gateway (or empty gateway) produces host.domain; any other gateway name
-// produces host.<gateway>.domain. If domain is empty, just the host is returned.
-func endpointURL(host, gateway, domain string) string {
-	if domain == "" {
-		return host
-	}
-	if gateway == "" || gateway == "tenant" {
+// endpointURL builds the tile URL from an expose entry's host, gateway, tenantDomain, and adminDomain.
+// Returns "" when the URL cannot be determined (i.e., the required domain is empty), signaling that
+// the tile should be skipped.
+//
+//   - tenant gateway (or empty): uses tenantDomain; returns "" if tenantDomain is empty.
+//   - admin gateway: uses adminDomain when set; falls back to "admin."+tenantDomain when only
+//     tenantDomain is set; returns "" when both are empty.
+//   - custom gateway: uses host.<gateway>.<tenantDomain>; returns "" if tenantDomain is empty.
+func endpointURL(host, gateway, tenantDomain, adminDomain string) string {
+	switch gateway {
+	case "", "tenant":
+		if tenantDomain == "" {
+			return ""
+		}
+		return host + "." + tenantDomain
+	case "admin":
+		domain := adminDomain
+		if domain == "" && tenantDomain != "" {
+			domain = "admin." + tenantDomain
+		}
+		if domain == "" {
+			return ""
+		}
 		return host + "." + domain
+	default:
+		// Custom gateway: host.<gateway>.<tenantDomain>; skip if domain empty.
+		if tenantDomain == "" {
+			return ""
+		}
+		return host + "." + gateway + "." + tenantDomain
 	}
-	return host + "." + gateway + "." + domain
 }
 
-func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string, domain string) []APIApp {
+func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string, tenantDomain, adminDomain string) []APIApp {
 	apiApps := make([]APIApp, 0)
 	seen := map[string]struct{}{}
 
@@ -144,7 +164,10 @@ func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string,
 			if e.Host == "" {
 				continue
 			}
-			url := endpointURL(e.Host, e.Gateway, domain)
+			url := endpointURL(e.Host, e.Gateway, tenantDomain, adminDomain)
+			if url == "" {
+				continue
+			}
 			if _, exists := seen[url]; exists {
 				continue
 			}
