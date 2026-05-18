@@ -17,6 +17,8 @@ tasks:
       - task: build:container
       - task: setup:k3d-test-cluster
       - task: setup:create-doug-user
+        with:
+          keycloak_group: /UDS Core/Admin
       - task: deploy-test-package
       - cmd: ./uds zarf dev deploy --no-yolo --create-set VERSION=${VERSION}
 
