@@ -1,0 +1,65 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: UDSBundle
+metadata:
+  name: uds-portal-seed-gitea
+  description: Seed bundle for deploying Gitea into a UDS Portal dev cluster.
+  version: dev
+
+packages:
+  - name: gitea
+    repository: ghcr.io/uds-packages/gitea
+    ref: 1.25.4-uds.2-upstream
+    overrides:
+      gitea:
+        gitea:
+          values:
+            - path: gitea.config.database
+              value:
+                HOST: pg-cluster.postgres.svc.cluster.local:5432
+                DB_TYPE: postgres
+                NAME: gitea
+                SSL_MODE: require
+            - path: gitea.config.queue
+              value:
+                TYPE: redis
+                CONN_STR: redis://valkey-primary.valkey.svc.cluster.local:6379/0
+            - path: gitea.config.cache
+              value:
+                TYPE: redis
+                CONN_STR: redis://valkey-primary.valkey.svc.cluster.local:6379/0?pool_size=100&idle_timeout=180s
+            - path: gitea.additionalConfigFromEnvs
+              value:
+                - name: GITEA__DATABASE__PASSWD
+                  valueFrom:
+                    secretKeyRef:
+                      name: gitea.gitea.pg-cluster.credentials.postgresql.acid.zalan.do
+                      key: password
+                - name: GITEA__DATABASE__USER
+                  valueFrom:
+                    secretKeyRef:
+                      name: gitea.gitea.pg-cluster.credentials.postgresql.acid.zalan.do
+                      key: username
+        uds-gitea-config:
+          values:
+            - path: postgres.internal
+              value: true
+            - path: additionalNetworkAllow
+              value:
+                - direction: Egress
+                  selector:
+                    app: gitea
+                  remoteNamespace: postgres
+                  remoteSelector:
+                    cluster-name: pg-cluster
+                  port: 5432
+                  description: "Egress to DB"
+                - direction: Egress
+                  selector:
+                    app: gitea
+                  remoteNamespace: valkey
+                  remoteSelector:
+                    app.kubernetes.io/name: valkey
+                  port: 6379
+                  description: "Egress to Valkey"

@@ -12,12 +12,8 @@
       ],
       "bump-minor-pre-major": true,
       "extra-files": [
-        "zarf.yaml",
-        "tasks.yaml",
         "tasks/build.yaml",
-        "tasks/test.yaml",
         "tasks/release.yaml",
-        "chart/values.yaml",
         "chart/Chart.yaml"
       ]
     }

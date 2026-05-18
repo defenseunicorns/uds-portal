@@ -1,17 +1,26 @@
-# Copyright 2025 Defense Unicorns
+# Copyright 2025-2026 Defense Unicorns
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 kind: ZarfPackageConfig
 metadata:
   name: uds-portal
   description: UDS Portal is the home page for UDS
-  # x-release-please-start-version
-  version: 0.1.0
-  # x-release-please-end
+  version: "###ZARF_PKG_TMPL_VERSION###"
 
 variables:
   - name: DOMAIN
     default: "uds.dev"
+  - name: ADMIN_DOMAIN
+    description: "Domain for admin services, defaults to admin.${DOMAIN} when empty"
+    default: ""
+  - name: IMAGE_PULL_POLICY
+    description: "Image pull policy for the portal deployment"
+    default: IfNotPresent
+
+constants:
+  - name: VERSION
+    description: "Portal Version"
+    value: "###ZARF_PKG_TMPL_VERSION###"
 
 components:
   - name: uds-portal
@@ -20,10 +29,12 @@ components:
       - name: uds-portal
         localPath: chart
         namespace: uds-portal
-        version: 0.1.0
+        version: "###ZARF_PKG_TMPL_VERSION###"
         valuesFiles:
           - chart/values.yaml
-    # x-release-please-start-version
+        variables:
+          - name: IMAGE_PULL_POLICY
+            description: "Image pull policy for the portal deployment"
+            path: image.pullPolicy
     images:
-      - ghcr.io/defenseunicorns/uds-portal:0.1.0
-    # x-release-please-end
+      - ghcr.io/defenseunicorns/uds-portal:###ZARF_PKG_TMPL_VERSION###

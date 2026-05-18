@@ -1,4 +1,4 @@
-<!-- Copyright 2025 Defense Unicorns -->
+<!-- Copyright 2025-2026 Defense Unicorns -->
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial -->
 
 <script lang="ts">
@@ -6,7 +6,7 @@
 
   import { afterNavigate } from '$app/navigation'
   import { authenticated } from '$features/auth/store'
-  import { Navbar } from '$features/navigation'
+  import { Navbar, Sidebar } from '$features/navigation'
   import { initFlowbite } from 'flowbite'
 
   import '../app.postcss'
@@ -42,6 +42,7 @@
       class="flex bg-[linear-gradient(180deg,_#030712_66.35%,_#213E68_100%)] pt-16 transition-all duration-300 ease-in-out"
       style="min-height: {mainMinHeight};"
     >
+      <Sidebar apps={data.apps} adminAppsEnabled={data.adminAppsEnabled} />
       <div class="mx-auto w-full max-w-6xl p-4 pt-16">
         <slot />
       </div>

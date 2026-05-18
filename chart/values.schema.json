@@ -20,6 +20,16 @@
         }
       },
       "additionalProperties": false
+    },
+    "adminApps": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable or disable the Admin Apps view in the portal."
+        }
+      },
+      "additionalProperties": false
     }
   }
 }

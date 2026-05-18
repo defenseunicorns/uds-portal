@@ -1,4 +1,4 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 import { writable, type Writable } from 'svelte/store'
@@ -7,11 +7,14 @@ import { authenticated } from '$features/auth/store'
 import type { UserData } from '$features/navigation/types'
 import type { ClassBannerCfg } from '$lib/types'
 
+import type { ApiApp } from './types'
+
 export const ssr = false
 export const _bannerCfg: Writable<ClassBannerCfg> = writable({ enabled: false, text: '', footer: false })
 
 type AppBootstrapConfig = {
   CLASSIFICATION_BANNER?: ClassBannerCfg
+  ADMIN_APPS_ENABLED?: boolean
 }
 
 type BrowserWindowWithAppConfig = Window & {
@@ -21,6 +24,25 @@ type BrowserWindowWithAppConfig = Window & {
 interface AuthResponse {
   authenticated: boolean
   userData: UserData
+}
+
+async function fetchApps(): Promise<ApiApp[]> {
+  try {
+    const response = await fetch('/api/v1/apps')
+    if (!response.ok) {
+      console.error('Failed to fetch apps:', response.status)
+      return []
+    }
+    const appData = await response.json()
+    if (!Array.isArray(appData)) {
+      console.error('Invalid apps response format')
+      return []
+    }
+    return appData as ApiApp[]
+  } catch (error) {
+    console.error('Failed to fetch apps:', error)
+    return []
+  }
 }
 
 // auth function that returns both auth status and user data
@@ -86,7 +108,13 @@ export const load = async () => {
     authenticated.set(false)
   }
 
+  const apps = await fetchApps()
+  const appConfig = (window as BrowserWindowWithAppConfig).__APP__
+  const adminAppsEnabled: boolean = appConfig?.ADMIN_APPS_ENABLED ?? true
+
   return {
     userData,
+    apps,
+    adminAppsEnabled,
   }
 }

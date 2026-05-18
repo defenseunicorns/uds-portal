@@ -1,0 +1,92 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: UDSBundle
+metadata:
+  name: uds-portal-seed-gitlab
+  description: Seed bundle for deploying GitLab into a UDS Portal dev cluster.
+  version: dev
+
+packages:
+  - name: gitlab
+    repository: ghcr.io/uds-packages/gitlab
+    ref: 18.11.3-uds.0-upstream
+    overrides:
+      gitlab:
+        uds-gitlab-config:
+          values:
+            - path: ssh.enabled
+              value: true
+            - path: ssh.port
+              value: 2223
+          variables:
+            - name: GITLAB_SSO_ENABLED
+              description: "Boolean to enable or disable sso things"
+              path: "sso.enabled"
+            - name: GITLAB_SSO_PROTOCOL
+              description: "Protocol to use. Valid values are 'openid_connect' and 'saml'. Default value is 'saml'"
+              path: "sso.protocol"
+            - name: GITLAB_ADMIN_GROUPS
+              description: "Array of group names that grant admin role GitLab when saml protocol is active."
+              path: "sso.adminGroups"
+            - name: GITLAB_REQUIRED_GROUPS
+              description: "Array of group names that are required for GitLab access."
+              path: "sso.requiredGroups"
+        gitlab:
+          values:
+            - path: gitlab.gitlab-shell.enabled
+              value: true
+            - path: global.shell.port
+              value: 2223
+            - path: global.psql.host
+              value: pg-cluster.postgres.svc.cluster.local
+            - path: "global.psql.username"
+              value: "gitlab.gitlab"
+            - path: "global.psql.password.secret"
+              value: "gitlab.gitlab.pg-cluster.credentials.postgresql.acid.zalan.do"
+            - path: global.redis.host
+              value: valkey-primary.valkey.svc.cluster.local
+            - path: global.redis.auth.enabled
+              value: false
+          variables:
+            - name: GITLAB_SSO_ENABLED
+              description: "Boolean to enable or disable sso things"
+              path: "global.appConfig.omniauth.enabled"
+            - name: GITLAB_SSO_PROTOCOL
+              description: "Protocol to use. Valid values are 'openid_connect' and 'saml'. Default value is 'saml'"
+              path: "global.appConfig.omniauth.autoSignInWithProvider"
+            - name: MIGRATIONS_RESOURCES
+              description: "GitLab Migrations Resources"
+              path: "gitlab.migrations.resources"
+            - name: WEBSERVICE_REPLICAS
+              description: "GitLab Webservice Min Replicas"
+              path: "gitlab.webservice.minReplicas"
+            - name: WEBSERVICE_RESOURCES
+              description: "GitLab Webservice Resources"
+              path: "gitlab.webservice.resources"
+            - name: WORKHORSE_RESOURCES
+              description: "GitLab Workhorse Resources"
+              path: "gitlab.webservice.workhorse.resources"
+            - name: SIDEKIQ_REPLICAS
+              description: "GitLab Sidekiq Min Replicas"
+              path: "gitlab.sidekiq.minReplicas"
+            - name: SIDEKIQ_RESOURCES
+              description: "GitLab Sidekiq Resources"
+              path: "gitlab.sidekiq.resources"
+            - name: PAGES_RESOURCES
+              description: "GitLab Pages Resources"
+              path: "gitlab.gitlab-pages.resources"
+            - name: REGISTRY_REPLICAS
+              description: "GitLab Registry Min Replicas"
+              path: "registry.hpa.minReplicas"
+            - name: SHELL_REPLICAS
+              description: "GitLab Shell Min Replicas"
+              path: "gitlab.gitlab-shell.minReplicas"
+        uds-gitlab-settings:
+          values:
+            - path: settingsJob.application.enabled_git_access_protocol
+              value: all
+          variables:
+            - name: BOT_ACCOUNTS
+              description: "Bot Accounts to Create"
+              path: "botAccounts"

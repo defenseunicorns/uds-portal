@@ -13,7 +13,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/defenseunicorns/pkg/helpers/v2"
 	"github.com/defenseunicorns/uds-portal/src/pkg/api/auth/incluster"
 	"github.com/defenseunicorns/uds-portal/src/pkg/config"
 	"k8s.io/client-go/rest"
@@ -45,13 +44,13 @@ func GetUDSPackages(restConfig *rest.Config, inCluster bool, w http.ResponseWrit
 	}
 
 	// filter packages and transform into API response shape
-	filteredByEndpoint := filterPackagesWithEndpoints(packages)
-	filteredByGroup := filterByUserGroup(r, filteredByEndpoint, inCluster)
+	filteredExposed := filterExposedPackages(packages)
+	filteredByGroup := filterByUserGroup(r, filteredExposed, inCluster)
 	myAccountURL := ""
 	if config.UDSDomain != "" {
 		myAccountURL = "sso." + config.UDSDomain
 	}
-	responseApps := toAPIApps(store, filteredByGroup, myAccountURL)
+	responseApps := toAPIApps(store, filteredByGroup, myAccountURL, config.UDSDomain, config.UDSAdminDomain)
 
 	// return the filtered packages
 	w.Header().Set("Content-Type", "application/json")
@@ -60,11 +59,10 @@ func GetUDSPackages(restConfig *rest.Config, inCluster bool, w http.ResponseWrit
 	}
 }
 
-func filterPackagesWithEndpoints(sourcePackages []Package) []Package {
+func filterExposedPackages(sourcePackages []Package) []Package {
 	packages := make([]Package, 0)
 	for _, pkg := range sourcePackages {
-		// ensure package has valid endpoints and is not the UDS portal
-		if len(pkg.Status.Endpoints) > 0 && pkg.Metadata.Name != udsPortalPkgName {
+		if len(pkg.Spec.Network.Expose) > 0 && pkg.Metadata.Name != udsPortalPkgName {
 			packages = append(packages, pkg)
 		}
 	}
@@ -82,7 +80,7 @@ func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Pa
 	for _, pkg := range packages {
 		filteredPkg := Package{Metadata: pkg.Metadata, Spec: pkg.Spec, Status: pkg.Status}
 		// filter out apps that don't match the user group
-		if len(filteredPkg.Status.Endpoints) > 0 {
+		if len(filteredPkg.Spec.Network.Expose) > 0 {
 			if len(pkg.Spec.SSO) == 0 {
 				continue
 			}
@@ -113,7 +111,40 @@ func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Pa
 	return filteredByGroup
 }
 
-func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string) []APIApp {
+// endpointURL builds the tile URL from an expose entry's host, gateway, tenantDomain, and adminDomain.
+// Returns "" when the URL cannot be determined (i.e., the required domain is empty), signaling that
+// the tile should be skipped.
+//
+//   - tenant gateway (or empty): uses tenantDomain; returns "" if tenantDomain is empty.
+//   - admin gateway: uses adminDomain when set; falls back to "admin."+tenantDomain when only
+//     tenantDomain is set; returns "" when both are empty.
+//   - custom gateway: uses host.<gateway>.<tenantDomain>; returns "" if tenantDomain is empty.
+func endpointURL(host, gateway, tenantDomain, adminDomain string) string {
+	switch gateway {
+	case "", "tenant":
+		if tenantDomain == "" {
+			return ""
+		}
+		return host + "." + tenantDomain
+	case "admin":
+		domain := adminDomain
+		if domain == "" && tenantDomain != "" {
+			domain = "admin." + tenantDomain
+		}
+		if domain == "" {
+			return ""
+		}
+		return host + "." + domain
+	default:
+		// Custom gateway: host.<gateway>.<tenantDomain>; skip if domain empty.
+		if tenantDomain == "" {
+			return ""
+		}
+		return host + "." + gateway + "." + tenantDomain
+	}
+}
+
+func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string, tenantDomain, adminDomain string) []APIApp {
 	apiApps := make([]APIApp, 0)
 	seen := map[string]struct{}{}
 
@@ -129,15 +160,23 @@ func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string)
 
 	for _, pkg := range packages {
 		icon := iconForPackage(store, pkg)
-		for _, url := range helpers.Unique(pkg.Status.Endpoints) {
+		for _, e := range pkg.Spec.Network.Expose {
+			if e.Host == "" {
+				continue
+			}
+			url := endpointURL(e.Host, e.Gateway, tenantDomain, adminDomain)
+			if url == "" {
+				continue
+			}
 			if _, exists := seen[url]; exists {
 				continue
 			}
 			seen[url] = struct{}{}
 			apiApps = append(apiApps, APIApp{
-				Name: displayNameForApp(pkg.Metadata.Name),
-				Icon: icon,
-				URL:  url,
+				Name:    displayNameForApp(pkg.Metadata.Name),
+				Icon:    icon,
+				URL:     url,
+				Gateway: e.Gateway,
 			})
 		}
 	}

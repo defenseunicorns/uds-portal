@@ -1,4 +1,4 @@
-# Copyright 2025 Defense Unicorns
+# Copyright 2025-2026 Defense Unicorns
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 apiVersion: apps/v1
@@ -49,9 +49,13 @@ spec:
           env:
             - name: UDS_DOMAIN
               value: {{ .Values.package.domain | quote }}
+            - name: UDS_ADMIN_DOMAIN
+              value: {{ .Values.package.adminDomain | quote }}
             - name: CLASSIFICATION_BANNER_ENABLED
               value: {{ .Values.classificationBanner.enabled | quote }}
             - name: CLASSIFICATION_BANNER_TEXT
               value: {{ .Values.classificationBanner.text | quote }}
             - name: CLASSIFICATION_BANNER_FOOTER
               value: {{ .Values.classificationBanner.addFooter | quote }}
+            - name: ADMIN_APPS_ENABLED
+              value: {{ .Values.adminApps.enabled | quote }}

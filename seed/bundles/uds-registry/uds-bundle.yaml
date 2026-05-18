@@ -1,0 +1,46 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: UDSBundle
+metadata:
+  name: uds-portal-seed-uds-registry
+  description: Seed bundle for deploying UDS Registry into a UDS Portal dev cluster.
+  version: dev
+
+packages:
+  - name: uds-registry
+    repository: ghcr.io/defenseunicorns/packages/private/uds/uds-registry
+    ref: 0.35.1-unicorn
+    overrides:
+      uds-registry:
+        uds-registry:
+          values:
+            - path: registry.auth.publicOrgs.metadataAccess
+              value:
+                - airgap-store
+            - path: registry.auth.publicOrgs.readAccess
+              value:
+                - public
+            - path: registry.auth.access.admins
+              value:
+                - doug@uds.dev
+            - path: registry.scanner.grype.updateInterval
+              value: 6h
+            - path: registry.scanner.scanInterval
+              value: 1h
+            - path: image.pullPolicy
+              value: Always
+            - path: registry.features.servePrivate
+              value: true
+            - path: database
+              value:
+                type: postgres
+                connection:
+                  secret:
+                    name: uds-system.registry.pg-cluster.credentials.postgresql.acid.zalan.do
+                    usernameKey: username
+                    passwordKey: password
+                  host: pg-cluster.postgres.svc.cluster.local
+                  port: "5432"
+                  name: registrydb
+                  sslmode: require

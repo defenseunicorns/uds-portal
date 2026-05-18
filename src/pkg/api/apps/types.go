@@ -1,4 +1,4 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 // Package apps retrieves, filters, and returns UDS packages from the Kubernetes cluster.
@@ -21,8 +21,18 @@ type SSO struct {
 	Groups Groups `json:"groups"`
 }
 
+type Expose struct {
+	Host    string `json:"host,omitempty"`
+	Gateway string `json:"gateway,omitempty"`
+}
+
+type Network struct {
+	Expose []Expose `json:"expose,omitempty"`
+}
+
 type Spec struct {
-	SSO []SSO `json:"sso"`
+	SSO     []SSO   `json:"sso"`
+	Network Network `json:"network,omitempty"`
 }
 
 type Package struct {
@@ -32,7 +42,8 @@ type Package struct {
 }
 
 type APIApp struct {
-	Name string `json:"name"`
-	Icon string `json:"icon,omitempty"`
-	URL  string `json:"url"`
+	Name    string `json:"name"`
+	Icon    string `json:"icon,omitempty"`
+	URL     string `json:"url"`
+	Gateway string `json:"gateway,omitempty"`
 }

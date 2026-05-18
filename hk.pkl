@@ -4,12 +4,15 @@ import "package://github.com/jdx/hk/releases/download/v1.43.0/hk@1.43.0#/Builtin
 local linters = new Mapping<String, Step> {
     ["check-added-large-files"] {
         check = "hk util check-added-large-files --maxkb=1024 {{files}}"
+        glob = List("**/*")
     }
     ["check-merge-conflict"] {
         check = "hk util check-merge-conflict {{files}}"
+        glob = List("**/*")
     }
     ["detect-private-key"] {
         check = "hk util detect-private-key {{files}}"
+        glob = List("**/*")
     }
     ["end-of-file-fixer"] = (Builtins.newlines) {
         exclude = List("*.json")

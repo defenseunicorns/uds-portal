@@ -5,6 +5,11 @@ includes:
   - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.10/tasks/setup.yaml
   - build: ./build.yaml
 
+variables:
+  - name: VERSION
+    description: "reference for the portal image and zarf package"
+    default: 0.0.0-dev
+
 tasks:
   - name: e2e-setup
     description: deploy cluster specifically for testing UDS Portal
@@ -12,14 +17,18 @@ tasks:
       - task: build:container
       - task: setup:k3d-test-cluster
       - task: setup:create-doug-user
+        with:
+          keycloak_group: /UDS Core/Admin
       - task: deploy-test-package
-      - cmd: ./uds zarf dev deploy --no-yolo
+      - cmd: ./uds zarf dev deploy --no-yolo --create-set VERSION=${VERSION}
 
   - name: deploy-test-package
     description: "deploy a Zarf package to test against"
     actions:
       - cmd: ./uds zarf dev deploy --no-yolo
         dir: ui/tests/packages/podinfo
+      - cmd: ./uds zarf dev deploy --no-yolo
+        dir: ui/tests/packages/podinfo-admin
 
   - name: e2e
     description: "run end-to-end tests (assumes api server is running on port 8080)"

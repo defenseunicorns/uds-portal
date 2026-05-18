@@ -1,0 +1,37 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: UDSBundle
+metadata:
+  name: uds-portal-seed-postgres
+  description: Shared Postgres dependency for UDS Portal seed bundles.
+  version: dev
+
+packages:
+  - name: postgres-operator
+    repository: ghcr.io/uds-packages/postgres-operator
+    ref: 1.15.1-uds.4-upstream
+    overrides:
+      postgres-operator:
+        uds-postgres-config:
+          values:
+            - path: postgresql
+              value:
+                enabled: true
+                teamId: "uds"
+                volume:
+                  size: "30Gi"
+                numberOfInstances: 2
+                users:
+                  gitea.gitea: []
+                  gitlab.gitlab: []
+                  uds-system.registry: []
+                databases:
+                  gitea: gitea.gitea
+                  gitlabdb: gitlab.gitlab
+                  registrydb: uds-system.registry
+                version: "16"
+                ingress:
+                  - remoteNamespace: gitea
+                  - remoteNamespace: gitlab
+                  - remoteNamespace: uds-system

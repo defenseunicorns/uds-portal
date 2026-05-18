@@ -1,0 +1,54 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+variables:
+  gitlab:
+    DISABLE_REGISTRY_REDIRECT: "true"
+    GITLAB_PAGES_ENABLED: true
+    GITLAB_REQUIRED_GROUPS: []
+    GITLAB_ADMIN_GROUPS: ["/GitLab Admin", "/UDS Core/Admin"]
+    GITLAB_SSO_PROTOCOL: saml
+    webservice_replicas: 1
+    webservice_resources:
+      limits:
+        memory: 4G
+      requests:
+        cpu: 500m
+        memory: 2.5G
+    migrations_resources:
+      limits:
+        cpu: 500m
+        memory: 4G
+    workhorse_resources:
+      limits:
+        memory: 300M
+      requests:
+        cpu: 100m
+        memory: 10M
+    sidekiq_replicas: 1
+    sidekiq_resources:
+      limits:
+        memory: 4G
+      requests:
+        cpu: 1000m
+        memory: 2G
+    pages_resources:
+      limits:
+        memory: 1.5G
+      requests:
+        cpu: 50m
+        memory: 625M
+    registry_replicas: 1
+    shell_replicas: 1
+    bot_accounts:
+      enabled: true
+      accounts:
+        - username: test-bot
+          scopes:
+            - api
+            - read_repository
+            - write_repository
+          secret:
+            name: gitlab-test-bot
+            namespace: test-bot
+            keyName: TOKEN

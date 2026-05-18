@@ -1,7 +1,11 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 import type { Component } from 'svelte'
+
+import type { ApiApp } from '$lib/types'
+
+export type RouteVisibility = (apps: ApiApp[]) => boolean
 
 export interface BaseRoute {
   name: string
@@ -9,6 +13,7 @@ export interface BaseRoute {
   class?: string
   children?: string[]
   path?: string
+  visible?: RouteVisibility
 }
 
 export interface Route {
@@ -17,6 +22,7 @@ export interface Route {
   icon?: Component
   class?: string
   children?: RouteChild[]
+  visible?: RouteVisibility
 }
 
 export interface RouteChild {

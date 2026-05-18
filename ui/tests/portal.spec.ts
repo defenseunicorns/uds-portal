@@ -20,14 +20,14 @@ test.describe('portal', () => {
     test('user menu closes when clicking away', async ({ page }) => {
       await page.getByTestId('user-menu-button').click()
       await expect(page.getByText('Sign Out')).toBeVisible()
-      await page.getByText('Your Apps').click()
+      await page.getByRole('heading', { name: 'Your Apps' }).click()
       await expect(page.getByText('Sign Out')).not.toBeVisible()
     })
   })
 
   test.describe('app grid', () => {
     test('page loads with app grid heading', async ({ page }) => {
-      await expect(page.getByText('Your Apps')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Your Apps' })).toBeVisible()
     })
 
     test('My Account is the first app', async ({ page }) => {
