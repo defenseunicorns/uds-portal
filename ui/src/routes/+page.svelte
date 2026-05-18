@@ -8,7 +8,7 @@
 
   export let data: LayoutData
 
-  $: tenantApps = data.adminAppsEnabled ? data.apps.filter((app) => !isAdminGateway(app.gateway)) : data.apps
+  $: tenantApps = data.apps.filter((app) => !isAdminGateway(app.gateway))
 </script>
 
 <div class="flex w-full flex-col items-center space-y-8">
