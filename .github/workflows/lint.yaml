@@ -10,14 +10,7 @@ on:
   pull_request:
     branches: [main]
     types: [milestoned, opened, synchronize]
-    paths-ignore:
-      - "**.md"
-      - "**.png"
-      - "**.jpg"
-      - "**.svg"
-      - "**.gif"
-      - "CODEOWNERS"
-      - "LICENSE*"
+
 
 concurrency:
   group: lint-${{ github.ref }}
