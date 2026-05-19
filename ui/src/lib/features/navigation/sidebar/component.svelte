@@ -21,7 +21,7 @@
 </script>
 
 {#if visibleRoutes.length > 1}
-  <nav aria-label="Primary" data-testid="sidebar" class="flex w-44 flex-col gap-1 py-4 pl-4">
+  <nav aria-label="Primary" data-testid="sidebar" class="flex w-44 flex-col gap-1 pt-12 pb-4 pl-4">
     {#each visibleRoutes as route (route.path)}
       {@const active = activePath === route.path}
       <a
