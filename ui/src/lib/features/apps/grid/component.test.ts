@@ -19,16 +19,15 @@ describe('AppGrid', () => {
   })
 
   it('renders img when app has icon', () => {
-    render(AppGrid, { props: { apps: [appWithIcon] } })
-    const img = screen.getByAltText('Grafana icon')
+    const { container } = render(AppGrid, { props: { apps: [appWithIcon] } })
+    const img = container.querySelector('img')
     expect(img).toBeInTheDocument()
     expect(img).toHaveAttribute('src', appWithIcon.icon)
   })
 
   it('renders fallback when app has no icon', () => {
-    render(AppGrid, { props: { apps: [appWithoutIcon] } })
-    expect(screen.queryByAltText('Podinfo icon')).toBeNull()
-    const fallback = screen.getByAltText('Default app icon')
+    const { container } = render(AppGrid, { props: { apps: [appWithoutIcon] } })
+    const fallback = container.querySelector('img')
     expect(fallback).toBeInTheDocument()
     expect(fallback).toHaveAttribute('src', '/default_logo.svg')
     expect(screen.getByText('Podinfo')).toBeInTheDocument()

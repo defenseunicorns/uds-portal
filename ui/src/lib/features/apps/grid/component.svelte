@@ -22,9 +22,9 @@
           <div class="flex w-full flex-col items-center gap-0.5">
             <div class="flex h-12 w-12 items-center justify-center rounded p-2">
               {#if app.icon}
-                <img src={app.icon} alt="{app.name} icon" class="h-8 w-8" />
+                <img src={app.icon} alt="" class="h-8 w-8" />
               {:else}
-                <img src="/default_logo.svg" alt="Default app icon" class="h-8 w-8" />
+                <img src="/default_logo.svg" alt="" class="h-8 w-8" />
               {/if}
             </div>
             <span class="line-clamp-2 w-full text-center text-sm leading-normal font-normal text-gray-300">
