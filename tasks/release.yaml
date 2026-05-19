@@ -13,7 +13,7 @@ variables:
 
 tasks:
   - name: publish
-    description: "build and publish image and zarf packages (multi-arch) to GHCR"
+    description: "build and publish image, zarf packages (multi-arch), and skeleton zarf package to GHCR"
     actions:
       - task: build:container
         with:
@@ -23,3 +23,4 @@ tasks:
           dev: "false"
       - cmd: uds zarf package publish build/zarf-package-uds-portal-amd64-${VERSION}.tar.zst oci://ghcr.io/defenseunicorns/packages/uds
       - cmd: uds zarf package publish build/zarf-package-uds-portal-arm64-${VERSION}.tar.zst oci://ghcr.io/defenseunicorns/packages/uds
+      - cmd: uds zarf package publish . oci://ghcr.io/defenseunicorns/packages/uds --tag ${VERSION}
