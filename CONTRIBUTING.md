@@ -111,6 +111,7 @@ Releases are automated via [release-please](https://github.com/googleapis/releas
 | Docker image (linux/amd64 + linux/arm64) | `ghcr.io/defenseunicorns/uds-portal:<version>` |
 | Zarf package amd64 | `oci://ghcr.io/defenseunicorns/packages/uds` |
 | Zarf package arm64 | `oci://ghcr.io/defenseunicorns/packages/uds` |
+| Zarf skeleton package | `oci://ghcr.io/defenseunicorns/packages/uds` |
 
 **Version files:** release-please bumps versions in lockstep across `chart/Chart.yaml`, `tasks/build.yaml`, and `tasks/release.yaml`.
 
