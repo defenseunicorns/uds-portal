@@ -2,7 +2,7 @@
 
 <img align="right"  alt="Unicorn Delivery Service logo" src="ui/static/uds.svg"  height="256" />
 
-[![UDS Documentation](https://img.shields.io/badge/docs-uds.defenseunicorns.com-775ba1)](https://docs.defenseunicorns.com/)
+[![UDS Documentation](https://img.shields.io/badge/docs-docs.defenseunicorns.com-775ba1)](https://docs.defenseunicorns.com/)
 
 UDS Portal is the landing page for UDS users — a single point of discovery for every application deployed in a UDS environment. It ships as a UDS Core layer that depends on `base` and `identity-authorization`.
 
