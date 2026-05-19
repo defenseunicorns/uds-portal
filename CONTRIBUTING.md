@@ -33,11 +33,7 @@ hk install
 ## Tasks
 
 ```sh
-# run all linters (matches CI)
-uds run lint:check
-
-# auto-fix where possible
-uds run lint:fix
+uds run lint
 ```
 
 ### Local Development Cluster
