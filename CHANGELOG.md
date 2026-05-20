@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.2.0](https://github.com/defenseunicorns/uds-portal/compare/v0.1.0...v0.2.0) (2026-05-20)
+
+
+### Features
+
+* add admin apps page/filtering ([#24](https://github.com/defenseunicorns/uds-portal/issues/24)) ([592d458](https://github.com/defenseunicorns/uds-portal/commit/592d458d58486e29f70e3eefe5eba0d590e9ce84))
+
+
+### Bug Fixes
+
+* update UI following design requirements ([#34](https://github.com/defenseunicorns/uds-portal/issues/34)) ([af2d09d](https://github.com/defenseunicorns/uds-portal/commit/af2d09d283a24942b259a50e7a6afad595c84853))
+
+
+### Miscellaneous
+
+* **deps:** update support-deps ([#11](https://github.com/defenseunicorns/uds-portal/issues/11)) ([10616d0](https://github.com/defenseunicorns/uds-portal/commit/10616d0481afc525596a694f9f8b0d06ca4c9826))
+* fix for release-please version re-rendering yaml file ([#35](https://github.com/defenseunicorns/uds-portal/issues/35)) ([735ab23](https://github.com/defenseunicorns/uds-portal/commit/735ab231b7323b998c405ff6bf1ec5fa88f1f366))
+* forcing generic release-please updater on Chart.yaml ([#36](https://github.com/defenseunicorns/uds-portal/issues/36)) ([f50d991](https://github.com/defenseunicorns/uds-portal/commit/f50d991b70a57a742ddbb8b4f08beac79d637df6))
+* setting esbuild allowBuilds to false ([#28](https://github.com/defenseunicorns/uds-portal/issues/28)) ([02998c5](https://github.com/defenseunicorns/uds-portal/commit/02998c52bb4624a8bbfa7e76a6ebabc641d992eb))
+
+
+### Documentation
+
+* readme updates ([#31](https://github.com/defenseunicorns/uds-portal/issues/31)) ([3b9019d](https://github.com/defenseunicorns/uds-portal/commit/3b9019deb75f01274345fbbb8a8263907367e5cb))
+
 ## 0.1.0 (2026-05-14)
 
 
