@@ -14,7 +14,7 @@
       "extra-files": [
         "tasks/build.yaml",
         "tasks/release.yaml",
-        "chart/Chart.yaml"
+        { "type": "generic", "path": "chart/Chart.yaml" }
       ]
     }
   }
