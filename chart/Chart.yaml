@@ -5,5 +5,6 @@ apiVersion: v2
 name: uds-portal
 description: A Helm chart for Kubernetes
 type: application
+# x-release-please-start-version
 version: 0.1.0
-appVersion: 0.1.0
+# x-release-please-end
