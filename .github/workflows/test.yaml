@@ -5,6 +5,7 @@ name: Test
 
 permissions:
   contents: read
+  pull-requests: read
 
 on:
   pull_request:
@@ -69,7 +70,7 @@ jobs:
 
   e2e:
     needs: [check-paths, unit]
-    if: needs.check-paths.outputs.app == 'true' || !startsWith(github.head_ref, 'renovate/')
+    if: needs.unit.result == 'success' && (needs.check-paths.outputs.app == 'true' || !startsWith(github.head_ref, 'renovate/'))
     runs-on: uds-ubuntu-big-boy-4-core
     timeout-minutes: 60
     steps:
