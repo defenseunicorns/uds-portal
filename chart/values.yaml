@@ -4,15 +4,15 @@
 replicaCount: 1
 image:
   repository: ghcr.io/defenseunicorns/uds-portal
-  tag: "###ZARF_CONST_VERSION###"
+  tag: ""
   pullPolicy: IfNotPresent
 sso:
   enabled: true
 package:
   gateway: tenant
   host: portal
-  domain: "###ZARF_VAR_DOMAIN###"
-  adminDomain: "###ZARF_VAR_ADMIN_DOMAIN###"
+  domain: "uds.dev"
+  adminDomain: ""
 
 # Default requests and limits when running only uds-core (increase for production)
 resources:
