@@ -24,6 +24,30 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check-paths:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      app: ${{ steps.filter.outputs.app }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Check paths
+        id: filter
+        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        with:
+          filters: |
+            app:
+              - 'src/**'
+              - 'ui/**'
+              - 'main.go'
+              - 'go.mod'
+              - 'go.sum'
+              - 'Dockerfile'
+              - 'chart/**'
+              - 'zarf.yaml'
+
   unit:
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -44,6 +68,8 @@ jobs:
         run: uds run test:unit
 
   e2e:
+    needs: [check-paths, unit]
+    if: needs.check-paths.outputs.app == 'true' || !startsWith(github.head_ref, 'renovate/')
     runs-on: uds-ubuntu-big-boy-4-core
     timeout-minutes: 60
     steps:
