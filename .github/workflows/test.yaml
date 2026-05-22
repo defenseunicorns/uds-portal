@@ -48,6 +48,7 @@ jobs:
               - 'Dockerfile'
               - 'chart/**'
               - 'zarf.yaml'
+              - 'mise.toml'
 
   unit:
     runs-on: ubuntu-latest
