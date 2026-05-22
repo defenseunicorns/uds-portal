@@ -59,6 +59,13 @@
       ],
       "groupName": "support-deps",
       "commitMessageTopic": "support dependencies"
+    },
+    {
+      "matchFileNames": [
+        "seed/**"
+      ],
+      "groupName": "support-deps",
+      "commitMessageTopic": "support dependencies"
     }
   ]
 }
