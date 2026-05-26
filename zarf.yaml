@@ -31,7 +31,7 @@ components:
         namespace: uds-portal
         version: "###ZARF_PKG_TMPL_VERSION###"
         valuesFiles:
-          - chart/values.yaml
+          - values/upstream-values.yaml
         variables:
           - name: IMAGE_PULL_POLICY
             description: "Image pull policy for the portal deployment"
