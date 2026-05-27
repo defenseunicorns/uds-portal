@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"log/slog"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/defenseunicorns/uds-portal/src/pkg/api/auth/incluster"
@@ -21,7 +22,33 @@ import (
 const (
 	udsPortalPkgName = "uds-portal"
 	myAccountName    = "My Account"
+
+	groupMyAccount   = 0
+	groupUDSPlatform = 10
+	groupUDSCore     = 20
+	groupOther       = 30
 )
+
+var udsPlatformPackages = map[string]struct{}{
+	"cat":          {},
+	"uds-registry": {},
+	"uds-ui":       {},
+}
+
+var udsCorePackages = map[string]struct{}{
+	"grafana":  {},
+	"keycloak": {},
+}
+
+func groupForPackage(pkg Package) int {
+	if _, ok := udsPlatformPackages[pkg.Metadata.Name]; ok {
+		return groupUDSPlatform
+	}
+	if _, ok := udsCorePackages[pkg.Metadata.Name]; ok {
+		return groupUDSCore
+	}
+	return groupOther
+}
 
 //go:embed icons/my-account.svg
 var myAccountIconSVG []byte
@@ -144,15 +171,21 @@ func endpointURL(host, gateway, tenantDomain, adminDomain string) string {
 	}
 }
 
-func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string, tenantDomain, adminDomain string) []APIApp {
+func toAPIApps(
+	store *appInformerStore,
+	packages []Package,
+	myAccountURL string,
+	tenantDomain, adminDomain string,
+) []APIApp {
 	apiApps := make([]APIApp, 0)
 	seen := map[string]struct{}{}
 
 	if myAccountURL != "" {
 		apiApps = append(apiApps, APIApp{
-			Name: myAccountName,
-			Icon: myAccountIcon,
-			URL:  myAccountURL,
+			Name:  myAccountName,
+			Icon:  myAccountIcon,
+			URL:   myAccountURL,
+			Group: groupMyAccount,
 		})
 		// pre-seed seen so a package endpoint matching the SSO host isn't listed twice
 		seen[myAccountURL] = struct{}{}
@@ -160,6 +193,7 @@ func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string,
 
 	for _, pkg := range packages {
 		icon := iconForPackage(store, pkg)
+		group := groupForPackage(pkg)
 		for _, e := range pkg.Spec.Network.Expose {
 			if e.Host == "" {
 				continue
@@ -177,9 +211,17 @@ func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string,
 				Icon:    icon,
 				URL:     url,
 				Gateway: e.Gateway,
+				Group:   group,
 			})
 		}
 	}
+
+	sort.Slice(apiApps, func(i, j int) bool {
+		if apiApps[i].Group != apiApps[j].Group {
+			return apiApps[i].Group < apiApps[j].Group
+		}
+		return apiApps[i].Name < apiApps[j].Name
+	})
 
 	return apiApps
 }

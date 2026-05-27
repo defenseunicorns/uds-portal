@@ -6,6 +6,7 @@ export type ApiApp = {
   icon?: string
   url: string
   gateway?: string
+  group: number
 }
 
 export type ClassBannerCfg = {
