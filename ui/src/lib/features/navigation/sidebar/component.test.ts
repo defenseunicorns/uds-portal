@@ -17,9 +17,9 @@ vi.mock('$app/paths', () => ({
   resolve: (p: string) => p,
 }))
 
-const tenantApp: ApiApp = { name: 'Tenant', url: 'tenant.uds.dev', gateway: 'tenant', group: 0 }
-const adminApp: ApiApp = { name: 'Grafana', url: 'grafana.admin.uds.dev', gateway: 'admin', group: 0 }
-const customAdminApp: ApiApp = { name: 'Custom', url: 'c.uds.dev', gateway: 'custom-admin-gw', group: 0 }
+const tenantApp: ApiApp = { name: 'Tenant', url: 'tenant.uds.dev', gateway: 'tenant' }
+const adminApp: ApiApp = { name: 'Grafana', url: 'grafana.admin.uds.dev', gateway: 'admin' }
+const customAdminApp: ApiApp = { name: 'Custom', url: 'c.uds.dev', gateway: 'custom-admin-gw' }
 
 describe('Sidebar', () => {
   afterEach(cleanup)

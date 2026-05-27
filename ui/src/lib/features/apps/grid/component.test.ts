@@ -11,9 +11,8 @@ const appWithIcon: ApiApp = {
   name: 'Grafana',
   url: 'grafana.uds.dev',
   icon: 'data:image/svg+xml;base64,abc123',
-  group: 0,
 }
-const appWithoutIcon: ApiApp = { name: 'Podinfo', url: 'podinfo.uds.dev', group: 0 }
+const appWithoutIcon: ApiApp = { name: 'Podinfo', url: 'podinfo.uds.dev' }
 
 describe('AppGrid', () => {
   afterEach(cleanup)

@@ -38,8 +38,7 @@ var udsPlatformPackages = map[string]struct{}{
 // udsCorePackages lists uds-core packages that expose a gateway endpoint visible in the portal.
 // Other uds-core packages (loki, prometheus-stack, velero, etc.) have no expose entries and never produce a tile.
 var udsCorePackages = map[string]struct{}{
-	"grafana":  {},
-	"keycloak": {},
+	"grafana": {},
 }
 
 func groupForPackage(pkg Package) int {
