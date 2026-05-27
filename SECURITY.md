@@ -4,4 +4,4 @@ This document outlines the security policy for UDS Portal, including how to repo
 
 ## Reporting a vulnerability
 
-Email `security-notice [at] defenseunicorns.com` to report a vulnerability. If you are unable to disclose details via email, please let us know and we can coordinate alternate communications.
+Email `security [at] defenseunicorns.com` to report a vulnerability. If you are unable to disclose details via email, please let us know and we can coordinate alternate communications.
