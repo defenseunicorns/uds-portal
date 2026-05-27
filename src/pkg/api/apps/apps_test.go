@@ -348,8 +348,8 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 			}},
 			adminDomain: "",
 			wantApps: []APIApp{
-				{Name: "Mixed", URL: "front.uds.dev", Gateway: "tenant", Group: groupOther},
 				{Name: "Mixed", URL: "back.admin.uds.dev", Gateway: "admin", Group: groupOther},
+				{Name: "Mixed", URL: "front.uds.dev", Gateway: "tenant", Group: groupOther},
 			},
 		},
 		{
@@ -406,9 +406,9 @@ func TestGroupForPackage(t *testing.T) {
 		pkgName   string
 		wantGroup int
 	}{
-		{"uds-registry", groupDUPlatform},
-		{"uds-ui", groupDUPlatform},
-		{"cat", groupDUPlatform},
+		{"uds-registry", groupUDSPlatform},
+		{"uds-ui", groupUDSPlatform},
+		{"cat", groupUDSPlatform},
 		{"grafana", groupUDSCore},
 		{"keycloak", groupUDSCore},
 		{"podinfo", groupOther},
@@ -456,8 +456,8 @@ func TestToAPIApps_GroupAndSort(t *testing.T) {
 		group int
 	}{
 		{myAccountName, groupMyAccount},
-		{"Cat", groupDUPlatform},
-		{"UDS Registry", groupDUPlatform},
+		{"Cat", groupUDSPlatform},
+		{"UDS Registry", groupUDSPlatform},
 		{"Grafana", groupUDSCore},
 		{"Another App", groupOther},
 		{"Podinfo", groupOther},
