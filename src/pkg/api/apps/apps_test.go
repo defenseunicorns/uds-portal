@@ -548,7 +548,13 @@ func TestFilterHiddenEndpoints(t *testing.T) {
 				}
 			}
 			if len(gotHosts) != len(tt.wantHosts) {
-				t.Fatalf("expected hosts %v, got %v", tt.wantHosts, gotHosts)
+				t.Fatalf(
+					"expected %d host(s) %v, got %d host(s) %v",
+					len(tt.wantHosts),
+					tt.wantHosts,
+					len(gotHosts),
+					gotHosts,
+				)
 			}
 			for i, h := range tt.wantHosts {
 				if gotHosts[i] != h {
