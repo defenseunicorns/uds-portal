@@ -6,7 +6,18 @@
 
 UDS Portal is the landing page for UDS users — a single point of discovery for every application deployed in a UDS environment. It ships as a UDS Core layer that depends on `base` and `identity-authorization`.
 
-Apps are derived from `UDS Package` Custom Resources in the cluster. An app is shown if it has an `sso` section; if a `groups` section is also present, only members of those groups can see it.
+Apps are derived from `UDS Package` Custom Resources in the cluster. One tile is created per `network.expose` entry; a package must also have an `sso` section or its tiles are not shown. If the `sso` section includes a `groups.anyOf` list, only members of those groups see the tiles.
+
+Packages that [expose multiple endpoints](https://docs.defenseunicorns.com/core/reference/operator--crds/packages-v1alpha1-cr/#network) (e.g. GitLab) can control which ones appear as tiles:
+
+- Expose entries with a wildcard `host` (e.g. `*.pages`) are always excluded.
+- To hide specific FQDN endpoints, set the `uds.dev/portal-hide-apps` annotation on the Package CR to a comma-separated list of host values:
+
+```yaml
+metadata:
+  annotations:
+    uds.dev/portal-hide-apps: "registry,pages"
+```
 
 <br><br>
 

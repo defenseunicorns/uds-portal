@@ -19,8 +19,9 @@ import (
 )
 
 const (
-	udsPortalPkgName = "uds-portal"
-	myAccountName    = "My Account"
+	udsPortalPkgName         = "uds-portal"
+	myAccountName            = "My Account"
+	portalHideAppsAnnotation = "uds.dev/portal-hide-apps"
 )
 
 //go:embed icons/my-account.svg
@@ -45,7 +46,8 @@ func GetUDSPackages(restConfig *rest.Config, inCluster bool, w http.ResponseWrit
 
 	// filter packages and transform into API response shape
 	filteredExposed := filterExposedPackages(packages)
-	filteredByGroup := filterByUserGroup(r, filteredExposed, inCluster)
+	filteredHidden := filterHiddenEndpoints(filteredExposed)
+	filteredByGroup := filterByUserGroup(r, filteredHidden, inCluster)
 	myAccountURL := ""
 	if config.UDSDomain != "" {
 		myAccountURL = "sso." + config.UDSDomain
@@ -67,6 +69,43 @@ func filterExposedPackages(sourcePackages []Package) []Package {
 		}
 	}
 	return packages
+}
+
+func filterHiddenEndpoints(packages []Package) []Package {
+	result := make([]Package, 0, len(packages))
+	for _, pkg := range packages {
+		hidden := hiddenHostSet(pkg)
+		var filtered []Expose
+		for _, e := range pkg.Spec.Network.Expose {
+			if strings.Contains(e.Host, "*") {
+				continue
+			}
+			if _, ok := hidden[e.Host]; ok {
+				continue
+			}
+			filtered = append(filtered, e)
+		}
+		if len(filtered) == 0 {
+			continue
+		}
+		pkg.Spec.Network.Expose = filtered
+		result = append(result, pkg)
+	}
+	return result
+}
+
+func hiddenHostSet(pkg Package) map[string]struct{} {
+	hostSet := map[string]struct{}{}
+	raw := strings.TrimSpace(pkg.Metadata.Annotations[portalHideAppsAnnotation])
+	if raw == "" {
+		return hostSet
+	}
+	for _, h := range strings.Split(raw, ",") {
+		if h = strings.TrimSpace(h); h != "" {
+			hostSet[h] = struct{}{}
+		}
+	}
+	return hostSet
 }
 
 func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Package {
@@ -144,7 +183,12 @@ func endpointURL(host, gateway, tenantDomain, adminDomain string) string {
 	}
 }
 
-func toAPIApps(store *appInformerStore, packages []Package, myAccountURL string, tenantDomain, adminDomain string) []APIApp {
+func toAPIApps(
+	store *appInformerStore,
+	packages []Package,
+	myAccountURL string,
+	tenantDomain, adminDomain string,
+) []APIApp {
 	apiApps := make([]APIApp, 0)
 	seen := map[string]struct{}{}
 

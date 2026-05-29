@@ -1,0 +1,31 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: ZarfPackageConfig
+metadata:
+  name: podinfo-multi-test
+  description: |
+    used to load the cluster for e2e testing; validates annotation-based endpoint filtering
+  version: 0.0.1
+
+variables:
+  - name: DOMAIN
+    default: 'uds.dev'
+
+components:
+  - name: podinfo-multi
+    required: true
+    manifests:
+      - name: uds-cr
+        files:
+          - uds-package.yaml
+    charts:
+      - name: podinfo-multi
+        version: 6.11.2
+        namespace: podinfo-multi
+        url: https://github.com/stefanprodan/podinfo.git
+        gitPath: charts/podinfo
+        valuesFiles:
+          - values.yaml
+    images:
+      - ghcr.io/stefanprodan/podinfo:6.11.2

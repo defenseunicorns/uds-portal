@@ -1,4 +1,4 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 import { expect, test } from '@playwright/test'
@@ -36,13 +36,13 @@ test.describe('portal', () => {
     })
 
     test('Podinfo is in the app grid', async ({ page }) => {
-      await expect(page.getByRole('link', { name: 'Podinfo' })).toBeVisible()
+      await expect(page.getByRole('link', { name: 'Podinfo', exact: true })).toBeVisible()
     })
 
     test('clicking Podinfo opens the podinfo page', async ({ page, context }) => {
       const [newPage] = await Promise.all([
         context.waitForEvent('page'),
-        page.getByRole('link', { name: 'Podinfo' }).click(),
+        page.getByRole('link', { name: 'Podinfo', exact: true }).click(),
       ])
       await newPage.waitForLoadState('networkidle')
       await expect(newPage.getByRole('button', { name: 'Ping' })).toBeVisible()
