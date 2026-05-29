@@ -11,7 +11,7 @@ Apps are derived from `UDS Package` Custom Resources in the cluster. One tile is
 Packages that [expose multiple endpoints](https://docs.defenseunicorns.com/core/reference/operator--crds/packages-v1alpha1-cr/#network) (e.g. GitLab) can control which ones appear as tiles:
 
 - Expose entries with a wildcard `host` (e.g. `*.pages`) are always excluded.
-- To hide specific FQDN endpoints, set the `uds.dev/portal-hide-apps` annotation on the Package CR to a comma-separated list of host values:
+- To hide specific endpoints, set the `uds.dev/portal-hide-apps` annotation on the Package CR to a comma-separated list of `network.expose[].host` values:
 
 ```yaml
 metadata:
