@@ -46,4 +46,5 @@ type APIApp struct {
 	Icon    string `json:"icon,omitempty"`
 	URL     string `json:"url"`
 	Gateway string `json:"gateway,omitempty"`
+	Group   int    `json:"-"`
 }

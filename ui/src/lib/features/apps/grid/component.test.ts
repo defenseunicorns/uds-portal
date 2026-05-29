@@ -7,7 +7,11 @@ import { afterEach, describe, expect, it } from 'vitest'
 
 import AppGrid from './component.svelte'
 
-const appWithIcon: ApiApp = { name: 'Grafana', url: 'grafana.uds.dev', icon: 'data:image/svg+xml;base64,abc123' }
+const appWithIcon: ApiApp = {
+  name: 'Grafana',
+  url: 'grafana.uds.dev',
+  icon: 'data:image/svg+xml;base64,abc123',
+}
 const appWithoutIcon: ApiApp = { name: 'Podinfo', url: 'podinfo.uds.dev' }
 
 describe('AppGrid', () => {

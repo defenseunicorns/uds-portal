@@ -55,8 +55,22 @@ func TestEndpointURL(t *testing.T) {
 		{"empty gateway + empty tenant domain returns empty", "app", "", "", "", ""},
 
 		// admin gateway
-		{"admin + explicit adminDomain", "grafana", "admin", "uds.dev", "admin.example.com", "grafana.admin.example.com"},
-		{"admin + empty adminDomain falls back to admin.tenantDomain", "grafana", "admin", "uds.dev", "", "grafana.admin.uds.dev"},
+		{
+			"admin + explicit adminDomain",
+			"grafana",
+			"admin",
+			"uds.dev",
+			"admin.example.com",
+			"grafana.admin.example.com",
+		},
+		{
+			"admin + empty adminDomain falls back to admin.tenantDomain",
+			"grafana",
+			"admin",
+			"uds.dev",
+			"",
+			"grafana.admin.uds.dev",
+		},
 		{"admin + both domains empty returns empty", "grafana", "admin", "", "", ""},
 
 		// custom gateway
@@ -313,7 +327,9 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 				}}},
 			}},
 			adminDomain: "",
-			wantApps:    []APIApp{{Name: "Grafana", URL: "grafana.admin.uds.dev", Gateway: "admin"}},
+			wantApps: []APIApp{
+				{Name: "Grafana", URL: "grafana.admin.uds.dev", Gateway: "admin", Group: groupUDSCore},
+			},
 		},
 		{
 			name: "admin gateway tagged with explicit adminDomain",
@@ -324,7 +340,9 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 				}}},
 			}},
 			adminDomain: "admin.example.com",
-			wantApps:    []APIApp{{Name: "Grafana", URL: "grafana.admin.example.com", Gateway: "admin"}},
+			wantApps: []APIApp{
+				{Name: "Grafana", URL: "grafana.admin.example.com", Gateway: "admin", Group: groupUDSCore},
+			},
 		},
 		{
 			name: "tenant gateway tagged",
@@ -335,7 +353,7 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 				}}},
 			}},
 			adminDomain: "",
-			wantApps:    []APIApp{{Name: "Podinfo", URL: "podinfo.uds.dev", Gateway: "tenant"}},
+			wantApps:    []APIApp{{Name: "Podinfo", URL: "podinfo.uds.dev", Gateway: "tenant", Group: groupOther}},
 		},
 		{
 			name: "mixed expose yields one tile per expose entry",
@@ -348,8 +366,8 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 			}},
 			adminDomain: "",
 			wantApps: []APIApp{
-				{Name: "Mixed", URL: "front.uds.dev", Gateway: "tenant"},
-				{Name: "Mixed", URL: "back.admin.uds.dev", Gateway: "admin"},
+				{Name: "Mixed", URL: "back.admin.uds.dev", Gateway: "admin", Group: groupOther},
+				{Name: "Mixed", URL: "front.uds.dev", Gateway: "tenant", Group: groupOther},
 			},
 		},
 		{
@@ -361,7 +379,9 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 				}}},
 			}},
 			adminDomain: "",
-			wantApps:    []APIApp{{Name: "Custom App", URL: "app.custom.uds.dev", Gateway: "custom"}},
+			wantApps: []APIApp{
+				{Name: "Custom App", URL: "app.custom.uds.dev", Gateway: "custom", Group: groupOther},
+			},
 		},
 		{
 			name: "empty gateway treated as tenant",
@@ -372,7 +392,7 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 				}}},
 			}},
 			adminDomain: "",
-			wantApps:    []APIApp{{Name: "Legacy", URL: "legacy.uds.dev", Gateway: ""}},
+			wantApps:    []APIApp{{Name: "Legacy", URL: "legacy.uds.dev", Gateway: "", Group: groupOther}},
 		},
 	}
 
@@ -383,7 +403,8 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 				t.Fatalf("expected %d apps, got %d: %+v", len(tt.wantApps), len(got), got)
 			}
 			for i, want := range tt.wantApps {
-				if got[i].Name != want.Name || got[i].URL != want.URL || got[i].Gateway != want.Gateway {
+				if got[i].Name != want.Name || got[i].URL != want.URL || got[i].Gateway != want.Gateway ||
+					got[i].Group != want.Group {
 					t.Errorf("app %d: expected %+v, got %+v", i, want, got[i])
 				}
 			}
@@ -398,5 +419,79 @@ func TestToAPIApps_MyAccountHasNoGateway(t *testing.T) {
 	}
 	if got[0].Gateway != "" {
 		t.Fatalf("expected empty gateway for My Account, got %q", got[0].Gateway)
+	}
+}
+
+func TestGroupForPackage(t *testing.T) {
+	tests := []struct {
+		pkgName   string
+		wantGroup int
+	}{
+		{"uds-registry", groupUDSPlatform},
+		{"uds-ui", groupUDSPlatform},
+		{"cat", groupUDSPlatform},
+		{"grafana", groupUDSCore},
+		{"podinfo", groupOther},
+		{"mission-app", groupOther},
+	}
+	for _, tt := range tests {
+		t.Run(tt.pkgName, func(t *testing.T) {
+			got := groupForPackage(Package{Metadata: Metadata{Name: tt.pkgName}})
+			if got != tt.wantGroup {
+				t.Fatalf("expected group %d, got %d", tt.wantGroup, got)
+			}
+		})
+	}
+}
+
+func TestToAPIApps_GroupAndSort(t *testing.T) {
+	pkgs := []Package{
+		{
+			Metadata: Metadata{Name: "podinfo"},
+			Spec:     Spec{Network: Network{Expose: []Expose{{Host: "podinfo", Gateway: "tenant"}}}},
+		},
+		{
+			Metadata: Metadata{Name: "grafana"},
+			Spec:     Spec{Network: Network{Expose: []Expose{{Host: "grafana", Gateway: "admin"}}}},
+		},
+		{
+			Metadata: Metadata{Name: "uds-registry"},
+			Spec:     Spec{Network: Network{Expose: []Expose{{Host: "registry", Gateway: "tenant"}}}},
+		},
+		{
+			Metadata: Metadata{Name: "another-app"},
+			Spec:     Spec{Network: Network{Expose: []Expose{{Host: "another-app", Gateway: "tenant"}}}},
+		},
+		{
+			Metadata: Metadata{Name: "cat"},
+			Spec:     Spec{Network: Network{Expose: []Expose{{Host: "cat", Gateway: "tenant"}}}},
+		},
+	}
+
+	got := toAPIApps(nil, pkgs, "sso.uds.dev", "uds.dev", "admin.uds.dev")
+
+	// expected order: My Account(0), Cat(10), UDS Registry(10), Grafana(20), Another App(30), Podinfo(30)
+	want := []struct {
+		name  string
+		group int
+	}{
+		{myAccountName, groupMyAccount},
+		{"Cat", groupUDSPlatform},
+		{"UDS Registry", groupUDSPlatform},
+		{"Grafana", groupUDSCore},
+		{"Another App", groupOther},
+		{"Podinfo", groupOther},
+	}
+
+	if len(got) != len(want) {
+		t.Fatalf("expected %d apps, got %d", len(want), len(got))
+	}
+	for i, w := range want {
+		if got[i].Name != w.name {
+			t.Errorf("app[%d]: expected name %q, got %q", i, w.name, got[i].Name)
+		}
+		if got[i].Group != w.group {
+			t.Errorf("app[%d] %q: expected group %d, got %d", i, got[i].Name, w.group, got[i].Group)
+		}
 	}
 }
