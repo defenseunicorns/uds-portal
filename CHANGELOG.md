@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.3.0](https://github.com/defenseunicorns/uds-portal/compare/v0.2.0...v0.3.0) (2026-05-29)
+
+
+### Features
+
+* app grouping and sort order to API ([#42](https://github.com/defenseunicorns/uds-portal/issues/42)) ([6a566f6](https://github.com/defenseunicorns/uds-portal/commit/6a566f663d9d6f5bdc03ceaf503459cd9f6bf227))
+
+
+### Bug Fixes
+
+* moving zarf variables to separate values file and removing skeleton publish ([#39](https://github.com/defenseunicorns/uds-portal/issues/39)) ([11d2a1a](https://github.com/defenseunicorns/uds-portal/commit/11d2a1a90ccfb2a2bd7c1ec4f9e39a88d79a469d))
+
+
+### Miscellaneous
+
+* **deps:** update support-deps ([#27](https://github.com/defenseunicorns/uds-portal/issues/27)) ([cbacbb8](https://github.com/defenseunicorns/uds-portal/commit/cbacbb8cfcfc8d16f01dd4b67d0a81a1738a5495))
+* rename LICENSE.md to LICENSE and standardize security email ([#37](https://github.com/defenseunicorns/uds-portal/issues/37)) ([1659276](https://github.com/defenseunicorns/uds-portal/commit/1659276d26015ad109df3011127b33e097c63f61))
+
 ## [0.2.0](https://github.com/defenseunicorns/uds-portal/compare/v0.1.0...v0.2.0) (2026-05-20)
 
 
