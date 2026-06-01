@@ -1,0 +1,17 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+kind: ZarfPackageConfig
+metadata:
+  name: multi-expose-package-test
+  description: |
+    used to load the cluster for e2e testing; validates annotation-based endpoint filtering
+  version: 0.0.1
+
+components:
+  - name: multi-expose-package
+    required: true
+    manifests:
+      - name: uds-cr
+        files:
+          - uds-package.yaml

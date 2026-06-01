@@ -1,0 +1,36 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+apiVersion: uds.dev/v1alpha1
+kind: Package
+metadata:
+  name: multi-expose-package
+  namespace: multi-expose-package
+  annotations:
+    uds.dev/portal-hide-apps: 'multi-expose-package-hidden'
+spec:
+  network:
+    expose:
+      - service: multi-expose-package
+        selector:
+          app.kubernetes.io/name: multi-expose-package
+        gateway: tenant
+        host: multi-expose-package
+        port: 9898
+      - service: multi-expose-package
+        selector:
+          app.kubernetes.io/name: multi-expose-package
+        gateway: tenant
+        host: multi-expose-package-hidden
+        port: 9898
+      - service: multi-expose-package
+        selector:
+          app.kubernetes.io/name: multi-expose-package
+        gateway: tenant
+        host: '*.multi-expose-package-wildcard'
+        port: 9898
+  sso:
+    - name: multi-expose-package
+      clientId: multi-expose-package
+      redirectUris:
+        - 'https://multi-expose-package.uds.dev/auth'

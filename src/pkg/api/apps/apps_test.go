@@ -422,6 +422,149 @@ func TestToAPIApps_MyAccountHasNoGateway(t *testing.T) {
 	}
 }
 
+func TestFilterHiddenEndpoints(t *testing.T) {
+	tests := []struct {
+		name      string
+		pkgs      []Package
+		wantPkgs  int
+		wantHosts []string
+	}{
+		{
+			name: "annotation-listed host excluded",
+			pkgs: []Package{{
+				Metadata: Metadata{
+					Name:        "gitlab",
+					Annotations: map[string]string{"uds.dev/portal-hide-apps": "gitlab-registry"},
+				},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "gitlab", Gateway: "tenant"},
+					{Host: "gitlab-registry", Gateway: "tenant"},
+				}}},
+			}},
+			wantPkgs:  1,
+			wantHosts: []string{"gitlab"},
+		},
+		{
+			name: "wildcard host auto-excluded",
+			pkgs: []Package{{
+				Metadata: Metadata{Name: "gitlab"},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "gitlab", Gateway: "tenant"},
+					{Host: "*.pages", Gateway: "tenant"},
+				}}},
+			}},
+			wantPkgs:  1,
+			wantHosts: []string{"gitlab"},
+		},
+		{
+			name: "non-listed FQDN host passes through",
+			pkgs: []Package{{
+				Metadata: Metadata{
+					Name:        "gitlab",
+					Annotations: map[string]string{"uds.dev/portal-hide-apps": "gitlab-registry"},
+				},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "gitlab", Gateway: "tenant"},
+				}}},
+			}},
+			wantPkgs:  1,
+			wantHosts: []string{"gitlab"},
+		},
+		{
+			name: "package dropped when all endpoints hidden",
+			pkgs: []Package{{
+				Metadata: Metadata{
+					Name:        "all-hidden",
+					Annotations: map[string]string{"uds.dev/portal-hide-apps": "registry"},
+				},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "registry", Gateway: "tenant"},
+				}}},
+			}},
+			wantPkgs:  0,
+			wantHosts: nil,
+		},
+		{
+			name: "annotation with extra whitespace trimmed",
+			pkgs: []Package{{
+				Metadata: Metadata{
+					Name:        "gitlab",
+					Annotations: map[string]string{"uds.dev/portal-hide-apps": " gitlab-registry , pages "},
+				},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "gitlab", Gateway: "tenant"},
+					{Host: "gitlab-registry", Gateway: "tenant"},
+					{Host: "pages", Gateway: "tenant"},
+				}}},
+			}},
+			wantPkgs:  1,
+			wantHosts: []string{"gitlab"},
+		},
+		{
+			name: "no annotation passes all through",
+			pkgs: []Package{{
+				Metadata: Metadata{Name: "podinfo"},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "podinfo", Gateway: "tenant"},
+				}}},
+			}},
+			wantPkgs:  1,
+			wantHosts: []string{"podinfo"},
+		},
+		{
+			name: "mixed packages: one filtered one retained",
+			pkgs: []Package{
+				{
+					Metadata: Metadata{
+						Name:        "all-hidden",
+						Annotations: map[string]string{"uds.dev/portal-hide-apps": "registry"},
+					},
+					Spec: Spec{Network: Network{Expose: []Expose{
+						{Host: "registry", Gateway: "tenant"},
+					}}},
+				},
+				{
+					Metadata: Metadata{Name: "podinfo"},
+					Spec: Spec{Network: Network{Expose: []Expose{
+						{Host: "podinfo", Gateway: "tenant"},
+					}}},
+				},
+			},
+			wantPkgs:  1,
+			wantHosts: []string{"podinfo"},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := filterHiddenEndpoints(tt.pkgs)
+			if len(got) != tt.wantPkgs {
+				t.Fatalf("expected %d packages, got %d", tt.wantPkgs, len(got))
+			}
+			var gotHosts []string
+			for _, pkg := range got {
+				for _, e := range pkg.Spec.Network.Expose {
+					gotHosts = append(gotHosts, e.Host)
+				}
+			}
+			if len(gotHosts) != len(tt.wantHosts) {
+				t.Fatalf(
+					"expected %d host(s) %v, got %d host(s) %v",
+					len(tt.wantHosts),
+					tt.wantHosts,
+					len(gotHosts),
+					gotHosts,
+				)
+			}
+			for i, h := range tt.wantHosts {
+				if gotHosts[i] != h {
+					t.Errorf("host[%d]: expected %q, got %q", i, h, gotHosts[i])
+				}
+			}
+		})
+	}
+}
+
 func TestGroupForPackage(t *testing.T) {
 	tests := []struct {
 		pkgName   string
