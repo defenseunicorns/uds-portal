@@ -9,7 +9,11 @@ test.describe('endpoint filtering', () => {
   })
 
   test('annotation-hidden endpoint does not appear as app tile', async ({ page }) => {
-    await expect(page.locator('a[href="https://podinfo-multi.uds.dev"]')).toBeVisible()
-    await expect(page.locator('a[href="https://podinfo-multi-hidden.uds.dev"]')).toHaveCount(0)
+    await expect(page.locator('a[href="https://multi-expose-package.uds.dev"]')).toBeVisible()
+    await expect(page.locator('a[href="https://multi-expose-package-hidden.uds.dev"]')).toHaveCount(0)
+  })
+
+  test('wildcard endpoint does not appear as app tile', async ({ page }) => {
+    await expect(page.locator('a[href*="multi-expose-package-wildcard"]')).toHaveCount(0)
   })
 })

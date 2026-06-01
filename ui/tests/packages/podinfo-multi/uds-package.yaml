@@ -4,31 +4,31 @@
 apiVersion: uds.dev/v1alpha1
 kind: Package
 metadata:
-  name: podinfo-multi
-  namespace: podinfo-multi
+  name: multi-expose-package
+  namespace: multi-expose-package
   annotations:
-    uds.dev/portal-hide-apps: 'podinfo-multi-hidden'
+    uds.dev/portal-hide-apps: 'multi-expose-package-hidden'
 spec:
   network:
     expose:
-      - service: podinfo-multi
+      - service: multi-expose-package
         selector:
-          app.kubernetes.io/name: podinfo-multi
+          app.kubernetes.io/name: multi-expose-package
         gateway: tenant
-        host: podinfo-multi
+        host: multi-expose-package
         port: 9898
-      - service: podinfo-multi
+      - service: multi-expose-package
         selector:
-          app.kubernetes.io/name: podinfo-multi
+          app.kubernetes.io/name: multi-expose-package
         gateway: tenant
-        host: podinfo-multi-hidden
+        host: multi-expose-package-hidden
+        port: 9898
+      - service: multi-expose-package
+        selector:
+          app.kubernetes.io/name: multi-expose-package
+        gateway: tenant
+        host: '*.multi-expose-package-wildcard'
         port: 9898
   sso:
-    - name: podinfo-multi
-      clientId: podinfo-multi
-      attributes:
-        access.token.lifespan: '120'
-      redirectUris:
-        - 'https://podinfo-multi.uds.dev/auth'
-      enableAuthserviceSelector:
-        app.kubernetes.io/name: podinfo-multi
+    - name: multi-expose-package
+      clientId: multi-expose-package

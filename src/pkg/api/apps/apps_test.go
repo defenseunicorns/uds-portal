@@ -434,11 +434,11 @@ func TestFilterHiddenEndpoints(t *testing.T) {
 			pkgs: []Package{{
 				Metadata: Metadata{
 					Name:        "gitlab",
-					Annotations: map[string]string{"uds.dev/portal-hide-apps": "registry"},
+					Annotations: map[string]string{"uds.dev/portal-hide-apps": "gitlab-registry"},
 				},
 				Spec: Spec{Network: Network{Expose: []Expose{
 					{Host: "gitlab", Gateway: "tenant"},
-					{Host: "registry", Gateway: "tenant"},
+					{Host: "gitlab-registry", Gateway: "tenant"},
 				}}},
 			}},
 			wantPkgs:  1,
@@ -461,7 +461,7 @@ func TestFilterHiddenEndpoints(t *testing.T) {
 			pkgs: []Package{{
 				Metadata: Metadata{
 					Name:        "gitlab",
-					Annotations: map[string]string{"uds.dev/portal-hide-apps": "registry"},
+					Annotations: map[string]string{"uds.dev/portal-hide-apps": "gitlab-registry"},
 				},
 				Spec: Spec{Network: Network{Expose: []Expose{
 					{Host: "gitlab", Gateway: "tenant"},
@@ -489,11 +489,11 @@ func TestFilterHiddenEndpoints(t *testing.T) {
 			pkgs: []Package{{
 				Metadata: Metadata{
 					Name:        "gitlab",
-					Annotations: map[string]string{"uds.dev/portal-hide-apps": " registry , pages "},
+					Annotations: map[string]string{"uds.dev/portal-hide-apps": " gitlab-registry , pages "},
 				},
 				Spec: Spec{Network: Network{Expose: []Expose{
 					{Host: "gitlab", Gateway: "tenant"},
-					{Host: "registry", Gateway: "tenant"},
+					{Host: "gitlab-registry", Gateway: "tenant"},
 					{Host: "pages", Gateway: "tenant"},
 				}}},
 			}},
