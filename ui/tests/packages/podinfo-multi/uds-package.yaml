@@ -32,3 +32,5 @@ spec:
   sso:
     - name: multi-expose-package
       clientId: multi-expose-package
+      redirectUris:
+        - 'https://multi-expose-package.uds.dev/auth'
