@@ -8,6 +8,17 @@ UDS Portal is the landing page for UDS users — a single point of discovery for
 
 Apps are derived from `UDS Package` Custom Resources in the cluster. One tile is created per `network.expose` entry; a package must also have an `sso` section or its tiles are not shown. If the `sso` section includes a `groups.anyOf` list, only members of those groups see the tiles.
 
+App tiles display the package name as a title and a default logo unless overridden. To customize, set annotations in the Zarf package metadata:
+
+```yaml
+metadata:
+  annotations:
+    dev.uds.title: My App        # display name shown on the tile
+    dev.uds.icon: 'data:image/svg+xml;base64,<base64-encoded-svg>'  # tile logo
+```
+
+If `dev.uds.title` is absent, the title falls back to a formatted version of the package name (e.g. `uds-registry` → `UDS Registry`). If `dev.uds.icon` is absent, a default logo is shown.
+
 Packages that [expose multiple endpoints](https://docs.defenseunicorns.com/core/reference/operator--crds/packages-v1alpha1-cr/#network) (e.g. GitLab) can control which ones appear as tiles:
 
 - Expose entries with a wildcard `host` (e.g. `*.pages`) are always excluded.
