@@ -1,4 +1,4 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 package apps
@@ -92,8 +92,9 @@ func TestListPackages(t *testing.T) {
 	}
 }
 
-func TestIconForPackage(t *testing.T) {
+func TestMetadataForPackage(t *testing.T) {
 	const expectedIcon = "data:image/svg+xml;base64,icon"
+	const expectedTitle = "My App"
 
 	pkgWithoutLabel := Package{}
 	pkgWithLabel := Package{Metadata: Metadata{Labels: map[string]string{cluster.PackageLabel: "podinfo"}}}
@@ -107,39 +108,56 @@ func TestIconForPackage(t *testing.T) {
 		pkg        Package
 		nilStore   bool
 		getObjects map[string]runtime.Object
-		want       string
+		wantIcon   string
+		wantTitle  string
 	}{
 		{
 			name:     "returns empty when store is nil",
 			pkg:      pkgWithLabel,
 			nilStore: true,
-			want:     "",
 		},
 		{
 			name: "returns empty when package label missing",
 			pkg:  pkgWithoutLabel,
-			want: "",
 		},
 		{
-			name: "returns icon from direct secret lookup",
+			name: "returns title from secret",
 			pkg:  pkgWithLabel,
 			getObjects: map[string]runtime.Object{
-				secretNameForPackage(pkgWithLabel): secretObjectWithIcon(expectedIcon),
+				secretNameForPackage(pkgWithLabel): secretObjectWithMetadata("", expectedTitle),
 			},
-			want: expectedIcon,
+			wantTitle: expectedTitle,
 		},
 		{
-			name: "returns empty when direct secret lookup misses",
+			name: "returns both icon and title from secret",
 			pkg:  pkgWithLabel,
-			want: "",
+			getObjects: map[string]runtime.Object{
+				secretNameForPackage(pkgWithLabel): secretObjectWithMetadata(expectedIcon, expectedTitle),
+			},
+			wantIcon:  expectedIcon,
+			wantTitle: expectedTitle,
+		},
+		{
+			name: "returns empty when secret lookup misses",
+			pkg:  pkgWithLabel,
 		},
 		{
 			name: "uses override secret name when namespace override label present",
 			pkg:  pkgWithOverride,
 			getObjects: map[string]runtime.Object{
-				secretNameForPackage(pkgWithOverride): secretObjectWithIcon(expectedIcon),
+				secretNameForPackage(pkgWithOverride): secretObjectWithMetadata(expectedIcon, expectedTitle),
 			},
-			want: expectedIcon,
+			wantIcon:  expectedIcon,
+			wantTitle: expectedTitle,
+		},
+		{
+			name: "returns empty title when title annotation absent from secret",
+			pkg:  pkgWithLabel,
+			getObjects: map[string]runtime.Object{
+				secretNameForPackage(pkgWithLabel): secretObjectWithIconOnly(expectedIcon),
+			},
+			wantIcon:  expectedIcon,
+			wantTitle: "",
 		},
 	}
 
@@ -156,9 +174,12 @@ func TestIconForPackage(t *testing.T) {
 				}
 			}
 
-			got := iconForPackage(store, tt.pkg)
-			if got != tt.want {
-				t.Fatalf("expected %q, got %q", tt.want, got)
+			got := metadataForPackage(store, tt.pkg)
+			if got.icon != tt.wantIcon {
+				t.Fatalf("icon: expected %q, got %q", tt.wantIcon, got.icon)
+			}
+			if got.title != tt.wantTitle {
+				t.Fatalf("title: expected %q, got %q", tt.wantTitle, got.title)
 			}
 		})
 	}
@@ -238,12 +259,32 @@ func (f fakeNamespaceLister) Get(name string) (runtime.Object, error) {
 	return nil, fmt.Errorf("%s not found", name)
 }
 
-func secretObjectWithIcon(icon string) runtime.Object {
+func secretObjectWithIconOnly(icon string) runtime.Object {
 	payload := map[string]interface{}{
 		"data": map[string]interface{}{
 			"metadata": map[string]interface{}{
 				"annotations": map[string]interface{}{
 					devUDSIconAnnotation: icon,
+				},
+			},
+		},
+	}
+	payloadBytes, _ := json.Marshal(payload)
+
+	return &unstructured.Unstructured{Object: map[string]interface{}{
+		"data": map[string]interface{}{
+			"data": base64.StdEncoding.EncodeToString(payloadBytes),
+		},
+	}}
+}
+
+func secretObjectWithMetadata(icon, title string) runtime.Object {
+	payload := map[string]interface{}{
+		"data": map[string]interface{}{
+			"metadata": map[string]interface{}{
+				"annotations": map[string]interface{}{
+					devUDSIconAnnotation:  icon,
+					devUDSTitleAnnotation: title,
 				},
 			},
 		},
