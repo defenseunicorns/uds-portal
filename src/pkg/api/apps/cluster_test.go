@@ -17,6 +17,7 @@ import (
 )
 
 func TestListPackages(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		listObjects []runtime.Object
@@ -67,6 +68,7 @@ func TestListPackages(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			store := &appInformerStore{
 				packageLister: fakeGenericLister{
 					listObjects: tt.listObjects,
@@ -93,6 +95,7 @@ func TestListPackages(t *testing.T) {
 }
 
 func TestMetadataForPackage(t *testing.T) {
+	t.Parallel()
 	const expectedIcon = "data:image/svg+xml;base64,icon"
 	const expectedTitle = "My App"
 
@@ -163,6 +166,7 @@ func TestMetadataForPackage(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			var store *appInformerStore
 			if !tt.nilStore {
 				store = &appInformerStore{
@@ -186,6 +190,7 @@ func TestMetadataForPackage(t *testing.T) {
 }
 
 func TestSecretNameForPackage(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name string
 		pkg  Package
@@ -210,6 +215,7 @@ func TestSecretNameForPackage(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := secretNameForPackage(tt.pkg)
 			if got != tt.want {
 				t.Fatalf("expected %q, got %q", tt.want, got)

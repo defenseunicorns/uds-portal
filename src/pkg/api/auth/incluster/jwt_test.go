@@ -1,4 +1,4 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 package incluster
@@ -20,6 +20,7 @@ type expectedContext struct {
 }
 
 func TestValidateJWT(t *testing.T) {
+	t.Parallel()
 	parseClaims := func(tokenString string) (jwt.MapClaims, error) {
 		token, _, err := jwt.NewParser(jwt.WithoutClaimsValidation()).ParseUnverified(tokenString, jwt.MapClaims{})
 		if err != nil {
@@ -117,6 +118,7 @@ func TestValidateJWT(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			// Create a request to pass to our handler
 			req, _ := http.NewRequest("GET", "/", nil)
 			if tt.token != "" {
