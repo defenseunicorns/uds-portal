@@ -1,4 +1,4 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 package apps
@@ -26,7 +26,15 @@ import (
 	"k8s.io/client-go/tools/cache"
 )
 
-const devUDSIconAnnotation = "dev.uds.icon"
+const (
+	devUDSIconAnnotation  = "dev.uds.icon"
+	devUDSTitleAnnotation = "dev.uds.title"
+)
+
+type packageMetadata struct {
+	icon  string
+	title string
+}
 
 var (
 	informerStoreMu sync.RWMutex
@@ -117,34 +125,30 @@ func listPackages(store *appInformerStore) ([]Package, error) {
 	return packages, nil
 }
 
-func iconForPackage(store *appInformerStore, pkg Package) string {
+func metadataForPackage(store *appInformerStore, pkg Package) packageMetadata {
 	if store == nil {
-		return ""
+		return packageMetadata{}
 	}
 
 	packageLabel := strings.TrimSpace(pkg.Metadata.Labels[cluster.PackageLabel])
 	if packageLabel == "" {
-		return ""
+		return packageMetadata{}
 	}
 
 	zarfSecretLister := store.secretLister.ByNamespace(state.ZarfNamespaceName)
-
 	secretName := secretNameForPackage(pkg)
 	secretObj, err := zarfSecretLister.Get(secretName)
 	if err == nil {
-		icon := extractIconFromSecret(secretObj)
-		if icon != "" {
-			return icon
-		}
+		return extractMetadataFromSecret(secretObj)
 	}
 
-	return ""
+	return packageMetadata{}
 }
 
-func extractIconFromSecret(obj runtime.Object) string {
+func extractMetadataFromSecret(obj runtime.Object) packageMetadata {
 	secret, ok := obj.(*unstructured.Unstructured)
 	if !ok || secret == nil {
-		return ""
+		return packageMetadata{}
 	}
 
 	if data, ok := secret.Object["data"].(map[string]interface{}); ok {
@@ -153,16 +157,17 @@ func extractIconFromSecret(obj runtime.Object) string {
 			if err == nil {
 				var payload state.DeployedPackage
 				if err := json.Unmarshal(decodedPayload, &payload); err == nil {
-					icon := strings.TrimSpace(payload.Data.Metadata.Annotations[devUDSIconAnnotation])
-					if icon != "" {
-						return icon
+					annotations := payload.Data.Metadata.Annotations
+					return packageMetadata{
+						icon:  strings.TrimSpace(annotations[devUDSIconAnnotation]),
+						title: strings.TrimSpace(annotations[devUDSTitleAnnotation]),
 					}
 				}
 			}
 		}
 	}
 
-	return ""
+	return packageMetadata{}
 }
 
 func secretNameForPackage(pkg Package) string {

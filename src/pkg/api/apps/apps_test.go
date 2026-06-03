@@ -11,7 +11,7 @@ import (
 	"github.com/defenseunicorns/uds-portal/src/pkg/api/auth/incluster"
 )
 
-func TestDisplayNameForApp(t *testing.T) {
+func TestFormatPackageName(t *testing.T) {
 	tests := []struct {
 		name        string
 		packageName string
@@ -31,7 +31,38 @@ func TestDisplayNameForApp(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := displayNameForApp(tt.packageName)
+			got := formatPackageName(tt.packageName)
+			if got != tt.want {
+				t.Fatalf("expected %q, got %q", tt.want, got)
+			}
+		})
+	}
+}
+
+func TestDisplayNameForApp(t *testing.T) {
+	tests := []struct {
+		name        string
+		title       string
+		packageName string
+		want        string
+	}{
+		{
+			name:        "returns annotation title when present",
+			title:       "My Custom Title",
+			packageName: "my-package",
+			want:        "My Custom Title",
+		},
+		{
+			name:        "falls back to formatPackageName when title empty",
+			title:       "",
+			packageName: "uds-registry",
+			want:        "UDS Registry",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := displayNameForApp(tt.title, tt.packageName)
 			if got != tt.want {
 				t.Fatalf("expected %q, got %q", tt.want, got)
 			}

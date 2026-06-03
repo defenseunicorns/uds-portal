@@ -232,7 +232,7 @@ func toAPIApps(
 	}
 
 	for _, pkg := range packages {
-		icon := iconForPackage(store, pkg)
+		meta := metadataForPackage(store, pkg)
 		group := groupForPackage(pkg)
 		for _, e := range pkg.Spec.Network.Expose {
 			if e.Host == "" {
@@ -247,8 +247,8 @@ func toAPIApps(
 			}
 			seen[url] = struct{}{}
 			apiApps = append(apiApps, APIApp{
-				Name:    displayNameForApp(pkg.Metadata.Name),
-				Icon:    icon,
+				Name:    displayNameForApp(meta.title, pkg.Metadata.Name),
+				Icon:    meta.icon,
 				URL:     url,
 				Gateway: e.Gateway,
 				Group:   group,
@@ -269,8 +269,7 @@ func toAPIApps(
 	return apiApps
 }
 
-func displayNameForApp(packageName string) string {
-	// TODO: (@wstarr) - this is a temporary function to normalize Package names until a better solution is designed
+func formatPackageName(packageName string) string {
 	normalized := strings.ReplaceAll(strings.TrimSpace(packageName), "-", " ")
 	words := strings.Fields(normalized)
 	for i, word := range words {
@@ -288,4 +287,11 @@ func displayNameForApp(packageName string) string {
 	}
 
 	return strings.Join(words, " ")
+}
+
+func displayNameForApp(title, packageName string) string {
+	if title != "" {
+		return title
+	}
+	return formatPackageName(packageName)
 }
