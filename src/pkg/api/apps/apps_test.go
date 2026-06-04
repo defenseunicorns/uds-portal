@@ -12,6 +12,7 @@ import (
 )
 
 func TestFormatPackageName(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		packageName string
@@ -31,6 +32,7 @@ func TestFormatPackageName(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := formatPackageName(tt.packageName)
 			if got != tt.want {
 				t.Fatalf("expected %q, got %q", tt.want, got)
@@ -40,6 +42,7 @@ func TestFormatPackageName(t *testing.T) {
 }
 
 func TestDisplayNameForApp(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name        string
 		title       string
@@ -62,6 +65,7 @@ func TestDisplayNameForApp(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := displayNameForApp(tt.title, tt.packageName)
 			if got != tt.want {
 				t.Fatalf("expected %q, got %q", tt.want, got)
@@ -71,6 +75,7 @@ func TestDisplayNameForApp(t *testing.T) {
 }
 
 func TestEndpointURL(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name         string
 		host         string
@@ -110,6 +115,7 @@ func TestEndpointURL(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := endpointURL(tt.host, tt.gateway, tt.tenantDomain, tt.adminDomain)
 			if got != tt.want {
 				t.Fatalf("expected %q, got %q", tt.want, got)
@@ -119,6 +125,7 @@ func TestEndpointURL(t *testing.T) {
 }
 
 func TestToAPIApps(t *testing.T) {
+	t.Parallel()
 	const tenantDomain = "uds.dev"
 	const adminDomain = ""
 	tests := []struct {
@@ -232,6 +239,7 @@ func TestToAPIApps(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := toAPIApps(nil, tt.pkgs, tt.accountURL, tt.tenantDomain, tt.adminDomain)
 			if got == nil {
 				t.Fatal("expected non-nil slice, got nil")
@@ -261,6 +269,7 @@ func TestToAPIApps(t *testing.T) {
 }
 
 func TestFilterByUserGroup(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name       string
 		userGroups []string
@@ -327,6 +336,7 @@ func TestFilterByUserGroup(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			req, err := http.NewRequest("GET", "/", nil)
 			if err != nil {
 				t.Fatalf("failed creating request: %v", err)
@@ -342,6 +352,7 @@ func TestFilterByUserGroup(t *testing.T) {
 }
 
 func TestToAPIApps_GatewayTagging(t *testing.T) {
+	t.Parallel()
 	const tenantDomain = "uds.dev"
 	tests := []struct {
 		name        string
@@ -429,6 +440,7 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := toAPIApps(nil, tt.pkgs, "", tenantDomain, tt.adminDomain)
 			if len(got) != len(tt.wantApps) {
 				t.Fatalf("expected %d apps, got %d: %+v", len(tt.wantApps), len(got), got)
@@ -444,6 +456,7 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 }
 
 func TestToAPIApps_MyAccountHasNoGateway(t *testing.T) {
+	t.Parallel()
 	got := toAPIApps(nil, nil, "sso.uds.dev", "uds.dev", "")
 	if len(got) != 1 {
 		t.Fatalf("expected 1 app, got %d", len(got))
@@ -454,6 +467,7 @@ func TestToAPIApps_MyAccountHasNoGateway(t *testing.T) {
 }
 
 func TestFilterHiddenEndpoints(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		name      string
 		pkgs      []Package
@@ -568,6 +582,7 @@ func TestFilterHiddenEndpoints(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
 			got := filterHiddenEndpoints(tt.pkgs)
 			if len(got) != tt.wantPkgs {
 				t.Fatalf("expected %d packages, got %d", tt.wantPkgs, len(got))
@@ -597,6 +612,7 @@ func TestFilterHiddenEndpoints(t *testing.T) {
 }
 
 func TestGroupForPackage(t *testing.T) {
+	t.Parallel()
 	tests := []struct {
 		pkgName   string
 		wantGroup int
@@ -610,6 +626,7 @@ func TestGroupForPackage(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.pkgName, func(t *testing.T) {
+			t.Parallel()
 			got := groupForPackage(Package{Metadata: Metadata{Name: tt.pkgName}})
 			if got != tt.wantGroup {
 				t.Fatalf("expected group %d, got %d", tt.wantGroup, got)
@@ -619,6 +636,7 @@ func TestGroupForPackage(t *testing.T) {
 }
 
 func TestToAPIApps_GroupAndSort(t *testing.T) {
+	t.Parallel()
 	pkgs := []Package{
 		{
 			Metadata: Metadata{Name: "podinfo"},

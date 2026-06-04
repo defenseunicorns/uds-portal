@@ -188,7 +188,7 @@ func checkCRDExists(client *dynamic.DynamicClient, gvr schema.GroupVersionResour
 		if errors.IsNotFound(err) {
 			return false, nil
 		}
-		return false, fmt.Errorf("error retrieving CRD: %v", err)
+		return false, fmt.Errorf("error retrieving CRD: %w", err)
 	}
 
 	return true, nil

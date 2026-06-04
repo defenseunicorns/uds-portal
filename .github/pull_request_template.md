@@ -21,5 +21,4 @@ Related to CORE-
 ## Checklist before merging
 
 - [ ] Tests and docs added or updated as needed
-- [ ] PR title follows [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/)
-- [ ] Commits are signed
+- [ ] [Contributor Guide](https://github.com/defenseunicorns/uds-portal/blob/main/CONTRIBUTING.md) followed
