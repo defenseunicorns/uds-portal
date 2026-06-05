@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.3.0](https://github.com/defenseunicorns/uds-portal/compare/v0.2.0...v0.3.0) (2026-06-05)
+
+
+### Features
+
+* app grouping and sort order to API ([#42](https://github.com/defenseunicorns/uds-portal/issues/42)) ([6a566f6](https://github.com/defenseunicorns/uds-portal/commit/6a566f663d9d6f5bdc03ceaf503459cd9f6bf227))
+* app title from annotation ([#45](https://github.com/defenseunicorns/uds-portal/issues/45)) ([8c723a2](https://github.com/defenseunicorns/uds-portal/commit/8c723a2578a206d8626896ec56177c10c641fbd9))
+* filtering package expose entries ([#43](https://github.com/defenseunicorns/uds-portal/issues/43)) ([18f49c7](https://github.com/defenseunicorns/uds-portal/commit/18f49c7db3d301c53e80390221a8e05c13ca63a4))
+
+
+### Bug Fixes
+
+* moving zarf variables to separate values file and removing skeleton publish ([#39](https://github.com/defenseunicorns/uds-portal/issues/39)) ([11d2a1a](https://github.com/defenseunicorns/uds-portal/commit/11d2a1a90ccfb2a2bd7c1ec4f9e39a88d79a469d))
+
+
+### Miscellaneous
+
+* **deps:** update application dependencies to v2.60.1 [security] ([#38](https://github.com/defenseunicorns/uds-portal/issues/38)) ([15fc28f](https://github.com/defenseunicorns/uds-portal/commit/15fc28fd7af695b6c598b56731efa9ff791bbcb3))
+* **deps:** update application dependencies to v5.55.7 [security] ([#33](https://github.com/defenseunicorns/uds-portal/issues/33)) ([b2a8d6e](https://github.com/defenseunicorns/uds-portal/commit/b2a8d6e0eeeaee3e78ae4b5632f980d7dd7b82b4))
+* **deps:** update application-deps ([#25](https://github.com/defenseunicorns/uds-portal/issues/25)) ([c7ce01c](https://github.com/defenseunicorns/uds-portal/commit/c7ce01c9b326346393645153ae0b29046b170c08))
+* **deps:** update application-deps to v2.62.0 ([#48](https://github.com/defenseunicorns/uds-portal/issues/48)) ([b1bf998](https://github.com/defenseunicorns/uds-portal/commit/b1bf998ee5f16beba2960f94bfdce237873695ff))
+* **deps:** update support-deps ([#27](https://github.com/defenseunicorns/uds-portal/issues/27)) ([cbacbb8](https://github.com/defenseunicorns/uds-portal/commit/cbacbb8cfcfc8d16f01dd4b67d0a81a1738a5495))
+* **deps:** update support-deps ([#44](https://github.com/defenseunicorns/uds-portal/issues/44)) ([5161573](https://github.com/defenseunicorns/uds-portal/commit/5161573d04ad46adfbf56c249a94e4bdfea1a445))
+* rename LICENSE.md to LICENSE and standardize security email ([#37](https://github.com/defenseunicorns/uds-portal/issues/37)) ([1659276](https://github.com/defenseunicorns/uds-portal/commit/1659276d26015ad109df3011127b33e097c63f61))
+* test updates, ai guidance, and pr template ([#46](https://github.com/defenseunicorns/uds-portal/issues/46)) ([dbaa3ea](https://github.com/defenseunicorns/uds-portal/commit/dbaa3ea20eb5996d514f2869aeec2828b127f417))
+
 ## [0.2.0](https://github.com/defenseunicorns/uds-portal/compare/v0.1.0...v0.2.0) (2026-05-20)
 
 
