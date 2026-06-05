@@ -10,7 +10,7 @@ metadata:
 packages:
   - name: gitea
     repository: ghcr.io/uds-packages/gitea
-    ref: 1.25.4-uds.2-upstream
+    ref: 1.26.2-uds.0-upstream
     overrides:
       gitea:
         gitea:
