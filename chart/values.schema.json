@@ -30,6 +30,46 @@
         }
       },
       "additionalProperties": false
+    },
+    "extraConfigmapMounts": {
+      "type": "array",
+      "description": "Additional ConfigMap-backed volume mounts for the uds-portal container.",
+      "default": [],
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name used for both the volume and volumeMount."
+          },
+          "mountPath": {
+            "type": "string",
+            "description": "Container path where the ConfigMap content will be mounted."
+          },
+          "configMap": {
+            "type": "string",
+            "description": "Name of the ConfigMap to mount."
+          },
+          "subPath": {
+            "type": "string",
+            "description": "Optional ConfigMap key to mount as a single file."
+          },
+          "readOnly": {
+            "type": "boolean",
+            "description": "Whether the mount should be read-only."
+          },
+          "defaultMode": {
+            "type": "integer",
+            "description": "Optional file mode applied to ConfigMap files."
+          },
+          "optional": {
+            "type": "boolean",
+            "description": "Whether the pod should start if the ConfigMap is missing."
+          }
+        },
+        "required": ["name", "mountPath", "configMap"],
+        "additionalProperties": false
+      }
     }
   }
 }

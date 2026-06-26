@@ -59,3 +59,30 @@ spec:
               value: {{ .Values.classificationBanner.addFooter | quote }}
             - name: ADMIN_APPS_ENABLED
               value: {{ .Values.adminApps.enabled | quote }}
+          {{- with .Values.extraConfigmapMounts }}
+          volumeMounts:
+            {{- range . }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+              {{- with .subPath }}
+              subPath: {{ . }}
+              {{- end }}
+              {{- if hasKey . "readOnly" }}
+              readOnly: {{ .readOnly }}
+              {{- end }}
+            {{- end }}
+          {{- end }}
+      {{- with .Values.extraConfigmapMounts }}
+      volumes:
+        {{- range . }}
+        - name: {{ .name }}
+          configMap:
+            name: {{ .configMap }}
+            {{- if hasKey . "defaultMode" }}
+            defaultMode: {{ .defaultMode }}
+            {{- end }}
+            {{- if hasKey . "optional" }}
+            optional: {{ .optional }}
+            {{- end }}
+        {{- end }}
+      {{- end }}

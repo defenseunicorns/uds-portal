@@ -38,3 +38,5 @@ classificationBanner:
 
 adminApps:
   enabled: true
+
+extraConfigmapMounts: []
