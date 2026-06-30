@@ -38,5 +38,6 @@ classificationBanner:
 
 adminApps:
   enabled: true
+extraVolumes: []
 
-extraConfigmapMounts: []
+extraVolumeMounts: []
