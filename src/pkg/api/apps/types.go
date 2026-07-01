@@ -23,8 +23,9 @@ type SSO struct {
 }
 
 type Expose struct {
-	Host    string `json:"host,omitempty"`
-	Gateway string `json:"gateway,omitempty"`
+	Host        string            `json:"host,omitempty"`
+	Gateway     string            `json:"gateway,omitempty"`
+	Annotations map[string]string `json:"annotations,omitempty"`
 }
 
 type Network struct {
