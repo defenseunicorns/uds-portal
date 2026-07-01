@@ -22,4 +22,4 @@ concurrency:
 jobs:
   pr-title-lint:
     name: PR Title Lint
-    uses: defenseunicorns/uds-common/.github/workflows/callable-commitlint.yaml@9acae1b4db1a02f136118ab8ca256fb25afdfea2 # v1.24.12
+    uses: defenseunicorns/uds-common/.github/workflows/callable-commitlint.yaml@ef8767c2d84fc4d23c37f3b7dac3c6292ee76c11 # v1.25.0

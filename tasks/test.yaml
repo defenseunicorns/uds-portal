@@ -2,7 +2,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 includes:
-  - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.24.12/tasks/setup.yaml
+  - setup: https://raw.githubusercontent.com/defenseunicorns/uds-common/v1.25.0/tasks/setup.yaml
   - build: ./build.yaml
 
 variables:
@@ -39,7 +39,7 @@ tasks:
           docker run --rm --ipc=host --net=host \
             -e CI=true \
             --mount type=bind,source="$(pwd)/ui",target=/app \
-            mcr.microsoft.com/playwright:v1.60.0-jammy \
+            mcr.microsoft.com/playwright:v1.61.1-jammy \
             sh -c "
               cd /app &&
               npm install -g pnpm --ignore-scripts &&
