@@ -59,3 +59,11 @@ spec:
               value: {{ .Values.classificationBanner.addFooter | quote }}
             - name: ADMIN_APPS_ENABLED
               value: {{ .Values.adminApps.enabled | quote }}
+          {{- with .Values.extraVolumeMounts }}
+          volumeMounts:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
+      {{- with .Values.extraVolumes }}
+      volumes:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
