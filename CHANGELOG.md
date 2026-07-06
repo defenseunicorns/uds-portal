@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.4.0](https://github.com/defenseunicorns/uds-portal/compare/v0.3.0...v0.4.0) (2026-07-06)
+
+
+### Features
+
+* **chart:** support extra configmap mounts for uds-portal ([#52](https://github.com/defenseunicorns/uds-portal/issues/52)) ([0c9eaab](https://github.com/defenseunicorns/uds-portal/commit/0c9eaab409f544f7d756d57267d7dd36b6fb9332))
+* consume per-endpoint annotations from Package CR ([#55](https://github.com/defenseunicorns/uds-portal/issues/55)) ([5580d73](https://github.com/defenseunicorns/uds-portal/commit/5580d73aba5ad808904160a5016e5fe900b39d24))
+
+
+### Miscellaneous
+
+* **deps:** update application-deps ([#50](https://github.com/defenseunicorns/uds-portal/issues/50)) ([896d526](https://github.com/defenseunicorns/uds-portal/commit/896d5266b73c6525ce358e2cc9b117b30d1f9220))
+* **deps:** update support dependencies to v4.4.0 ([#57](https://github.com/defenseunicorns/uds-portal/issues/57)) ([5daecd7](https://github.com/defenseunicorns/uds-portal/commit/5daecd78eef1dab1e147f263a516863df01e1f58))
+* **deps:** update support-deps ([#49](https://github.com/defenseunicorns/uds-portal/issues/49)) ([b45d5b1](https://github.com/defenseunicorns/uds-portal/commit/b45d5b129dd702b6ec974014f39897792926c4cf))
+* **deps:** update support-deps ([#54](https://github.com/defenseunicorns/uds-portal/issues/54)) ([41a0d67](https://github.com/defenseunicorns/uds-portal/commit/41a0d67c3294004c14959ca7fc761e5218968e85))
+
+
+### Documentation
+
+* updating to reference functional layer in UDS Core ([#47](https://github.com/defenseunicorns/uds-portal/issues/47)) ([6b0b67c](https://github.com/defenseunicorns/uds-portal/commit/6b0b67cd7a49a164e96636661b6fbd38f0ea17fb))
+
 ## [0.3.0](https://github.com/defenseunicorns/uds-portal/compare/v0.2.0...v0.3.0) (2026-06-05)
 
 

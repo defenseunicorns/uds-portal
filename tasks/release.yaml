@@ -8,7 +8,7 @@ variables:
   - name: VERSION
     description: "reference for the portal image and zarf package"
     # x-release-please-start-version
-    default: 0.3.0
+    default: 0.4.0
     # x-release-please-end
 
 tasks:
