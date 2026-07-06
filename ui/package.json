@@ -47,7 +47,7 @@
     "globals": "17.6.0",
     "jsdom": "29.1.1",
     "kubernetes-fluent-client": "3.11.7",
-    "prettier": "3.9.1",
+    "prettier": "3.9.4",
     "prettier-plugin-svelte": "4.1.0",
     "prettier-plugin-tailwindcss": "0.8.0",
     "svelte": "5.56.1",

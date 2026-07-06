@@ -36,7 +36,7 @@ jobs:
 
       - name: Check paths
         id: filter
-        uses: dorny/paths-filter@fbd0ab8f3e69293af611ebaee6363fc25e6d187d # v4.0.1
+        uses: dorny/paths-filter@7b450fff21473bca461d4b92ce414b9d0420d706 # v4.0.2
         with:
           filters: |
             app:
@@ -62,7 +62,7 @@ jobs:
       - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
         with:
           # renovate: datasource=github-releases depName=jdx/mise versioning=semver
-          version: 2026.6.14
+          version: 2026.7.0
           install: true
           cache: true
 
@@ -83,7 +83,7 @@ jobs:
       - uses: jdx/mise-action@e6a8b3978addb5a52f2b4cd9d91eafa7f0ab959d # v4.2.0
         with:
           # renovate: datasource=github-releases depName=jdx/mise versioning=semver
-          version: 2026.6.14
+          version: 2026.7.0
           install: true
           cache: true
 
