@@ -6,7 +6,24 @@
 
 UDS Portal is the landing page for UDS users — a single point of discovery for every application deployed in a UDS environment. It ships as a UDS Core layer that depends on `base` and `identity-authorization`.
 
-Apps are derived from `UDS Package` Custom Resources in the cluster. One tile is created per `network.expose` entry; a package must also have an `sso` section or its tiles are not shown. If the `sso` section includes a `groups.anyOf` list, only members of those groups see the tiles.
+Apps are derived from `UDS Package` Custom Resources in the cluster. One tile is created per `network.expose` entry; a package must also have an `sso` section or its tiles are not shown. Group-based access works per `sso` entry via `spec.sso[].groups.anyOf`:
+
+- If `groups.anyOf` lists one or more groups, only members of those groups see the tiles.
+- If the `sso` entry omits `groups` (or leaves `anyOf` empty), the tiles are visible to all authenticated users.
+
+```yaml
+spec:
+  sso:
+    # Visible only to members of the listed groups
+    - name: Admin App
+      clientId: uds-admin-app
+      groups:
+        anyOf:
+          - /UDS Core/Admin
+    # No groups block: visible to all authenticated users
+    - name: Shared App
+      clientId: uds-shared-app
+```
 
 App tiles display the package name as a title and a default logo unless overridden. To customize, set annotations in the Zarf package metadata:
 
@@ -29,6 +46,14 @@ metadata:
   annotations:
     uds.dev/portal-hide-apps: "registry,pages"
 ```
+
+<br><br>
+
+## Part of UDS Core
+
+UDS Portal is a [UDS Core](https://github.com/defenseunicorns/uds-core) functional layer (`core-portal`), not a standalone application. It depends on the `base` and `identity-authorization` layers.
+
+UDS Core consumes this repository as a git-based Helm chart, referenced by tag from [`src/portal/common/zarf.yaml`](https://github.com/defenseunicorns/uds-core/blob/main/src/portal/common/zarf.yaml) and kept in sync with releases here by Renovate. The layer ships in the `upstream` and `unicorn` flavors only, not `registry1`.
 
 <br><br>
 
