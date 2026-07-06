@@ -39,6 +39,8 @@ classificationBanner:
 
 adminApps:
   enabled: true
+
+# Keep extraVolumes and extraVolumeMounts names in sync.
 extraVolumes: []
 
 extraVolumeMounts: []
