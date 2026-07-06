@@ -578,6 +578,30 @@ func TestFilterHiddenEndpoints(t *testing.T) {
 			wantPkgs:  1,
 			wantHosts: []string{"podinfo"},
 		},
+		{
+			name: "endpoint with portal.uds.dev/visible=false excluded from package",
+			pkgs: []Package{{
+				Metadata: Metadata{Name: "app"},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "visible-app", Gateway: "tenant"},
+					{Host: "hidden-app", Gateway: "tenant", Annotations: map[string]string{"portal.uds.dev/visible": "false"}},
+				}}},
+			}},
+			wantPkgs:  1,
+			wantHosts: []string{"visible-app"},
+		},
+		{
+			name: "endpoint with uds.dev/visible=false excluded from package",
+			pkgs: []Package{{
+				Metadata: Metadata{Name: "app"},
+				Spec: Spec{Network: Network{Expose: []Expose{
+					{Host: "visible-app", Gateway: "tenant"},
+					{Host: "hidden-app", Gateway: "tenant", Annotations: map[string]string{"uds.dev/visible": "false"}},
+				}}},
+			}},
+			wantPkgs:  1,
+			wantHosts: []string{"visible-app"},
+		},
 	}
 
 	for _, tt := range tests {
@@ -606,6 +630,228 @@ func TestFilterHiddenEndpoints(t *testing.T) {
 				if gotHosts[i] != h {
 					t.Errorf("host[%d]: expected %q, got %q", i, h, gotHosts[i])
 				}
+			}
+		})
+	}
+}
+
+func TestIsEndpointVisible(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name   string
+		expose Expose
+		want   bool
+	}{
+		{
+			name:   "no annotations → visible",
+			expose: Expose{Host: "app"},
+			want:   true,
+		},
+		{
+			name:   "nil annotation map → visible",
+			expose: Expose{Host: "app", Annotations: nil},
+			want:   true,
+		},
+		{
+			name:   "portal.uds.dev/visible=false → hidden",
+			expose: Expose{Host: "app", Annotations: map[string]string{portalNSVisibleAnnotation: "false"}},
+			want:   false,
+		},
+		{
+			name:   "portal.uds.dev/visible=False (caps) → hidden",
+			expose: Expose{Host: "app", Annotations: map[string]string{portalNSVisibleAnnotation: "False"}},
+			want:   false,
+		},
+		{
+			name:   "portal.uds.dev/visible=FALSE → hidden",
+			expose: Expose{Host: "app", Annotations: map[string]string{portalNSVisibleAnnotation: "FALSE"}},
+			want:   false,
+		},
+		{
+			name:   "portal.uds.dev/visible=true → visible",
+			expose: Expose{Host: "app", Annotations: map[string]string{portalNSVisibleAnnotation: "true"}},
+			want:   true,
+		},
+		{
+			name:   "portal.uds.dev/visible with whitespace → trimmed and checked",
+			expose: Expose{Host: "app", Annotations: map[string]string{portalNSVisibleAnnotation: "  false  "}},
+			want:   false,
+		},
+		{
+			name:   "uds.dev/visible=false → hidden",
+			expose: Expose{Host: "app", Annotations: map[string]string{udsDevVisibleAnnotation: "false"}},
+			want:   false,
+		},
+		{
+			name:   "uds.dev/visible=true → visible",
+			expose: Expose{Host: "app", Annotations: map[string]string{udsDevVisibleAnnotation: "true"}},
+			want:   true,
+		},
+		{
+			name: "portal.uds.dev/visible=true overrides uds.dev/visible=false",
+			expose: Expose{Host: "app", Annotations: map[string]string{
+				portalNSVisibleAnnotation: "true",
+				udsDevVisibleAnnotation:   "false",
+			}},
+			want: true,
+		},
+		{
+			name: "portal.uds.dev/visible=false overrides uds.dev/visible=true",
+			expose: Expose{Host: "app", Annotations: map[string]string{
+				portalNSVisibleAnnotation: "false",
+				udsDevVisibleAnnotation:   "true",
+			}},
+			want: false,
+		},
+		{
+			name: "portal.uds.dev/visible='' short-circuits uds.dev/visible=false → visible",
+			expose: Expose{Host: "app", Annotations: map[string]string{
+				portalNSVisibleAnnotation: "",
+				udsDevVisibleAnnotation:   "false",
+			}},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := isEndpointVisible(tt.expose)
+			if got != tt.want {
+				t.Fatalf("expected %v, got %v", tt.want, got)
+			}
+		})
+	}
+}
+
+func TestToAPIApps_EndpointAnnotations(t *testing.T) {
+	t.Parallel()
+	const tenantDomain = "uds.dev"
+	tests := []struct {
+		name     string
+		expose   Expose
+		wantName string
+		wantIcon string
+	}{
+		{
+			name:     "portal.uds.dev/title used as display name",
+			expose:   Expose{Host: "app", Gateway: "tenant", Annotations: map[string]string{"portal.uds.dev/title": "Portal Title"}},
+			wantName: "Portal Title",
+			wantIcon: "",
+		},
+		{
+			name:     "uds.dev/title used when portal.uds.dev/title absent",
+			expose:   Expose{Host: "app", Gateway: "tenant", Annotations: map[string]string{"uds.dev/title": "UDS Title"}},
+			wantName: "UDS Title",
+			wantIcon: "",
+		},
+		{
+			name: "portal.uds.dev/title takes precedence over uds.dev/title",
+			expose: Expose{Host: "app", Gateway: "tenant", Annotations: map[string]string{
+				"portal.uds.dev/title": "Portal Title",
+				"uds.dev/title":        "UDS Title",
+			}},
+			wantName: "Portal Title",
+			wantIcon: "",
+		},
+		{
+			name:     "no title annotations fall back to formatted package name",
+			expose:   Expose{Host: "app", Gateway: "tenant"},
+			wantName: "App",
+			wantIcon: "",
+		},
+		{
+			name:     "portal.uds.dev/icon used as icon",
+			expose:   Expose{Host: "app", Gateway: "tenant", Annotations: map[string]string{"portal.uds.dev/icon": "data:image/svg+xml;base64,portalicon"}},
+			wantName: "App",
+			wantIcon: "data:image/svg+xml;base64,portalicon",
+		},
+		{
+			name:     "uds.dev/icon used when portal.uds.dev/icon absent",
+			expose:   Expose{Host: "app", Gateway: "tenant", Annotations: map[string]string{"uds.dev/icon": "data:image/svg+xml;base64,udsicon"}},
+			wantName: "App",
+			wantIcon: "data:image/svg+xml;base64,udsicon",
+		},
+		{
+			name: "portal.uds.dev/icon takes precedence over uds.dev/icon",
+			expose: Expose{Host: "app", Gateway: "tenant", Annotations: map[string]string{
+				"portal.uds.dev/icon": "data:image/svg+xml;base64,portalicon",
+				"uds.dev/icon":        "data:image/svg+xml;base64,udsicon",
+			}},
+			wantName: "App",
+			wantIcon: "data:image/svg+xml;base64,portalicon",
+		},
+		{
+			name:     "no icon annotations → empty icon",
+			expose:   Expose{Host: "app", Gateway: "tenant"},
+			wantName: "App",
+			wantIcon: "",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			pkg := Package{
+				Metadata: Metadata{Name: "app"},
+				Spec:     Spec{Network: Network{Expose: []Expose{tt.expose}}},
+			}
+			got := toAPIApps(nil, []Package{pkg}, "", tenantDomain, "")
+			if len(got) != 1 {
+				t.Fatalf("expected 1 app, got %d", len(got))
+			}
+			if got[0].Name != tt.wantName {
+				t.Fatalf("name: expected %q, got %q", tt.wantName, got[0].Name)
+			}
+			if got[0].Icon != tt.wantIcon {
+				t.Fatalf("icon: expected %q, got %q", tt.wantIcon, got[0].Icon)
+			}
+		})
+	}
+}
+
+func TestFirstNonEmpty(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name string
+		vals []string
+		want string
+	}{
+		{
+			name: "returns first non-empty value",
+			vals: []string{"first", "second", "third"},
+			want: "first",
+		},
+		{
+			name: "skips empty first, returns second",
+			vals: []string{"", "second", "third"},
+			want: "second",
+		},
+		{
+			name: "skips empty first and second, returns third",
+			vals: []string{"", "", "third"},
+			want: "third",
+		},
+		{
+			name: "all empty returns empty string",
+			vals: []string{"", "", ""},
+			want: "",
+		},
+		{
+			name: "trims whitespace before checking",
+			vals: []string{"  ", "value"},
+			want: "value",
+		},
+		{
+			name: "returns trimmed value",
+			vals: []string{"  trimmed  "},
+			want: "trimmed",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			t.Parallel()
+			got := firstNonEmpty(tt.vals...)
+			if got != tt.want {
+				t.Fatalf("expected %q, got %q", tt.want, got)
 			}
 		})
 	}

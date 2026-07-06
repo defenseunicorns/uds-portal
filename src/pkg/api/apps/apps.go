@@ -24,6 +24,13 @@ const (
 	myAccountName            = "My Account"
 	portalHideAppsAnnotation = "uds.dev/portal-hide-apps"
 
+	portalNSVisibleAnnotation = "portal.uds.dev/visible"
+	udsDevVisibleAnnotation   = "uds.dev/visible"
+	portalNSTitleAnnotation   = "portal.uds.dev/title"
+	udsDevTitleAnnotation     = "uds.dev/title"
+	portalNSIconAnnotation    = "portal.uds.dev/icon"
+	udsDevIconAnnotation      = "uds.dev/icon"
+
 	groupMyAccount   = 0
 	groupUDSPlatform = 10
 	groupUDSCore     = 20
@@ -109,6 +116,9 @@ func filterHiddenEndpoints(packages []Package) []Package {
 				continue
 			}
 			if _, ok := hidden[e.Host]; ok {
+				continue
+			}
+			if !isEndpointVisible(e) {
 				continue
 			}
 			filtered = append(filtered, e)
@@ -246,9 +256,11 @@ func toAPIApps(
 				continue
 			}
 			seen[url] = struct{}{}
+			title := firstNonEmpty(e.Annotations[portalNSTitleAnnotation], e.Annotations[udsDevTitleAnnotation], meta.title)
+			icon := firstNonEmpty(e.Annotations[portalNSIconAnnotation], e.Annotations[udsDevIconAnnotation], meta.icon)
 			apiApps = append(apiApps, APIApp{
-				Name:    displayNameForApp(meta.title, pkg.Metadata.Name),
-				Icon:    meta.icon,
+				Name:    displayNameForApp(title, pkg.Metadata.Name),
+				Icon:    icon,
 				URL:     url,
 				Gateway: e.Gateway,
 				Group:   group,
@@ -267,6 +279,27 @@ func toAPIApps(
 	})
 
 	return apiApps
+}
+
+// isEndpointVisible returns false only when the first visibility annotation found
+// (portal.uds.dev/visible checked before uds.dev/visible) is explicitly "false"
+// (case-insensitive). Missing annotation defaults to visible.
+func isEndpointVisible(e Expose) bool {
+	for _, key := range []string{portalNSVisibleAnnotation, udsDevVisibleAnnotation} {
+		if val, ok := e.Annotations[key]; ok {
+			return strings.ToLower(strings.TrimSpace(val)) != "false"
+		}
+	}
+	return true
+}
+
+func firstNonEmpty(vals ...string) string {
+	for _, v := range vals {
+		if v = strings.TrimSpace(v); v != "" {
+			return v
+		}
+	}
+	return ""
 }
 
 func formatPackageName(packageName string) string {

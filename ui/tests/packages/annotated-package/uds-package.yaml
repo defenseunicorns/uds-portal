@@ -1,0 +1,42 @@
+# Copyright 2026 Defense Unicorns
+# SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
+
+apiVersion: uds.dev/v1alpha1
+kind: Package
+metadata:
+  name: annotated-package
+  namespace: annotated-package
+spec:
+  network:
+    expose:
+      - service: annotated-package
+        selector:
+          app.kubernetes.io/name: annotated-package
+        gateway: tenant
+        host: annotated-package
+        port: 9898
+        annotations:
+          uds.dev/title: 'Custom Annotated App'
+          uds.dev/icon: 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciLz4='
+      - service: annotated-package
+        selector:
+          app.kubernetes.io/name: annotated-package
+        gateway: tenant
+        host: annotated-package-portal-override
+        port: 9898
+        annotations:
+          uds.dev/title: 'UDS Title'
+          portal.uds.dev/title: 'Portal Override Title'
+      - service: annotated-package
+        selector:
+          app.kubernetes.io/name: annotated-package
+        gateway: tenant
+        host: annotated-package-hidden
+        port: 9898
+        annotations:
+          portal.uds.dev/visible: 'false'
+  sso:
+    - name: annotated-package
+      clientId: annotated-package
+      redirectUris:
+        - 'https://annotated-package.uds.dev/auth'

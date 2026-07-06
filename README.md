@@ -25,27 +25,32 @@ spec:
       clientId: uds-shared-app
 ```
 
-App tiles display the package name as a title and a default logo unless overridden. To customize, set annotations in the Zarf package metadata:
+### Package CR annotations
+
+Per-endpoint annotations on `spec.network.expose[]` entries control tile appearance and visibility. `portal.uds.dev/` takes precedence over `uds.dev/` — use the portal namespace to override upstream package defaults at the bundle level.
+
+| | `uds.dev/` | `portal.uds.dev/` |
+|---|---|---|
+| Title | `uds.dev/title` | `portal.uds.dev/title` |
+| Icon | `uds.dev/icon` | `portal.uds.dev/icon` |
+| Visibility | `uds.dev/visible` | `portal.uds.dev/visible` |
 
 ```yaml
-metadata:
-  annotations:
-    dev.uds.title: My App        # display name shown on the tile
-    dev.uds.icon: 'data:image/svg+xml;base64,<base64-encoded-svg>'  # tile logo
+spec:
+  network:
+    expose:
+      - host: my-app
+        annotations:
+          uds.dev/title: "My App"
+          uds.dev/icon: "data:image/svg+xml;base64,<base64-encoded-svg>"
+      - host: my-app-admin
+        annotations:
+          uds.dev/visible: "false"  # hidden; use portal.uds.dev/visible to override at bundle level
 ```
 
-If `dev.uds.title` is absent, the title falls back to a formatted version of the package name (e.g. `uds-registry` → `UDS Registry`). If `dev.uds.icon` is absent, a default logo is shown.
-
-Packages that [expose multiple endpoints](https://docs.defenseunicorns.com/core/reference/operator--crds/packages-v1alpha1-cr/#network) (e.g. GitLab) can control which ones appear as tiles:
-
-- Expose entries with a wildcard `host` (e.g. `*.pages`) are always excluded.
-- To hide specific endpoints, set the `uds.dev/portal-hide-apps` annotation on the Package CR to a comma-separated list of `network.expose[].host` values:
-
-```yaml
-metadata:
-  annotations:
-    uds.dev/portal-hide-apps: "registry,pages"
-```
+- **Title** falls back to `dev.uds.title` in Zarf package metadata, then the formatted package name (e.g. `uds-registry` → `UDS Registry`).
+- **Icon** falls back to `dev.uds.icon` in Zarf package metadata, then a default logo.
+- **Visibility** — missing or any value other than `"false"` (case-insensitive) defaults to visible. Wildcard hosts (e.g. `*.pages`) are always excluded. To hide endpoints by host name across a package, set `uds.dev/portal-hide-apps` on the Package CR metadata to a comma-separated list of host values.
 
 <br><br>
 
