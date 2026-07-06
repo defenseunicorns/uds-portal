@@ -9,6 +9,7 @@ image:
 sso:
   enabled: true
 package:
+  enabled: true
   gateway: tenant
   host: portal
   domain: "uds.dev"
