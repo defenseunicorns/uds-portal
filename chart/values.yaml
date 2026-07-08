@@ -9,7 +9,6 @@ image:
 sso:
   enabled: true
 package:
-  enabled: true
   gateway: tenant
   host: portal
   domain: "uds.dev"
@@ -41,6 +40,20 @@ adminApps:
   enabled: true
 
 # Keep extraVolumes and extraVolumeMounts names in sync.
+#
+# For environments where Portal needs the UDS trust bundle, mount
+# uds-trust-bundle only when it is expected in the uds-portal namespace.
+# Omitting optional makes the pod wait for the ConfigMap before starting.
+#
+# extraVolumes:
+#   - name: ca-certs
+#     configMap:
+#       name: uds-trust-bundle
+# extraVolumeMounts:
+#   - name: ca-certs
+#     mountPath: /etc/ssl/certs/ca-bundle.pem
+#     subPath: ca-bundle.pem
+#     readOnly: true
 extraVolumes: []
 
 extraVolumeMounts: []
