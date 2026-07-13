@@ -16,6 +16,10 @@ spec:
         gateway: {{ .Values.package.gateway }}
         port: 8080
         targetPort: 8080
+        uptime:
+          checks:
+            paths:
+            - /healthz
     allow:
       - direction: Egress
         selector:
