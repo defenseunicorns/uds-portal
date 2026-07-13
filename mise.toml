@@ -2,17 +2,17 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 [tools]
-hk = "1.49.0"
-"aqua:defenseunicorns/uds-cli" = "0.34.0"
+hk = "1.50.0"
+"aqua:defenseunicorns/uds-cli" = "0.34.1"
 "aqua:google/addlicense" = "1.2.0"
 "aqua:k3d-io/k3d" = "5.9.0"
 go = "1.26.4"
 golangci-lint = "2.12.2"
-pnpm = "11.9.0"
+pnpm = "11.11.0"
 node = "24.18.0"
-"npm:prettier" = "3.9.4"
-pkl = "0.31.1"
-uv = "0.11.26"                             # required to install yamllint
+"npm:prettier" = "3.9.5"
+pkl = "0.32.0"
+uv = "0.11.28"                             # required to install yamllint
 yamllint = "1.38.0"
 
 [env]
