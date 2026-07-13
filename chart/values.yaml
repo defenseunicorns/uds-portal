@@ -13,6 +13,9 @@ package:
   host: portal
   domain: "uds.dev"
   adminDomain: ""
+  # Admin domain override fed by UDS Core's top-level `adminDomain` value; empty falls back to
+  # adminDomain, then admin.<domain>.
+  udsAdminDomain: ""
 
 # Default requests and limits when running only uds-core (increase for production)
 resources:

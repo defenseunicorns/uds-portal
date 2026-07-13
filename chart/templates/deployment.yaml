@@ -50,7 +50,7 @@ spec:
             - name: UDS_DOMAIN
               value: {{ .Values.package.domain | quote }}
             - name: UDS_ADMIN_DOMAIN
-              value: {{ .Values.package.adminDomain | quote }}
+              value: {{ .Values.package.udsAdminDomain | default (.Values.package.adminDomain | default (printf "admin.%s" .Values.package.domain)) | quote }}
             - name: CLASSIFICATION_BANNER_ENABLED
               value: {{ .Values.classificationBanner.enabled | quote }}
             - name: CLASSIFICATION_BANNER_TEXT
