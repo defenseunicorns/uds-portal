@@ -49,8 +49,12 @@ spec:
           env:
             - name: UDS_DOMAIN
               value: {{ .Values.package.domain | quote }}
+            {{- $adminDomain := .Values.package.adminDomain | default "" }}
+            {{- if eq $adminDomain "###ZARF_VAR_ADMIN_DOMAIN###" }}
+              {{- $adminDomain = "" }}
+            {{- end }}
             - name: UDS_ADMIN_DOMAIN
-              value: {{ .Values.package.udsAdminDomain | default (.Values.package.adminDomain | default (printf "admin.%s" .Values.package.domain)) | quote }}
+              value: {{ $adminDomain | default (printf "admin.%s" .Values.package.domain) | quote }}
             - name: CLASSIFICATION_BANNER_ENABLED
               value: {{ .Values.classificationBanner.enabled | quote }}
             - name: CLASSIFICATION_BANNER_TEXT
