@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.5.0](https://github.com/defenseunicorns/uds-portal/compare/v0.4.0...v0.5.0) (2026-07-17)
+
+
+### Features
+
+* added uptime monitoring probes ([#63](https://github.com/defenseunicorns/uds-portal/issues/63)) ([28acdaf](https://github.com/defenseunicorns/uds-portal/commit/28acdaf66b25054b20faf2d96529b98c60d14b9c))
+
+
+### Bug Fixes
+
+* **chart:** always render portal package ([#59](https://github.com/defenseunicorns/uds-portal/issues/59)) ([efa26a9](https://github.com/defenseunicorns/uds-portal/commit/efa26a937bf8d6389d26093331953339ccbe74eb))
+
+
+### Miscellaneous
+
+* **deps:** update application-deps ([#61](https://github.com/defenseunicorns/uds-portal/issues/61)) ([cf0dbc3](https://github.com/defenseunicorns/uds-portal/commit/cf0dbc3a1c164d72048215ba9ce929bb3d570148))
+* **deps:** update support-deps ([#58](https://github.com/defenseunicorns/uds-portal/issues/58)) ([2e80c9b](https://github.com/defenseunicorns/uds-portal/commit/2e80c9b44b7b6de049c6627afeb6fb47c91c7f82))
+* **deps:** update support-deps ([#64](https://github.com/defenseunicorns/uds-portal/issues/64)) ([a055e04](https://github.com/defenseunicorns/uds-portal/commit/a055e0461b8cfb7008da785f407d24430c15bd02))
+
 ## [0.4.0](https://github.com/defenseunicorns/uds-portal/compare/v0.3.0...v0.4.0) (2026-07-06)
 
 
