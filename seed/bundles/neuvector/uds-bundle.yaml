@@ -10,4 +10,4 @@ metadata:
 packages:
   - name: neuvector
     repository: ghcr.io/uds-packages/neuvector
-    ref: 5.5.3-uds.0-upstream
+    ref: 5.5.3-uds.1-upstream
