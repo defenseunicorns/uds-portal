@@ -4,6 +4,10 @@
 
 UDS Portal is a lightweight end-user portal for UDS Core clusters. It discovers installed apps from Kubernetes `UDS Package` custom resources and only presents apps/endpoints the current user is allowed to access.
 
+## Copyright headers
+
+When modifying a file that already has a copyright header, preserve its starting year. If the current calendar year is later than a single-year header, change it to a range ending in the current year. If the current year is later than the end of an existing range, update only the end year. Otherwise, leave the header unchanged. Do not add headers to files that do not already have one.
+
 Core product behavior:
 - Backend reads `uds.dev/v1alpha1` `packages` and `secrets` resources from the cluster.
 - Backend filters apps by endpoint presence, auth context, and SSO group membership.
@@ -37,6 +41,12 @@ Core product behavior:
 - `chart/` - Helm chart for deployment.
 - `ui/tests/packages/` - integration/e2e deployment assets.
 - `adr/` - design decisions and engineering rationale.
+
+## Skills
+
+- [.agents/skills/go-development/SKILL.md](.agents/skills/go-development/SKILL.md), Go coding rules
+- [.agents/skills/frontend-development/SKILL.md](.agents/skills/frontend-development/SKILL.md), Svelte and SvelteKit rules
+- [.agents/skills/frontend-testing/SKILL.md](.agents/skills/frontend-testing/SKILL.md), frontend testing rules
 
 ## Local Development Workflow
 
