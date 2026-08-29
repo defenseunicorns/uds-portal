@@ -25,6 +25,7 @@ type SSO struct {
 type Expose struct {
 	Host        string            `json:"host,omitempty"`
 	Gateway     string            `json:"gateway,omitempty"`
+	Domain      string            `json:"domain,omitempty"`
 	Annotations map[string]string `json:"annotations,omitempty"`
 }
 

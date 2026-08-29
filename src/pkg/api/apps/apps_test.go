@@ -77,25 +77,27 @@ func TestDisplayNameForApp(t *testing.T) {
 func TestEndpointURL(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		name         string
-		host         string
-		gateway      string
-		tenantDomain string
-		adminDomain  string
-		want         string
+		name           string
+		host           string
+		gateway        string
+		explicitDomain string
+		tenantDomain   string
+		adminDomain    string
+		want           string
 	}{
 		// tenant / empty gateway
-		{"tenant gateway + tenant domain", "podinfo", "tenant", "uds.dev", "", "podinfo.uds.dev"},
-		{"empty gateway treated as tenant", "app", "", "uds.dev", "", "app.uds.dev"},
-		{"reserved apex host uses tenant domain", ".", "tenant", "uds.dev", "", "uds.dev"},
-		{"tenant + empty tenant domain returns empty", "app", "tenant", "", "", ""},
-		{"empty gateway + empty tenant domain returns empty", "app", "", "", "", ""},
+		{"tenant gateway + tenant domain", "podinfo", "tenant", "", "uds.dev", "", "podinfo.uds.dev"},
+		{"empty gateway treated as tenant", "app", "", "", "uds.dev", "", "app.uds.dev"},
+		{"reserved apex host uses tenant domain", ".", "tenant", "", "uds.dev", "", "uds.dev"},
+		{"tenant + empty tenant domain returns empty", "app", "tenant", "", "", "", ""},
+		{"empty gateway + empty tenant domain returns empty", "app", "", "", "", "", ""},
 
 		// admin gateway
 		{
 			"admin + explicit adminDomain",
 			"grafana",
 			"admin",
+			"",
 			"uds.dev",
 			"admin.example.com",
 			"grafana.admin.example.com",
@@ -104,22 +106,26 @@ func TestEndpointURL(t *testing.T) {
 			"admin + empty adminDomain falls back to admin.tenantDomain",
 			"grafana",
 			"admin",
+			"",
 			"uds.dev",
 			"",
 			"grafana.admin.uds.dev",
 		},
-		{"reserved apex host uses admin domain", ".", "admin", "uds.dev", "admin.example.com", "admin.example.com"},
-		{"admin + both domains empty returns empty", "grafana", "admin", "", "", ""},
+		{"reserved apex host uses admin domain", ".", "admin", "", "uds.dev", "admin.example.com", "admin.example.com"},
+		{"admin + both domains empty returns empty", "grafana", "admin", "", "", "", ""},
+		{"custom admin gateway uses admin domain", "app", "custom-admin", "", "uds.dev", "admin.example.com", "app.admin.example.com"},
 
-		// custom gateway
-		{"custom gateway + tenant domain", "app", "passthrough", "uds.dev", "", "app.passthrough.uds.dev"},
-		{"reserved apex host uses custom gateway domain", ".", "passthrough", "uds.dev", "", "passthrough.uds.dev"},
-		{"custom gateway + empty tenant domain returns empty", "app", "passthrough", "", "", ""},
+		// passthrough and custom gateways
+		{"passthrough uses tenant domain", "app", "passthrough", "", "uds.dev", "", "app.uds.dev"},
+		{"custom gateway uses tenant domain without explicit domain", "app", "custom", "", "uds.dev", "", "app.uds.dev"},
+		{"custom gateway uses explicit domain", "app", "custom", "apps.example.com", "uds.dev", "", "app.apps.example.com"},
+		{"reserved apex host uses explicit custom domain", ".", "custom", "apps.example.com", "uds.dev", "", "apps.example.com"},
+		{"custom gateway + empty tenant domain returns empty", "app", "custom", "", "", "", ""},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
-			got := endpointURL(tt.host, tt.gateway, tt.tenantDomain, tt.adminDomain)
+			got := endpointURL(tt.host, tt.gateway, tt.explicitDomain, tt.tenantDomain, tt.adminDomain)
 			if got != tt.want {
 				t.Fatalf("expected %q, got %q", tt.want, got)
 			}
@@ -420,12 +426,12 @@ func TestToAPIApps_GatewayTagging(t *testing.T) {
 			pkgs: []Package{{
 				Metadata: Metadata{Name: "custom-app"},
 				Spec: Spec{Network: Network{Expose: []Expose{
-					{Host: "app", Gateway: "custom"},
+					{Host: "app", Gateway: "custom", Domain: "apps.example.com"},
 				}}},
 			}},
 			adminDomain: "",
 			wantApps: []APIApp{
-				{Name: "Custom App", URL: "app.custom.uds.dev", Gateway: "custom", Group: groupOther},
+				{Name: "Custom App", URL: "app.apps.example.com", Gateway: "custom", Group: groupOther},
 			},
 		},
 		{
