@@ -196,13 +196,14 @@ func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Pa
 //   - admin gateway: uses adminDomain when set; falls back to "admin."+tenantDomain when only
 //     tenantDomain is set; returns "" when both are empty.
 //   - custom gateway: uses host.<gateway>.<tenantDomain>; returns "" if tenantDomain is empty.
+//   - reserved apex host (.): uses the gateway domain without a host prefix.
 func endpointURL(host, gateway, tenantDomain, adminDomain string) string {
 	switch gateway {
 	case "", "tenant":
 		if tenantDomain == "" {
 			return ""
 		}
-		return host + "." + tenantDomain
+		return hostURL(host, tenantDomain)
 	case "admin":
 		domain := adminDomain
 		if domain == "" && tenantDomain != "" {
@@ -211,14 +212,21 @@ func endpointURL(host, gateway, tenantDomain, adminDomain string) string {
 		if domain == "" {
 			return ""
 		}
-		return host + "." + domain
+		return hostURL(host, domain)
 	default:
 		// Custom gateway: host.<gateway>.<tenantDomain>; skip if domain empty.
 		if tenantDomain == "" {
 			return ""
 		}
-		return host + "." + gateway + "." + tenantDomain
+		return hostURL(host, gateway+"."+tenantDomain)
 	}
+}
+
+func hostURL(host, domain string) string {
+	if host == "." {
+		return domain
+	}
+	return host + "." + domain
 }
 
 func toAPIApps(

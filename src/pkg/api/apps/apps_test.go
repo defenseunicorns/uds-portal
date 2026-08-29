@@ -87,6 +87,7 @@ func TestEndpointURL(t *testing.T) {
 		// tenant / empty gateway
 		{"tenant gateway + tenant domain", "podinfo", "tenant", "uds.dev", "", "podinfo.uds.dev"},
 		{"empty gateway treated as tenant", "app", "", "uds.dev", "", "app.uds.dev"},
+		{"reserved apex host uses tenant domain", ".", "tenant", "uds.dev", "", "uds.dev"},
 		{"tenant + empty tenant domain returns empty", "app", "tenant", "", "", ""},
 		{"empty gateway + empty tenant domain returns empty", "app", "", "", "", ""},
 
@@ -107,10 +108,12 @@ func TestEndpointURL(t *testing.T) {
 			"",
 			"grafana.admin.uds.dev",
 		},
+		{"reserved apex host uses admin domain", ".", "admin", "uds.dev", "admin.example.com", "admin.example.com"},
 		{"admin + both domains empty returns empty", "grafana", "admin", "", "", ""},
 
 		// custom gateway
 		{"custom gateway + tenant domain", "app", "passthrough", "uds.dev", "", "app.passthrough.uds.dev"},
+		{"reserved apex host uses custom gateway domain", ".", "passthrough", "uds.dev", "", "passthrough.uds.dev"},
 		{"custom gateway + empty tenant domain returns empty", "app", "passthrough", "", "", ""},
 	}
 	for _, tt := range tests {
