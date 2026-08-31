@@ -10,4 +10,4 @@ metadata:
 packages:
   - name: ui
     repository: ghcr.io/defenseunicorns/packages/private/uds/uds-ui
-    ref: 0.23.8-unicorn
+    ref: 0.23.9-unicorn
