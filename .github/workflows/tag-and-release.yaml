@@ -45,15 +45,15 @@ jobs:
         with:
           ref: ${{ needs.tag-new-version.outputs.tag_name }}
 
-      - uses: jdx/mise-action@7e36c90d9ab29c415a2384db3006f3ec8a8cc654 # v4.2.4
+      - uses: jdx/mise-action@c2a87611a18de5b3828c5652fe268e992400cb5c # v4.3.0
         with:
           # renovate: datasource=github-releases depName=jdx/mise versioning=semver
-          version: 2026.8.2
+          version: 2026.8.16
           install: true
           cache: true
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
+        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
 
       - name: Login to GHCR
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
