@@ -11,8 +11,8 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.1
 	github.com/stretchr/testify v1.12.1
 	github.com/zarf-dev/zarf v0.84.0
-	k8s.io/apimachinery v0.36.3
-	k8s.io/client-go v0.36.3
+	k8s.io/apimachinery v0.37.0
+	k8s.io/client-go v0.37.0
 )
 
 require (
@@ -151,7 +151,7 @@ require (
 	gopkg.in/evanphx/json-patch.v4 v4.13.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
-	k8s.io/api v0.36.3 // indirect
+	k8s.io/api v0.37.0 // indirect
 	k8s.io/cli-runtime v0.36.3 // indirect
 	k8s.io/component-helpers v0.36.3 // indirect
 	k8s.io/kubectl v0.36.3 // indirect
