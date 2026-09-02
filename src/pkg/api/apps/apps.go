@@ -188,37 +188,37 @@ func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Pa
 	return filteredByGroup
 }
 
-// endpointURL builds the tile URL from an expose entry's host, gateway, tenantDomain, and adminDomain.
+// endpointURL builds the tile URL from an expose entry's host, gateway, explicit domain, tenant domain, and admin domain.
 // Returns "" when the URL cannot be determined (i.e., the required domain is empty), signaling that
 // the tile should be skipped.
 //
-//   - tenant gateway (or empty): uses tenantDomain; returns "" if tenantDomain is empty.
-//   - admin gateway: uses adminDomain when set; falls back to "admin."+tenantDomain when only
-//     tenantDomain is set; returns "" when both are empty.
-//   - custom gateway: uses host.<gateway>.<tenantDomain>; returns "" if tenantDomain is empty.
-func endpointURL(host, gateway, tenantDomain, adminDomain string) string {
-	switch gateway {
-	case "", "tenant":
-		if tenantDomain == "" {
-			return ""
-		}
-		return host + "." + tenantDomain
-	case "admin":
-		domain := adminDomain
+//   - explicit domain: takes precedence over gateway selection.
+//   - admin gateway (or a gateway name containing "admin"): uses adminDomain when set; falls back to
+//     "admin."+tenantDomain when only tenantDomain is set; returns "" when both are empty.
+//   - all other gateways: use tenantDomain; return "" if it is empty.
+//   - reserved apex host (.): uses the gateway domain without a host prefix.
+func endpointURL(host, gateway, explicitDomain, tenantDomain, adminDomain string) string {
+	domain := tenantDomain
+	switch {
+	case explicitDomain != "":
+		domain = explicitDomain
+	case strings.Contains(gateway, "admin"):
+		domain = adminDomain
 		if domain == "" && tenantDomain != "" {
 			domain = "admin." + tenantDomain
 		}
-		if domain == "" {
-			return ""
-		}
-		return host + "." + domain
-	default:
-		// Custom gateway: host.<gateway>.<tenantDomain>; skip if domain empty.
-		if tenantDomain == "" {
-			return ""
-		}
-		return host + "." + gateway + "." + tenantDomain
 	}
+	if domain == "" {
+		return ""
+	}
+	return hostURL(host, domain)
+}
+
+func hostURL(host, domain string) string {
+	if host == "." {
+		return domain
+	}
+	return host + "." + domain
 }
 
 func toAPIApps(
@@ -248,7 +248,7 @@ func toAPIApps(
 			if e.Host == "" {
 				continue
 			}
-			url := endpointURL(e.Host, e.Gateway, tenantDomain, adminDomain)
+			url := endpointURL(e.Host, e.Gateway, e.Domain, tenantDomain, adminDomain)
 			if url == "" {
 				continue
 			}
