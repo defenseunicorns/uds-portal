@@ -314,6 +314,20 @@ func TestFilterByUserGroup(t *testing.T) {
 			wantLen: 1,
 		},
 		{
+			name:       "disallows when anyOf is empty",
+			userGroups: []string{"/UDS Core/Auditor"},
+			pkgs: []Package{
+				{
+					Metadata: Metadata{Name: "sso-with-empty-groups"},
+					Spec: Spec{
+						Network: Network{Expose: []Expose{{Host: "empty-groups", Gateway: "tenant"}}},
+						SSO:     []SSO{{Groups: Groups{AnyOf: []string{}}}},
+					},
+				},
+			},
+			wantLen: 0,
+		},
+		{
 			name:       "allows matching group",
 			userGroups: []string{"/UDS Core/Auditor", "/UDS Core/Admin"},
 			pkgs: []Package{

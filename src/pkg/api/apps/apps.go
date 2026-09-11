@@ -165,7 +165,9 @@ func filterByUserGroup(r *http.Request, packages []Package, inCluster bool) []Pa
 			allowed := false
 		ssoLoop:
 			for _, sso := range pkg.Spec.SSO {
-				if len(sso.Groups.AnyOf) == 0 {
+				// A nil anyOf means groups were omitted; an explicitly empty anyOf
+				// means that no groups are allowed.
+				if sso.Groups.AnyOf == nil {
 					allowed = true
 					break ssoLoop
 				}
