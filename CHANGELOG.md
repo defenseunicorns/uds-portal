@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.2](https://github.com/defenseunicorns/uds-portal/compare/v0.5.1...v0.5.2) (2026-09-11)
+
+
+### Bug Fixes
+
+* anyOf empty groups display ([#79](https://github.com/defenseunicorns/uds-portal/issues/79)) ([f798b1b](https://github.com/defenseunicorns/uds-portal/commit/f798b1b13e6b07909666044e7f960494b3a119a2))
+
+
+### Miscellaneous
+
+* **deps:** update support-deps ([#78](https://github.com/defenseunicorns/uds-portal/issues/78)) ([77455bb](https://github.com/defenseunicorns/uds-portal/commit/77455bbc8e2c9ccf9930a0ca994d2c0b3823f17d))
+* **deps:** update support-deps ([#81](https://github.com/defenseunicorns/uds-portal/issues/81)) ([f608248](https://github.com/defenseunicorns/uds-portal/commit/f608248d3afacd2b03483e24ca8a94fbcbd86148))
+
 ## [0.5.1](https://github.com/defenseunicorns/uds-portal/compare/v0.5.0...v0.5.1) (2026-09-02)
 
 
