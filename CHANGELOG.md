@@ -1,5 +1,43 @@
 # Changelog
 
+## [0.5.2](https://github.com/defenseunicorns/uds-portal/compare/v0.5.1...v0.5.2) (2026-09-11)
+
+
+### Bug Fixes
+
+* anyOf empty groups display ([#79](https://github.com/defenseunicorns/uds-portal/issues/79)) ([f798b1b](https://github.com/defenseunicorns/uds-portal/commit/f798b1b13e6b07909666044e7f960494b3a119a2))
+
+
+### Miscellaneous
+
+* **deps:** update support-deps ([#78](https://github.com/defenseunicorns/uds-portal/issues/78)) ([77455bb](https://github.com/defenseunicorns/uds-portal/commit/77455bbc8e2c9ccf9930a0ca994d2c0b3823f17d))
+* **deps:** update support-deps ([#81](https://github.com/defenseunicorns/uds-portal/issues/81)) ([f608248](https://github.com/defenseunicorns/uds-portal/commit/f608248d3afacd2b03483e24ca8a94fbcbd86148))
+
+## [0.5.1](https://github.com/defenseunicorns/uds-portal/compare/v0.5.0...v0.5.1) (2026-09-02)
+
+
+### Bug Fixes
+
+* resolve root domain and custom gateway domain properly ([#75](https://github.com/defenseunicorns/uds-portal/issues/75)) ([8a6b5df](https://github.com/defenseunicorns/uds-portal/commit/8a6b5df02ad4caeedd37cc10308a851de17ab2e0))
+
+
+### Miscellaneous
+
+* **deps:** update application-deps ([#65](https://github.com/defenseunicorns/uds-portal/issues/65)) ([3a99397](https://github.com/defenseunicorns/uds-portal/commit/3a99397e5e3b1827856f3db5f7bce4a969832726))
+* **deps:** update application-deps ([#70](https://github.com/defenseunicorns/uds-portal/issues/70)) ([ad56b77](https://github.com/defenseunicorns/uds-portal/commit/ad56b77f00e4440fa54b598aef756694fc431c61))
+* **deps:** update support-deps ([#66](https://github.com/defenseunicorns/uds-portal/issues/66)) ([5981a06](https://github.com/defenseunicorns/uds-portal/commit/5981a06332385a8707f78784214630849843a944))
+* **deps:** update support-deps ([#68](https://github.com/defenseunicorns/uds-portal/issues/68)) ([c6e0276](https://github.com/defenseunicorns/uds-portal/commit/c6e0276490770dd2dc99120a6352c978272cd538))
+* **deps:** update support-deps ([#69](https://github.com/defenseunicorns/uds-portal/issues/69)) ([26ce179](https://github.com/defenseunicorns/uds-portal/commit/26ce1796bb4170443228f53b5f4622cfaddbbdaa))
+* **deps:** update support-deps ([#73](https://github.com/defenseunicorns/uds-portal/issues/73)) ([b66ad37](https://github.com/defenseunicorns/uds-portal/commit/b66ad37d7fa7708127e317e7c77b60acb3a79ebd))
+* **deps:** update support-deps ([#74](https://github.com/defenseunicorns/uds-portal/issues/74)) ([2c65b67](https://github.com/defenseunicorns/uds-portal/commit/2c65b670a9db61a548a1a8578bc31580cb1d7881))
+* **deps:** update support-deps ([#76](https://github.com/defenseunicorns/uds-portal/issues/76)) ([ff580a1](https://github.com/defenseunicorns/uds-portal/commit/ff580a104ca5395689d2a2887321416f6f622666))
+* standardize agent guidance ([#72](https://github.com/defenseunicorns/uds-portal/issues/72)) ([4d1cdde](https://github.com/defenseunicorns/uds-portal/commit/4d1cdde55da70e40feeec1c245938154625bae6b))
+
+
+### Documentation
+
+* add code of conduct ([#71](https://github.com/defenseunicorns/uds-portal/issues/71)) ([f7df823](https://github.com/defenseunicorns/uds-portal/commit/f7df823d1a5e99ec7e3ac5f33dfa9d4d15f4dd44))
+
 ## [0.5.0](https://github.com/defenseunicorns/uds-portal/compare/v0.4.0...v0.5.0) (2026-07-17)
 
 

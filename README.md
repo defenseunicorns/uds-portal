@@ -9,7 +9,7 @@ UDS Portal is the landing page for UDS users — a single point of discovery for
 Apps are derived from `UDS Package` Custom Resources in the cluster. One tile is created per `network.expose` entry; a package must also have an `sso` section or its tiles are not shown. Group-based access works per `sso` entry via `spec.sso[].groups.anyOf`:
 
 - If `groups.anyOf` lists one or more groups, only members of those groups see the tiles.
-- If the `sso` entry omits `groups` (or leaves `anyOf` empty), the tiles are visible to all authenticated users.
+- If the `sso` entry omits `groups.anyOf`, the tiles are visible to all authenticated users. An explicitly empty `anyOf` allows no groups.
 
 ```yaml
 spec:
