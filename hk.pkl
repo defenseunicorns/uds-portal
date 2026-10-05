@@ -1,5 +1,5 @@
-amends "package://github.com/jdx/hk/releases/download/v1.43.0/hk@1.43.0#/Config.pkl"
-import "package://github.com/jdx/hk/releases/download/v1.43.0/hk@1.43.0#/Builtins.pkl"
+amends "package://github.com/jdx/hk/releases/download/v2.4.0/hk@2.4.0#/Config.pkl"
+import "package://github.com/jdx/hk/releases/download/v2.4.0/hk@2.4.0#/Builtins.pkl"
 
 local linters = new Mapping<String, Step> {
     ["check-added-large-files"] {
@@ -17,7 +17,7 @@ local linters = new Mapping<String, Step> {
     ["end-of-file-fixer"] = (Builtins.newlines) {
         exclude = List("*.json")
     }
-    ["fix-byte-order-marker"] = Builtins.fix_byte_order_marker
+    ["byte-order-marker"] = Builtins.byte_order_marker
     ["trailing-whitespace"] = Builtins.trailing_whitespace
     ["yamllint"] {
         check = "yamllint {{files}} -c .yamllint"
