@@ -9,7 +9,6 @@ tasks:
     description: "Run all lint checks via hk against the full tree"
     actions:
       - cmd: hk check --all
-      - task: common:renovate
 
   - name: fix
     description: "Apply lint fixes via hk against the full tree"
