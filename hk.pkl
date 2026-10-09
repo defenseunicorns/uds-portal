@@ -41,6 +41,10 @@ local linters = new Mapping<String, Step> {
         check = "pnpm --dir ui run svcheck"
         glob = List("ui/**/*.svelte", "ui/**/*.ts", "ui/**/*.js")
     }
+    ["renovate-config"] {
+        check = "uds run -f tasks/lint.yaml common:renovate"
+        glob = List("renovate.json")
+    }
     ["license-check"] {
         check = "uds run lint:license"
         fix = "uds run lint:fix-license"
