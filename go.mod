@@ -152,9 +152,9 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 	k8s.io/api v0.37.0 // indirect
-	k8s.io/cli-runtime v0.36.3 // indirect
-	k8s.io/component-helpers v0.36.3 // indirect
-	k8s.io/kubectl v0.36.3 // indirect
+	k8s.io/cli-runtime v0.37.0 // indirect
+	k8s.io/component-helpers v0.37.0 // indirect
+	k8s.io/kubectl v0.37.0 // indirect
 	k8s.io/streaming v0.37.0 // indirect
 	sigs.k8s.io/cli-utils v0.37.2 // indirect
 	sigs.k8s.io/controller-runtime v0.24.1 // indirect
