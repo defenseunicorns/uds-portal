@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.3](https://github.com/defenseunicorns/uds-portal/compare/v0.5.2...v0.5.3) (2026-10-09)
+
+
+### Miscellaneous
+
+* **deps:** update support-deps ([#82](https://github.com/defenseunicorns/uds-portal/issues/82)) ([3df2797](https://github.com/defenseunicorns/uds-portal/commit/3df27970993b109f7073bd455b15bb3bf1f74848))
+
 ## [0.5.2](https://github.com/defenseunicorns/uds-portal/compare/v0.5.1...v0.5.2) (2026-09-11)
 
 
