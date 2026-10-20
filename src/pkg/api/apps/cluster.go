@@ -157,10 +157,12 @@ func extractMetadataFromSecret(obj runtime.Object) packageMetadata {
 			if err == nil {
 				var payload state.DeployedPackage
 				if err := json.Unmarshal(decodedPayload, &payload); err == nil {
-					annotations := payload.Data.Metadata.Annotations
-					return packageMetadata{
-						icon:  strings.TrimSpace(annotations[devUDSIconAnnotation]),
-						title: strings.TrimSpace(annotations[devUDSTitleAnnotation]),
+					if definition, err := payload.Definition(); err == nil {
+						annotations := definition.Metadata.Annotations
+						return packageMetadata{
+							icon:  strings.TrimSpace(annotations[devUDSIconAnnotation]),
+							title: strings.TrimSpace(annotations[devUDSTitleAnnotation]),
+						}
 					}
 				}
 			}
