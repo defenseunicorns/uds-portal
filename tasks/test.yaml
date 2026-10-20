@@ -16,6 +16,8 @@ tasks:
     actions:
       - task: build:container
       - task: setup:k3d-test-cluster
+        with:
+          version: "1.15.0"
       - task: setup:create-doug-user
         with:
           keycloak_group: /UDS Core/Admin
