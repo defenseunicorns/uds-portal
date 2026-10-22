@@ -2,6 +2,12 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 replicaCount: 1
+
+# Standard Kubernetes pod scheduling settings.
+nodeSelector: {}
+affinity: {}
+tolerations: []
+
 image:
   repository: ghcr.io/defenseunicorns/uds-portal
   tag: "0.0.0-dev"
@@ -38,6 +44,19 @@ classificationBanner:
 
 adminApps:
   enabled: true
+
+# Additional Kubernetes EnvVar entries (value or valueFrom).
+# Use the dedicated chart values for environment variables already set above.
+# These examples configure the Go runtime used by Portal.
+# extraEnvs:
+#   - name: GOMEMLIMIT
+#     value: 768MiB
+#   - name: GOGC
+#     valueFrom:
+#       configMapKeyRef:
+#         name: portal-runtime
+#         key: gogc
+extraEnvs: []
 
 # Keep extraVolumes and extraVolumeMounts names in sync.
 #
