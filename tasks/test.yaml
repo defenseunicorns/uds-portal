@@ -11,6 +11,11 @@ variables:
     default: 0.0.0-dev
 
 tasks:
+  - name: chart
+    description: "validate chart workload defaults, overrides, and value types"
+    actions:
+      - cmd: bash chart/tests/workload.sh
+
   - name: e2e-setup
     description: deploy cluster specifically for testing UDS Portal
     actions:
@@ -63,8 +68,9 @@ tasks:
         dir: ui
 
   - name: unit
-    description: "run all unit tests (backend and frontend)"
+    description: "run all unit tests (chart, backend, and frontend)"
     actions:
+      - task: chart
       - task: build:ui
         description: "build ui since embedded in main.go"
       - task: go-unit
