@@ -106,8 +106,7 @@ uds run build:zarf-package # build Zarf package
 ## Testing
 
 ```sh
-uds run test:unit       # all unit tests (chart + backend + frontend)
-uds run test:chart      # chart rendering and values validation
+uds run test:unit       # all unit tests (backend + frontend)
 uds run test:e2e-setup  # deploy test cluster
 uds run test:e2e        # run e2e tests against running cluster
 ```

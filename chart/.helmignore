@@ -21,6 +21,3 @@
 .idea/
 *.tmproj
 .vscode/
-
-# Local chart rendering tests
-tests/
