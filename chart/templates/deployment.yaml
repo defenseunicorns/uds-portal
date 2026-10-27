@@ -17,6 +17,18 @@ spec:
         app: uds-portal
     spec:
       serviceAccountName: uds-portal-sa
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       securityContext:
           {{- .Values.podSecurityContext | toYaml | nindent 8 }}
       containers:
@@ -59,6 +71,9 @@ spec:
               value: {{ .Values.classificationBanner.addFooter | quote }}
             - name: ADMIN_APPS_ENABLED
               value: {{ .Values.adminApps.enabled | quote }}
+            {{- with .Values.extraEnvs }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
           {{- with .Values.extraVolumeMounts }}
           volumeMounts:
             {{- toYaml . | nindent 12 }}

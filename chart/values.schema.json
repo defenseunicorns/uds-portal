@@ -2,6 +2,35 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
+    "nodeSelector": {
+      "type": "object",
+      "description": "Node labels required for scheduling the uds-portal pod.",
+      "default": {},
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "affinity": {
+      "type": "object",
+      "description": "Affinity settings for the uds-portal pod (standard Kubernetes nodeAffinity, podAffinity, and podAntiAffinity).",
+      "default": {}
+    },
+    "tolerations": {
+      "type": "array",
+      "description": "Tolerations for the uds-portal pod (standard Kubernetes toleration entries).",
+      "default": [],
+      "items": {
+        "type": "object"
+      }
+    },
+    "extraEnvs": {
+      "type": "array",
+      "description": "Additional environment variables for the uds-portal container (standard Kubernetes EnvVar entries with value or valueFrom).",
+      "default": [],
+      "items": {
+        "type": "object"
+      }
+    },
     "classificationBanner": {
       "type": "object",
       "properties": {
