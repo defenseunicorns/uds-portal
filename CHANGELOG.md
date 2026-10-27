@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.6.0](https://github.com/defenseunicorns/uds-portal/compare/v0.5.3...v0.6.0) (2026-10-27)
+
+
+### Features
+
+* add deployment nice-to-haves like node selectors/toleration/extraenvs ([#93](https://github.com/defenseunicorns/uds-portal/issues/93)) ([e0dee19](https://github.com/defenseunicorns/uds-portal/commit/e0dee19c50decbf9af98d30f3fbb74cc50273f7c))
+
+
+### Miscellaneous
+
+* **deps:** update application-deps ([#91](https://github.com/defenseunicorns/uds-portal/issues/91)) ([29c88ef](https://github.com/defenseunicorns/uds-portal/commit/29c88ef6a824612f95cac4ae874a63b148fd6421))
+* **deps:** update support-deps ([#92](https://github.com/defenseunicorns/uds-portal/issues/92)) ([a6c5f56](https://github.com/defenseunicorns/uds-portal/commit/a6c5f569ffa602c88021739d9ad65c592a8e1bcf))
+
 ## [0.5.3](https://github.com/defenseunicorns/uds-portal/compare/v0.5.2...v0.5.3) (2026-10-20)
 
 
