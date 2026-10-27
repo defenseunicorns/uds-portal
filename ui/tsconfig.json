@@ -1,4 +1,4 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 {
@@ -13,7 +13,7 @@
     "sourceMap": true,
     "strict": true,
     "moduleResolution": "bundler",
-    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "types": ["vitest/globals", "@testing-library/jest-dom/vitest"],
     "useUnknownInCatchVariables": false
   }
   // Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
