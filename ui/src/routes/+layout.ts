@@ -3,9 +3,9 @@
 
 import { writable, type Writable } from 'svelte/store'
 
-import { authenticated } from '$features/auth/store'
-import type { UserData } from '$features/navigation/types'
-import type { ClassBannerCfg } from '$lib/types'
+import { authenticated } from '#features/auth/store.js'
+import type { UserData } from '#features/navigation/types.js'
+import type { ClassBannerCfg } from '#lib/types.js'
 
 import type { ApiApp } from './types'
 

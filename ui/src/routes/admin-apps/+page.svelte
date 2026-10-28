@@ -2,7 +2,7 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial -->
 
 <script lang="ts">
-  import { AppGrid, isAdminGateway } from '$features/apps'
+  import { AppGrid, isAdminGateway } from '#features/apps'
 
   import type { LayoutData } from '../$types'
 

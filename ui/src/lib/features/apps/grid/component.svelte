@@ -2,7 +2,7 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial -->
 
 <script lang="ts">
-  import type { ApiApp } from '$lib/types'
+  import type { ApiApp } from '#lib/types.js'
 
   export let apps: ApiApp[]
 </script>

@@ -2,9 +2,9 @@
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial -->
 
 <script lang="ts">
+  import type { ApiApp } from '#lib/types.js'
+  import { afterNavigate } from '$app/navigation'
   import { resolve } from '$app/paths'
-  import { page } from '$app/stores'
-  import type { ApiApp } from '$lib/types'
 
   import { routes } from '../routes'
   import type { Route } from '../types'
@@ -17,7 +17,11 @@
   $: visibleRoutes = routes.filter(
     (r: Route) => (!r.visible || r.visible(apps)) && (!isAdminAppsRoute(r) || adminAppsEnabled),
   )
-  $: activePath = $page.url.pathname
+  let activePath = window.location.pathname
+
+  afterNavigate(({ to }) => {
+    activePath = to?.url.pathname ?? window.location.pathname
+  })
 </script>
 
 {#if visibleRoutes.length > 1}

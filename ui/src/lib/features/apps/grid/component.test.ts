@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 import { cleanup, render, screen } from '@testing-library/svelte'
-import type { ApiApp } from '$lib/types'
+import type { ApiApp } from '#lib/types.js'
 import { afterEach, describe, expect, it } from 'vitest'
 
 import AppGrid from './component.svelte'
