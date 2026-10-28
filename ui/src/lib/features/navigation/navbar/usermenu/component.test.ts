@@ -1,9 +1,9 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
 import { cleanup, fireEvent, render, screen } from '@testing-library/svelte'
-import { UserMenu } from '$features/navigation'
-import type { UserData } from '$features/navigation/types'
+import { UserMenu } from '#features/navigation'
+import type { UserData } from '#features/navigation/types.js'
 import { afterEach, beforeEach, describe, expect, vi } from 'vitest'
 
 describe('UserMenu', () => {

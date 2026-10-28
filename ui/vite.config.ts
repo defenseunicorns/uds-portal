@@ -1,11 +1,33 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
+import adapter from '@sveltejs/adapter-static'
 import { sveltekit } from '@sveltejs/kit/vite'
+import { vitePreprocess } from '@sveltejs/vite-plugin-svelte'
 import { defineConfig } from 'vitest/config'
 
 export default defineConfig(({ mode }) => ({
-  plugins: [sveltekit()],
+  plugins: [
+    sveltekit({
+      preprocess: vitePreprocess(),
+      adapter: adapter({
+        pages: 'build',
+        assets: 'build',
+        fallback: 'index.html',
+        strict: true,
+      }),
+      version: {
+        // Preserve SvelteKit 2's disabled background polling.
+        pollInterval: 0,
+      },
+      onwarn: (warning, handler) => {
+        if (warning.code.startsWith('a11y-')) {
+          throw new Error(warning.message)
+        }
+        handler(warning)
+      },
+    }),
+  ],
   server: {
     proxy: {
       // Proxy all requests starting with /api to the go server
@@ -26,7 +48,5 @@ export default defineConfig(({ mode }) => ({
     globals: true,
     setupFiles: ['src/setupTests.ts'],
   },
-  resolve: {
-    conditions: mode === 'test' ? ['browser'] : [],
-  },
+  resolve: mode === 'test' ? { conditions: ['browser'] } : undefined,
 }))

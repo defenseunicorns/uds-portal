@@ -1,7 +1,7 @@
-// Copyright 2025 Defense Unicorns
+// Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
-import { defineConfig, PlaywrightTestConfig } from '@playwright/test'
+import { defineConfig, type PlaywrightTestConfig } from '@playwright/test'
 
 const TEST_CONFIG = process.env.TEST_CFG || 'default'
 

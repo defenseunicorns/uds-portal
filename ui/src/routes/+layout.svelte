@@ -4,14 +4,14 @@
 <script lang="ts">
   import 'flowbite'
 
+  import { authenticated } from '#features/auth/store.js'
+  import { Navbar, Sidebar } from '#features/navigation'
   import { afterNavigate } from '$app/navigation'
-  import { authenticated } from '$features/auth/store'
-  import { Navbar, Sidebar } from '$features/navigation'
   import { initFlowbite } from 'flowbite'
 
   import '../app.postcss'
 
-  import { ClassBanner, Footer } from '$components'
+  import { ClassBanner, Footer } from '#components'
 
   import { _bannerCfg } from './+layout'
 

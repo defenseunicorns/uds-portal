@@ -1,10 +1,10 @@
-<!-- Copyright 2025 Defense Unicorns -->
+<!-- Copyright 2025-2026 Defense Unicorns -->
 <!-- SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial -->
 
 <script lang="ts">
+  import { UserMenu } from '#features/navigation'
+  import type { UserData } from '#features/navigation/types.js'
   import { resolve } from '$app/paths'
-  import { UserMenu } from '$features/navigation'
-  import type { UserData } from '$features/navigation/types'
 
   export let userData: UserData
 </script>

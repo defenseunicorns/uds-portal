@@ -1,13 +1,13 @@
 // Copyright 2025-2026 Defense Unicorns
 // SPDX-License-Identifier: AGPL-3.0-or-later OR LicenseRef-Defense-Unicorns-Commercial
 
-import { authenticated } from '$features/auth/store'
+import { authenticated } from '#features/auth/store.js'
 import { beforeEach, describe, expect, vi } from 'vitest'
 
 import { load } from './+layout'
 
 // Mock stores
-vi.mock('$features/auth/store', () => ({
+vi.mock('#features/auth/store.js', () => ({
   authenticated: {
     set: vi.fn(),
     subscribe: vi.fn(() => () => {}),
