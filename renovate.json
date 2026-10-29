@@ -66,6 +66,16 @@
       ],
       "groupName": "support-deps",
       "commitMessageTopic": "support dependencies"
+    },
+    {
+      "description": "Keep TypeScript below v6.1 until typescript-eslint supports it; @sveltejs/kit also does not support TypeScript 7.",
+      "matchManagers": [
+        "npm"
+      ],
+      "matchPackageNames": [
+        "typescript"
+      ],
+      "allowedVersions": "<6.1.0"
     }
   ]
 }
