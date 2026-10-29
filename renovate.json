@@ -68,14 +68,14 @@
       "commitMessageTopic": "support dependencies"
     },
     {
-      "description": "Keep TypeScript below v6.1 until typescript-eslint supports it; @sveltejs/kit also does not support TypeScript 7.",
+      "description": "Keep TypeScript on v6 until SvelteKit and typescript-eslint support TypeScript 7.",
       "matchManagers": [
         "npm"
       ],
       "matchPackageNames": [
         "typescript"
       ],
-      "allowedVersions": "<6.1.0"
+      "allowedVersions": "<7.0.0"
     }
   ]
 }
