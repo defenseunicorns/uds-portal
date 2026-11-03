@@ -40,7 +40,7 @@
     "@types/node": "26.6.6",
     "autoprefixer": "10.6.2",
     "carbon-icons-svelte": "13.17.0",
-    "eslint": "10.13.0",
+    "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-svelte": "3.23.1",
     "flowbite": "4.0.2",
