@@ -42,7 +42,7 @@
     "carbon-icons-svelte": "13.17.0",
     "eslint": "10.14.0",
     "eslint-config-prettier": "10.1.8",
-    "eslint-plugin-svelte": "3.23.1",
+    "eslint-plugin-svelte": "3.24.0",
     "flowbite": "4.0.2",
     "globals": "17.14.0",
     "jsdom": "30.1.3",
