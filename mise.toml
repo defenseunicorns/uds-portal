@@ -8,11 +8,11 @@ hk = "2.11.0"
 "aqua:k3d-io/k3d" = "5.9.0"
 go = "1.27.3"
 golangci-lint = "2.15.0"
-pnpm = "12.16.1"
+pnpm = "12.17.0"
 node = "26.13.0"
 "npm:prettier" = "3.9.10"
 pkl = "0.32.2"
-uv = "0.13.6"                             # required to install yamllint
+uv = "0.13.7"                             # required to install yamllint
 yamllint = "1.38.0"
 
 [env]

@@ -43,7 +43,7 @@ tasks:
           docker run --rm --ipc=host --net=host \
             -e CI=true \
             --mount type=bind,source="$(pwd)/ui",target=/app \
-            mcr.microsoft.com/playwright:v1.64.1-jammy \
+            mcr.microsoft.com/playwright:v1.65.0-jammy \
             sh -c "
               cd /app &&
               npm install -g pnpm --ignore-scripts &&
