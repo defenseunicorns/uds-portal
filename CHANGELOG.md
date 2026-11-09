@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.6.1](https://github.com/defenseunicorns/uds-portal/compare/v0.6.0...v0.6.1) (2026-11-09)
+
+
+### Miscellaneous
+
+* **deps:** update application dependencies to v10.14.0 ([#110](https://github.com/defenseunicorns/uds-portal/issues/110)) ([a59c1a7](https://github.com/defenseunicorns/uds-portal/commit/a59c1a7663cc59dc0ef9f0e63dac63ab909691ea))
+* **deps:** update application dependencies to v17.14.0 ([#112](https://github.com/defenseunicorns/uds-portal/issues/112)) ([8c2cc3b](https://github.com/defenseunicorns/uds-portal/commit/8c2cc3b9d04820db2556b5a6ebb1cb0ee8255e18))
+* **deps:** update application dependencies to v3 [security] ([#95](https://github.com/defenseunicorns/uds-portal/issues/95)) ([7474d63](https://github.com/defenseunicorns/uds-portal/commit/7474d63e5c5e9fe67315d742b461680b4b88169e))
+* **deps:** update application dependencies to v3.24.0 ([#119](https://github.com/defenseunicorns/uds-portal/issues/119)) ([dc6d11f](https://github.com/defenseunicorns/uds-portal/commit/dc6d11ff3aa45258083ba6709f5f157a9488392f))
+* **deps:** update application dependencies to v4.1.6 [security] ([#99](https://github.com/defenseunicorns/uds-portal/issues/99)) ([e047f7e](https://github.com/defenseunicorns/uds-portal/commit/e047f7e40cda0162f3c1f9b6f8ac3bb055f909d6))
+* **deps:** update application dependencies to v4.7.8 ([#113](https://github.com/defenseunicorns/uds-portal/issues/113)) ([5760566](https://github.com/defenseunicorns/uds-portal/commit/5760566bf8e24aef688b894836eedabd56a83fe5))
+* **deps:** update application dependencies to v8.72.1 ([#103](https://github.com/defenseunicorns/uds-portal/issues/103)) ([8579b5a](https://github.com/defenseunicorns/uds-portal/commit/8579b5a1ee43645b8bb7b6380b0f114222364d9e))
+* **deps:** update application-deps ([#102](https://github.com/defenseunicorns/uds-portal/issues/102)) ([c01b53d](https://github.com/defenseunicorns/uds-portal/commit/c01b53dfaf793d4e3614aea4c84027934ad76c50))
+* **deps:** update application-deps ([#104](https://github.com/defenseunicorns/uds-portal/issues/104)) ([bf427fc](https://github.com/defenseunicorns/uds-portal/commit/bf427fcc2895f6c2a527192b026cea2dfc04d50e))
+* **deps:** update application-deps ([#107](https://github.com/defenseunicorns/uds-portal/issues/107)) ([c385a48](https://github.com/defenseunicorns/uds-portal/commit/c385a48195f745435d2b0e8b8f47131dacd0575d))
+* **deps:** update application-deps ([#116](https://github.com/defenseunicorns/uds-portal/issues/116)) ([b94a937](https://github.com/defenseunicorns/uds-portal/commit/b94a9371500542cf10eddcef7cb0df2d84468492))
+* **deps:** update application-deps ([#120](https://github.com/defenseunicorns/uds-portal/issues/120)) ([172208e](https://github.com/defenseunicorns/uds-portal/commit/172208ebf08ad9f0cf44ff8e3f1215db2e8c3db7))
+* **deps:** update support dependencies to v12.16.1 ([#106](https://github.com/defenseunicorns/uds-portal/issues/106)) ([ff9f1ea](https://github.com/defenseunicorns/uds-portal/commit/ff9f1ea3f5406d8b8d451e8480b35c5d4335d370))
+* **deps:** update support dependencies to v2026.11.1 ([#114](https://github.com/defenseunicorns/uds-portal/issues/114)) ([2d05b7f](https://github.com/defenseunicorns/uds-portal/commit/2d05b7f7849dc2aef2845f48088ea4cb00a516be))
+* **deps:** update support dependencies to v2026.11.2 ([#115](https://github.com/defenseunicorns/uds-portal/issues/115)) ([cccedd6](https://github.com/defenseunicorns/uds-portal/commit/cccedd640d9468c9e8d5e49a66562a379c0566d1))
+* **deps:** update support dependencies to v7.1.1-uds.28-upstream ([#100](https://github.com/defenseunicorns/uds-portal/issues/100)) ([e8b014f](https://github.com/defenseunicorns/uds-portal/commit/e8b014f5756c8a441e153ae2b8a9a5092029cd85))
+* **deps:** update support-deps ([#101](https://github.com/defenseunicorns/uds-portal/issues/101)) ([a045362](https://github.com/defenseunicorns/uds-portal/commit/a045362b3a8d619dfa4f5afb6b254f737f31ed30))
+* **deps:** update support-deps ([#105](https://github.com/defenseunicorns/uds-portal/issues/105)) ([e80b14c](https://github.com/defenseunicorns/uds-portal/commit/e80b14cf912c5d90e144a4d89cee3ff4cbbf7a6c))
+* **deps:** update support-deps ([#108](https://github.com/defenseunicorns/uds-portal/issues/108)) ([eb54ecf](https://github.com/defenseunicorns/uds-portal/commit/eb54ecf6518666d13ae3da71f3b1e55a75909834))
+* **deps:** update support-deps ([#109](https://github.com/defenseunicorns/uds-portal/issues/109)) ([6cdb406](https://github.com/defenseunicorns/uds-portal/commit/6cdb40648fe3828003a16c487d37824d2fed29d8))
+* **deps:** update support-deps ([#111](https://github.com/defenseunicorns/uds-portal/issues/111)) ([d04cfc5](https://github.com/defenseunicorns/uds-portal/commit/d04cfc5b56d8e326c647ee7dc78777b8ea227337))
+* **deps:** update support-deps ([#118](https://github.com/defenseunicorns/uds-portal/issues/118)) ([1d4f5c3](https://github.com/defenseunicorns/uds-portal/commit/1d4f5c30c2db12f20a717305425a176a66a99d61))
+* **deps:** update support-deps ([#96](https://github.com/defenseunicorns/uds-portal/issues/96)) ([9eae63d](https://github.com/defenseunicorns/uds-portal/commit/9eae63d37e502556dfbd56f480e42d85d4f182f0))
+
 ## [0.6.0](https://github.com/defenseunicorns/uds-portal/compare/v0.5.3...v0.6.0) (2026-10-27)
 
 
