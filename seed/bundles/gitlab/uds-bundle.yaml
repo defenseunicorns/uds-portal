@@ -10,7 +10,7 @@ metadata:
 packages:
   - name: gitlab
     repository: ghcr.io/uds-packages/gitlab
-    ref: 19.5.3-uds.2-upstream
+    ref: 19.5.5-uds.0-upstream
     overrides:
       gitlab:
         uds-gitlab-config:

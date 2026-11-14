@@ -10,7 +10,7 @@ metadata:
 packages:
   - name: uds-registry
     repository: ghcr.io/defenseunicorns/packages/private/uds/uds-registry
-    ref: 0.54.1-unicorn
+    ref: 0.56.0-unicorn
     overrides:
       uds-registry:
         uds-registry:
